@@ -1,0 +1,16 @@
+# Build artifacts
+bin/
+gen/
+mir/
+internal-mir/
+external-mir/
+
+# Debug
+*.prg.debug.xml
+
+# macOS
+.DS_Store
+
+# IDE
+.claude/
+.osgrep/

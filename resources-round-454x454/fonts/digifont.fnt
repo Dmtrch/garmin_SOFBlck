@@ -1,0 +1,17 @@
+info face="DigiFont" size=-28 bold=0 italic=0 charset="" unicode=1 stretchH=100 smooth=0 aa=0 padding=0,0,0,0 spacing=1,1 outline=0
+common lineHeight=32 base=28 scaleW=243 scaleH=32 pages=1 packed=0 alphaChnl=1 redChnl=0 greenChnl=0 blueChnl=0
+page id=0 file="digifont_0.png"
+chars count=13
+char id=   48    x=0     y=0     width=20    height=32    xoffset=0     yoffset=0     xadvance=20    page=0  chnl=15
+char id=   49    x=20    y=0     width=15    height=32    xoffset=0     yoffset=0     xadvance=15    page=0  chnl=15
+char id=   50    x=35    y=0     width=20    height=32    xoffset=0     yoffset=0     xadvance=20    page=0  chnl=15
+char id=   51    x=55    y=0     width=20    height=32    xoffset=0     yoffset=0     xadvance=20    page=0  chnl=15
+char id=   52    x=75    y=0     width=20    height=32    xoffset=0     yoffset=0     xadvance=20    page=0  chnl=15
+char id=   53    x=95    y=0     width=20    height=32    xoffset=0     yoffset=0     xadvance=20    page=0  chnl=15
+char id=   54    x=115   y=0     width=20    height=32    xoffset=0     yoffset=0     xadvance=20    page=0  chnl=15
+char id=   55    x=135   y=0     width=20    height=32    xoffset=0     yoffset=0     xadvance=20    page=0  chnl=15
+char id=   56    x=155   y=0     width=20    height=32    xoffset=0     yoffset=0     xadvance=20    page=0  chnl=15
+char id=   57    x=175   y=0     width=20    height=32    xoffset=0     yoffset=0     xadvance=20    page=0  chnl=15
+char id=   58    x=195   y=0     width=14    height=32    xoffset=0     yoffset=0     xadvance=14    page=0  chnl=15
+char id=   45    x=209   y=0     width=20    height=32    xoffset=0     yoffset=0     xadvance=20    page=0  chnl=15
+char id=   32    x=229   y=0     width=14    height=32    xoffset=0     yoffset=0     xadvance=14    page=0  chnl=15

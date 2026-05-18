@@ -1,0 +1,27 @@
+<iq:manifest xmlns:iq="http://www.garmin.com/xml/connectiq" version="3">
+  <iq:application
+    entry="TactixApp"
+    id="0c5beaf5-c1a4-4d47-8f81-5cdda6d3de19"
+    launcherIcon="@Drawables.LauncherIcon"
+    minApiLevel="4.0.0"
+    name="@Strings.AppName"
+    type="watch-app">
+
+    <iq:products>
+      <iq:product id="fenix8solar47mm"/>
+      <iq:product id="fenix8solar51mm"/>
+    </iq:products>
+
+    <iq:permissions>
+      <iq:uses-permission id="SensorHistory"/>
+      <iq:uses-permission id="Positioning"/>
+      <iq:uses-permission id="Sensor"/>
+    </iq:permissions>
+
+    <iq:languages>
+      <iq:language>eng</iq:language>
+      <iq:language>rus</iq:language>
+    </iq:languages>
+
+  </iq:application>
+</iq:manifest>

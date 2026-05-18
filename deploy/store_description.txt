@@ -1,0 +1,78 @@
+TACTIX BLACK — аналоговый циферблат в тактическом стиле
+
+Строгий циферблат с фоном в виде карты земного шара, аналоговыми стрелками и 7-сегментным цифровым дисплеем. Разработан для Garmin Fenix, Forerunner, Epix и других совместимых устройств.
+
+━━ ДИСПЛЕЙ ━━
+
+• Фоновое изображение глобуса — уникальное для каждого разрешения экрана
+• Аналоговые стрелки часов, минут и секунд
+• 7-сегментный цифровой дисплей времени (ЧЧ:ММ:СС) — в нижней части
+• Пиктограмма и время будильника (ЧЧ:ММ) — в верхней части
+• Минутная шкала с тремя уровнями делений: квартальные, часовые, минутные
+
+━━ ДАННЫЕ ━━
+
+Вокруг циферблата в 12 позициях отображаются:
+• Заряд батареи (% и дни автономной работы)
+• Пульс (последнее измерение)
+• Высота над уровнем моря
+• Атмосферное давление
+• Температура воздуха
+• Время ближайшего рассвета или заката
+• Количество шагов за день
+• Сожжённые калории
+• День недели, дата и месяц
+
+━━ СОВМЕСТИМЫЕ УСТРОЙСТВА ━━
+
+Fenix 8 Solar 47mm / 51mm
+Fenix 8 AMOLED 47mm
+Fenix 8 Pro 47mm
+Fenix 7 / 7 Pro
+Fenix 7S / 7S Pro
+Fenix 7X / 7X Pro
+Forerunner 265 / 265S
+Forerunner 965 / 955
+Forerunner 570 47mm / 970
+Forerunner 255 / 255S
+Epix 2 / Epix 2 Pro 42mm / 47mm / 51mm
+D2 Mach 2 / 2 Pro
+Descent Mk3 51mm
+Approach S70 47mm
+Venu 3 / 3S
+Venu 2 / 2S
+Venu 4 45mm
+
+━━ ОСОБЕННОСТИ ━━
+
+• Фон глобуса адаптирован под 7 разрешений экрана (от 240×240 до 454×454)
+• Поддержка русского и английского языков
+• Работает в режиме Always-On и сна
+• Минимальный расход батареи
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+TACTIX CLEAR — Tactical-style analog watch face
+
+Dark analog face with globe map background, analog hands and 7-segment digital display. 
+Designed for Garmin Tactix, Fenix
+
+DISPLAY
+
+• Analog hour, minute and second hands
+• 7-segment digital time (HH:MM:SS) below center
+• Alarm time (HH:MM) with clock icon above center
+• Three-level tick marks: 15-min / 5-min / 1-min
+
+DATA FIELDS (12 positions around the dial)
+• Battery % and days remaining
+• Heart rate (latest reading)
+• Elevation
+• Barometric pressure
+• Air temperature
+• Next sunrise or sunset time
+• Daily steps
+• Calories burned
+• Day of week, date and month
+
+Globe background adapts to 7 screen sizes (240–454 px). English and Russian language support.

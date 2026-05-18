@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg width="100%" height="100%" viewBox="0 0 260 260" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;">
+    <rect x="0" y="0" width="260" height="260" style="fill:none;"/>
+    <g id="hour_hand">
+        <path id="hour_outline" d="M125,119.5L125,70L130,64.8M135,119.5L135,70L130,64.8M125,119.5L130,124.7M135,119.5L130,124.7" style="fill:none;stroke:white;stroke-width:4px;stroke-linecap:round;stroke-linejoin:round;"/>
+        <circle cx="130" cy="130" r="7.5" style="fill:white;stroke:rgb(64,64,64);stroke-width:0.5px;"/>
+        <circle cx="130" cy="130" r="1.5" style="fill:rgb(26,26,26);"/>
+    </g>
+</svg>

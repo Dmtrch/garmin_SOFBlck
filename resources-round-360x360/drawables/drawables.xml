@@ -1,0 +1,7 @@
+<resources>
+  <bitmap id="background"   filename="../images/Background_full.png"/>
+  <bitmap id="LauncherIcon" filename="../images/launcher_icon.png"/>
+  <bitmap id="HourHand"     filename="../images/hour.png"/>
+  <bitmap id="MinuteHand"   filename="../images/min.png"/>
+  <bitmap id="SecondHand"   filename="../images/sek.png"/>
+</resources>

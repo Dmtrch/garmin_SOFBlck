@@ -1,0 +1,9 @@
+project.manifest = manifest_clear.xml
+
+base.sourcePath   = source
+base.resourcePath = resources
+
+# 260x260
+fenix8solar47mm.resourcePath = resources;resources-round-260x260
+# 280x280
+fenix8solar51mm.resourcePath = resources;resources-round-280x280
