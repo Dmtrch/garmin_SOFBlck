@@ -93,17 +93,18 @@ class TactixView extends WatchUi.View {
         dc.setColor(Graphics.COLOR_BLUE, Graphics.COLOR_BLACK);
 
         var mainW  = segTextWidth(mainPart);
-        var savedW = mSegW; var savedH = mSegH;
+        var savedW = mSegW; var savedH = mSegH; var savedT = mSegT;
         mSegW = s(10); mSegH = s(17);
         var secW = segTextWidth(secPart);
         mSegW = savedW; mSegH = savedH;
 
         var startX = cx - (mainW + secW) / 2;
         var baseY  = cy + s(26) - 10;
+        mSegT = savedT + 1;
         drawSegTextAt(dc, startX, baseY, mainPart);
         mSegW = s(10); mSegH = s(17);
         drawSegTextAt(dc, startX + mainW, baseY + (savedH - mSegH) / 2, secPart);
-        mSegW = savedW; mSegH = savedH;
+        mSegW = savedW; mSegH = savedH; mSegT = savedT;
 
         dc.setColor(Graphics.COLOR_BLUE, Graphics.COLOR_TRANSPARENT);
         dc.drawText(cx, baseY + savedH + 2, Graphics.FONT_XTINY, "S",
@@ -559,15 +560,16 @@ class TactixView extends WatchUi.View {
     }
 
     private function drawAlarmArea(dc as Dc, cx as Number, cy as Number) as Void {
-        // CIQ exposes only alarmCount; per-alarm time is not available.
-        var settings = System.getDeviceSettings();
-        if (settings.alarmCount == null || settings.alarmCount == 0) {
-            return;
-        }
+        var app     = Application.getApp() as TactixApp;
+        var nearest = AlarmManager.nearest(app.getAlarms());
+        if (nearest == null) { return; }
+
         drawAlarmIcon(dc, cx, cy - s(49));
+        var hStr   = (nearest["hour"] as Number).format("%02d");
+        var mStr   = (nearest["min"]  as Number).format("%02d");
         var savedW = mSegW;
         mSegW = mSegW + 1;
-        drawSegText(dc, cx, cy - s(34), "--:--");
+        drawSegText(dc, cx, cy - s(34), hStr + ":" + mStr);
         mSegW = savedW;
     }
 
@@ -593,9 +595,12 @@ class TactixView extends WatchUi.View {
         dc.drawText(cx, cy - s(49), Graphics.FONT_SMALL, "S",
                     Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
         var savedW = mSegW;
+        var savedT = mSegT;
         mSegW = mSegW + 1;
+        mSegT = mSegT + 1;
         drawSegText(dc, cx, cy - s(34), timeStr);
         mSegW = savedW;
+        mSegT = savedT;
     }
 
     private function drawTimerOverlay(dc as Dc, cx as Number, cy as Number, app as TactixApp) as Void {
@@ -611,9 +616,12 @@ class TactixView extends WatchUi.View {
         dc.drawText(cx, cy - s(49), Graphics.FONT_SMALL, "T",
                     Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
         var savedW = mSegW;
+        var savedT = mSegT;
         mSegW = mSegW + 1;
+        mSegT = mSegT + 1;
         drawSegText(dc, cx, cy - s(34), timeStr);
         mSegW = savedW;
+        mSegT = savedT;
     }
 
     function onShow() as Void {
@@ -631,6 +639,7 @@ class TactixView extends WatchUi.View {
     }
 
     function onTick() as Void {
+        (Application.getApp() as TactixApp).checkAlarms();
         WatchUi.requestUpdate();
     }
 }

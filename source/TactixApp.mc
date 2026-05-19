@@ -3,6 +3,7 @@ import Toybox.Attention;
 import Toybox.Lang;
 import Toybox.Sensor;
 import Toybox.System;
+import Toybox.Time;
 import Toybox.Timer;
 import Toybox.WatchUi;
 
@@ -19,6 +20,10 @@ class TactixApp extends Application.AppBase {
     var tRemainMs as Number  = 0;      // remaining ms at last pause / start
     var tExpired  as Boolean = false;  // timer reached 0; awaits user reset
 
+    // --- Alarm state ---
+    private var mAlarms       as Array?  = null;
+    private var mLastFiredMin as Number  = -1;
+
     // --- Compass state ---
     var compassActive  as Boolean = false;   // sensor on, drawing arrows
     var compassError   as Boolean = false;   // heading unavailable, show msg
@@ -30,13 +35,128 @@ class TactixApp extends Application.AppBase {
     }
 
     function onStart(state as Dictionary?) as Void {
+        _restoreStopwatch();
+        _restoreTimer();
     }
 
     function onStop(state as Dictionary?) as Void {
+        _saveStopwatch();
+        _saveTimer();
     }
 
     function getInitialView() as [Views] or [Views, InputDelegates] {
         return [new TactixView(), new TactixDelegate()];
+    }
+
+    // ====== Persistence ======
+
+    private function _saveStopwatch() as Void {
+        var elapsed = swRunning
+            ? swOffsetMs + (System.getTimer() - swStartMs)
+            : swOffsetMs;
+        Application.Storage.setValue("sw_offset",  elapsed);
+        Application.Storage.setValue("sw_running", swRunning);
+        if (swRunning) {
+            Application.Storage.setValue("sw_save_t", Time.now().value());
+        }
+    }
+
+    private function _restoreStopwatch() as Void {
+        var offset = Application.Storage.getValue("sw_offset");
+        if (!(offset instanceof Number)) { return; }
+        swOffsetMs = offset as Number;
+        var wasRunning = Application.Storage.getValue("sw_running");
+        if (wasRunning instanceof Boolean && wasRunning as Boolean) {
+            var saveT = Application.Storage.getValue("sw_save_t");
+            if (saveT != null) {
+                var elapsedMs = ((Time.now().value() - (saveT as Long)) * 1000l).toNumber();
+                swOffsetMs = swOffsetMs + elapsedMs;
+            }
+            swStartMs = System.getTimer();
+            swRunning = true;
+        }
+    }
+
+    private function _saveTimer() as Void {
+        var remain = tRunning
+            ? tRemainMs - (System.getTimer() - tStartMs)
+            : tRemainMs;
+        if (remain < 0) { remain = 0; }
+        Application.Storage.setValue("t_remain",  remain);
+        Application.Storage.setValue("t_running", tRunning);
+        Application.Storage.setValue("t_expired", tExpired);
+        if (tRunning) {
+            Application.Storage.setValue("t_save_t", Time.now().value());
+        }
+    }
+
+    private function _restoreTimer() as Void {
+        var remain = Application.Storage.getValue("t_remain");
+        if (!(remain instanceof Number)) { return; }
+        tExpired = false;
+        var wasRunning = Application.Storage.getValue("t_running");
+        var wasExpired = Application.Storage.getValue("t_expired");
+        if (wasExpired instanceof Boolean) { tExpired = wasExpired as Boolean; }
+        if (wasRunning instanceof Boolean && wasRunning as Boolean) {
+            var saveT = Application.Storage.getValue("t_save_t");
+            var elapsedMs = 0;
+            if (saveT != null) {
+                elapsedMs = ((Time.now().value() - (saveT as Long)) * 1000l).toNumber();
+            }
+            var newRemain = (remain as Number) - elapsedMs;
+            if (newRemain <= 0) {
+                tRemainMs = 0;
+                tRunning  = false;
+                tExpired  = true;
+                _vibrateOnExpire();
+            } else {
+                tRemainMs = newRemain;
+                tStartMs  = System.getTimer();
+                tRunning  = true;
+            }
+        } else {
+            tRemainMs = remain as Number;
+            tRunning  = false;
+        }
+    }
+
+    // ====== Alarms ======
+
+    function getAlarms() as Array {
+        if (mAlarms == null) {
+            mAlarms = AlarmManager.load();
+        }
+        return mAlarms as Array;
+    }
+
+    function reloadAlarms() as Void {
+        mAlarms = AlarmManager.load();
+        WatchUi.requestUpdate();
+    }
+
+    function checkAlarms() as Void {
+        var fired = AlarmManager.checkFire(getAlarms(), mLastFiredMin);
+        if (fired != null) {
+            var clock = System.getClockTime();
+            mLastFiredMin = clock.hour * 60 + clock.min;
+            _fireAlarm(fired as Dictionary);
+        }
+    }
+
+    private function _fireAlarm(alarm as Dictionary) as Void {
+        if ((alarm["vibe"] as Boolean) && (Attention has :vibrate)) {
+            var pattern = [
+                new Attention.VibeProfile(100, 500),
+                new Attention.VibeProfile(0,   250),
+                new Attention.VibeProfile(100, 500),
+                new Attention.VibeProfile(0,   250),
+                new Attention.VibeProfile(100, 800)
+            ] as Array<Attention.VibeProfile>;
+            Attention.vibrate(pattern);
+        }
+        if ((alarm["sound"] as Boolean) && (Attention has :playTone)) {
+            Attention.playTone(Attention.TONE_ALARM);
+        }
     }
 
     // ====== Stopwatch ======

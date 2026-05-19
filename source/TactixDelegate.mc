@@ -8,11 +8,24 @@ class TactixDelegate extends WatchUi.BehaviorDelegate {
     private static const DOUBLE_PRESS_MS as Number = 500;
 
     private var mLastBackMs  as Number = 0;
+    private var mLastUpMs    as Number = 0;
     private var mLastDownMs  as Number = 0;
     private var mLastStartMs as Number = 0;
 
     function initialize() {
         BehaviorDelegate.initialize();
+    }
+
+    function onPreviousPage() as Boolean {
+        var now = System.getTimer();
+        if (now - mLastUpMs <= DOUBLE_PRESS_MS) {
+            mLastUpMs = 0;
+            var lv = new AlarmListView();
+            WatchUi.pushView(lv, new AlarmListDelegate(lv), WatchUi.SLIDE_UP);
+        } else {
+            mLastUpMs = now;
+        }
+        return true;
     }
 
     function onBack() as Boolean {

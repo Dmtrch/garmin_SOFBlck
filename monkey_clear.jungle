@@ -7,3 +7,11 @@ base.resourcePath = resources
 fenix8solar47mm.resourcePath = resources;resources-round-260x260
 # 280x280
 fenix8solar51mm.resourcePath = resources;resources-round-280x280
+# 454x454
+fenix847mm.resourcePath = resources;resources-round-454x454
+# 416x416
+epix2pro47mm.resourcePath = resources;resources-round-416x416
+# 390x390
+epix2pro42mm.resourcePath = resources;resources-round-390x390
+# 360x360
+fr265s.resourcePath = resources;resources-round-360x360
