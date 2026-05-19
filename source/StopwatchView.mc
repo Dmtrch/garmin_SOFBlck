@@ -1,11 +1,10 @@
 import Toybox.Application;
 import Toybox.Graphics;
 import Toybox.Lang;
-import Toybox.System;
 import Toybox.Timer;
 import Toybox.WatchUi;
 
-class StopwatchView extends WatchUi.View {
+class StopwatchListView extends WatchUi.View {
 
     private var mTimer as Timer.Timer?;
 
@@ -20,7 +19,7 @@ class StopwatchView extends WatchUi.View {
         if (mTimer == null) {
             mTimer = new Timer.Timer();
         }
-        mTimer.start(method(:onTick), 40, true);
+        mTimer.start(method(:onTick), 100, true);
     }
 
     function onHide() as Void {
@@ -38,35 +37,54 @@ class StopwatchView extends WatchUi.View {
         dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_BLACK);
         dc.clear();
 
-        var cx = dc.getWidth() / 2;
-        var cy = dc.getHeight() / 2;
-
         var app = Application.getApp() as TactixApp;
-        var elapsedMs = app.getSwElapsedMs();
-
-        var totalSec = (elapsedMs / 1000).toNumber();
-        var hh = totalSec / 3600;
-        var mm = (totalSec % 3600) / 60;
-        var ss = totalSec % 60;
-        var cs = ((elapsedMs % 1000) / 10).toNumber();
-
-        var timeStr = Lang.format("$1$:$2$:$3$:$4$", [
-            hh.format("%02d"), mm.format("%02d"),
-            ss.format("%02d"), cs.format("%02d")
-        ]);
+        var w   = dc.getWidth();
+        var h   = dc.getHeight();
+        var cx  = w / 2;
 
         dc.setColor(Graphics.COLOR_BLUE, Graphics.COLOR_TRANSPARENT);
-        dc.drawText(cx, cy, Graphics.FONT_NUMBER_MILD, timeStr,
-                    Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
+        dc.drawText(cx, 10, Graphics.FONT_TINY, "СЕКУНДОМЕРЫ",
+                    Graphics.TEXT_JUSTIFY_CENTER);
+
+        var lineH  = Graphics.getFontHeight(Graphics.FONT_SMALL);
+        var startY = h / 2 - (lineH * 5) / 2;
+
+        for (var i = 0; i < 5; i++) {
+            var y         = startY + i * lineH;
+            var selected  = (i == app.swSelectedIdx);
+            var running   = app.swRunning[i] as Boolean;
+            var elapsed   = app.getSwElapsedMs(i);
+
+            if (selected) {
+                dc.setColor(Graphics.COLOR_DK_BLUE, Graphics.COLOR_DK_BLUE);
+                dc.fillRectangle(0, y - 2, w, lineH + 4);
+            }
+
+            if (selected) {
+                dc.setColor(Graphics.COLOR_YELLOW, Graphics.COLOR_TRANSPARENT);
+            } else if (running || elapsed > 0) {
+                dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
+            } else {
+                dc.setColor(Graphics.COLOR_DK_GRAY, Graphics.COLOR_TRANSPARENT);
+            }
+
+            var totalSec = (elapsed / 1000).toNumber();
+            var hh  = totalSec / 3600;
+            var mm  = (totalSec % 3600) / 60;
+            var ss  = totalSec % 60;
+            var timeStr = Lang.format("$1$:$2$:$3$", [
+                hh.format("%02d"), mm.format("%02d"), ss.format("%02d")
+            ]);
+
+            var status = running ? " >" : (elapsed > 0 ? " ||" : "");
+            dc.drawText(cx, y, Graphics.FONT_SMALL,
+                        Lang.format("$1$. $2$$3$", [(i + 1).format("%d"), timeStr, status]),
+                        Graphics.TEXT_JUSTIFY_CENTER);
+        }
 
         dc.setColor(Graphics.COLOR_LT_GRAY, Graphics.COLOR_TRANSPARENT);
-        var hintTop    = app.swRunning ? "START=stop" : "START=run";
-        var hintBot1   = "DOWN=reset";
-        var hintBot2   = "BACK=home";
-        var lineH      = Graphics.getFontHeight(Graphics.FONT_XTINY);
-        var align      = Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER;
-        dc.drawText(cx, cy - 60,           Graphics.FONT_XTINY, hintTop,  align);
-        dc.drawText(cx, cy + 60,           Graphics.FONT_XTINY, hintBot1, align);
-        dc.drawText(cx, cy + 60 + lineH,   Graphics.FONT_XTINY, hintBot2, align);
+        dc.drawText(cx, h - Graphics.getFontHeight(Graphics.FONT_XTINY) - 4,
+                    Graphics.FONT_XTINY, "START=меню  BACK=выход",
+                    Graphics.TEXT_JUSTIFY_CENTER);
     }
 }

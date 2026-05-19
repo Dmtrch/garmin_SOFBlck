@@ -83,7 +83,7 @@ class TactixView extends WatchUi.View {
         var app = Application.getApp() as TactixApp;
         if (!(app.hasTimer() && app.hasStopwatch())) { return; }
 
-        var totalSec = (app.getSwElapsedMs() / 1000).toNumber();
+        var totalSec = (app.getSwElapsedMs(app.swSelectedIdx) / 1000).toNumber();
         var hh = totalSec / 3600;
         var mm = (totalSec % 3600) / 60;
         var sc = totalSec % 60;
@@ -583,7 +583,7 @@ class TactixView extends WatchUi.View {
     }
 
     private function drawStopwatchOverlay(dc as Dc, cx as Number, cy as Number, app as TactixApp) as Void {
-        var totalMs  = app.getSwElapsedMs();
+        var totalMs  = app.getSwElapsedMs(app.swSelectedIdx);
         var totalSec = (totalMs / 1000).toNumber();
         var hh = totalSec / 3600;
         var mm = (totalSec % 3600) / 60;

@@ -9,10 +9,11 @@ import Toybox.WatchUi;
 
 class TactixApp extends Application.AppBase {
 
-    // --- Stopwatch state ---
-    var swRunning  as Boolean = false;
-    var swStartMs  as Number  = 0;     // System.getTimer() at last start
-    var swOffsetMs as Number  = 0;     // accumulated ms before current run
+    // --- Stopwatch state (5 independent stopwatches) ---
+    var swRunning     as Array = [false, false, false, false, false] as Array;
+    var swStartMs     as Array = [0, 0, 0, 0, 0] as Array;
+    var swOffsetMs    as Array = [0, 0, 0, 0, 0] as Array;
+    var swSelectedIdx as Number = 0;
 
     // --- Timer (countdown) state ---
     var tRunning  as Boolean = false;
@@ -57,29 +58,43 @@ class TactixApp extends Application.AppBase {
     // ====== Persistence ======
 
     private function _saveStopwatch() as Void {
-        var elapsed = swRunning
-            ? swOffsetMs + (System.getTimer() - swStartMs)
-            : swOffsetMs;
-        Application.Storage.setValue("sw_offset",  elapsed);
-        Application.Storage.setValue("sw_running", swRunning);
-        if (swRunning) {
-            Application.Storage.setValue("sw_save_t", Time.now().value());
+        var saveData = new [5] as Array;
+        for (var i = 0; i < 5; i++) {
+            var running = swRunning[i] as Boolean;
+            var elapsed = running
+                ? (swOffsetMs[i] as Number) + (System.getTimer() - (swStartMs[i] as Number))
+                : swOffsetMs[i] as Number;
+            saveData[i] = {
+                "offset"  => elapsed,
+                "running" => running,
+                "save_t"  => running ? Time.now().value() : 0l
+            } as Dictionary;
         }
+        Application.Storage.setValue("sw5_data", saveData);
     }
 
     private function _restoreStopwatch() as Void {
-        var offset = Application.Storage.getValue("sw_offset");
-        if (!(offset instanceof Number)) { return; }
-        swOffsetMs = offset as Number;
-        var wasRunning = Application.Storage.getValue("sw_running");
-        if (wasRunning instanceof Boolean && wasRunning as Boolean) {
-            var saveT = Application.Storage.getValue("sw_save_t");
-            if (saveT != null) {
-                var elapsedMs = ((Time.now().value() - (saveT as Long)) * 1000l).toNumber();
-                swOffsetMs = swOffsetMs + elapsedMs;
+        var raw = Application.Storage.getValue("sw5_data");
+        if (!(raw instanceof Array)) { return; }
+        var arr = raw as Array;
+        var n = arr.size() < 5 ? arr.size() : 5;
+        for (var i = 0; i < n; i++) {
+            var entry = arr[i];
+            if (!(entry instanceof Dictionary)) { continue; }
+            var d = entry as Dictionary;
+            var offset = d["offset"];
+            if (!(offset instanceof Number)) { continue; }
+            swOffsetMs[i] = offset as Number;
+            var wasRunning = d["running"];
+            if (wasRunning instanceof Boolean && wasRunning as Boolean) {
+                var saveT = d["save_t"];
+                if (saveT != null) {
+                    var delta = ((Time.now().value() - (saveT as Long)) * 1000l).toNumber();
+                    swOffsetMs[i] = (swOffsetMs[i] as Number) + delta;
+                }
+                swStartMs[i] = System.getTimer();
+                swRunning[i] = true;
             }
-            swStartMs = System.getTimer();
-            swRunning = true;
         }
     }
 
@@ -198,31 +213,32 @@ class TactixApp extends Application.AppBase {
 
     // ====== Stopwatch ======
 
-    function toggleStopwatch() as Void {
-        if (swRunning) {
-            swOffsetMs += System.getTimer() - swStartMs;
-            swRunning = false;
+    function toggleStopwatch(idx as Number) as Void {
+        if (swRunning[idx] as Boolean) {
+            swOffsetMs[idx] = (swOffsetMs[idx] as Number) + (System.getTimer() - (swStartMs[idx] as Number));
+            swRunning[idx] = false;
         } else {
-            swStartMs = System.getTimer();
-            swRunning = true;
+            swStartMs[idx] = System.getTimer();
+            swRunning[idx] = true;
         }
     }
 
-    function resetStopwatch() as Void {
-        swRunning  = false;
-        swStartMs  = 0;
-        swOffsetMs = 0;
+    function resetStopwatch(idx as Number) as Void {
+        swRunning[idx]  = false;
+        swStartMs[idx]  = 0;
+        swOffsetMs[idx] = 0;
     }
 
-    function getSwElapsedMs() as Number {
-        if (swRunning) {
-            return swOffsetMs + (System.getTimer() - swStartMs);
+    function getSwElapsedMs(idx as Number) as Number {
+        if (swRunning[idx] as Boolean) {
+            return (swOffsetMs[idx] as Number) + (System.getTimer() - (swStartMs[idx] as Number));
         }
-        return swOffsetMs;
+        return swOffsetMs[idx] as Number;
     }
 
     function hasStopwatch() as Boolean {
-        return swRunning || swOffsetMs > 0;
+        var idx = swSelectedIdx;
+        return (swRunning[idx] as Boolean) || (swOffsetMs[idx] as Number) > 0;
     }
 
     // ====== Timer (countdown) ======

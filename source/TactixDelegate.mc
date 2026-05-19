@@ -32,7 +32,7 @@ class TactixDelegate extends WatchUi.BehaviorDelegate {
         var now = System.getTimer();
         if (now - mLastBackMs <= DOUBLE_PRESS_MS) {
             mLastBackMs = 0;
-            WatchUi.pushView(new StopwatchView(), new StopwatchDelegate(),
+            WatchUi.pushView(new StopwatchListView(), new StopwatchListDelegate(),
                              WatchUi.SLIDE_LEFT);
         } else {
             mLastBackMs = now;
