@@ -1,78 +1,170 @@
 TACTIX BLACK — аналоговый циферблат в тактическом стиле
 
-Строгий циферблат с фоном в виде карты земного шара, аналоговыми стрелками и 7-сегментным цифровым дисплеем. Разработан для Garmin Fenix, Forerunner, Epix и других совместимых устройств.
+Строгий циферблат с фоном в виде карты земного шара, аналоговыми стрелками и 7-сегментным цифровым дисплеем. Будильники, 5 секундомеров, таймер и компас — всё управляется двойным нажатием кнопок.
 
 ━━ ДИСПЛЕЙ ━━
 
-• Фоновое изображение глобуса — уникальное для каждого разрешения экрана
+• Фоновое изображение глобуса (уникальное для каждого разрешения)
 • Аналоговые стрелки часов, минут и секунд
-• 7-сегментный цифровой дисплей времени (ЧЧ:ММ:СС) — в нижней части
-• Пиктограмма и время будильника (ЧЧ:ММ) — в верхней части
-• Минутная шкала с тремя уровнями делений: квартальные, часовые, минутные
+• 7-сегментный цифровой дисплей (ЧЧ:ММ:СС) — внизу
+• Значок и время ближайшего активного будильника — вверху
+• Минутная шкала с тремя уровнями делений
 
 ━━ ДАННЫЕ ━━
 
-Вокруг циферблата в 12 позициях отображаются:
-• Заряд батареи (% и дни автономной работы)
-• Пульс (последнее измерение)
-• Высота над уровнем моря
-• Атмосферное давление
-• Температура воздуха
-• Время ближайшего рассвета или заката
-• Количество шагов за день
-• Сожжённые калории
+12 полей вокруг циферблата:
+• Заряд батареи (% и дни)          • Пульс
+• Высота над уровнем моря           • Атмосферное давление
+• Температура воздуха               • Рассвет / закат
+• Шаги за день                      • Калории
 • День недели, дата и месяц
+
+━━ НАВИГАЦИЯ ━━
+
+Все функции открываются двойным нажатием (два нажатия за 0.5 с):
+
+  UP × 2    →  Будильники
+  DOWN × 2  →  Таймер
+  BACK × 2  →  5 секундомеров
+  START × 2 →  Компас вкл/выкл
+
+━━ БУДИЛЬНИКИ (UP × 2) ━━
+
+До 5 независимых будильников. Время ближайшего активного отображается на циферблате.
+
+Список будильников:
+  UP / DOWN   — перемещение по списку
+  START       — открыть меню будильника
+  BACK        — выход
+
+Меню будильника:
+  • Изменить время — редактор часов и минут
+  • Включить / Выключить
+  • Вибрация вкл/выкл
+  • Звук вкл/выкл
+  • Удалить (сброс к 07:00)
+
+Редактор времени:
+  UP / DOWN   — изменить значение (+1 / −1)
+  START       — переключить поле (часы ↔ минуты)
+  BACK        — сохранить и выйти
+
+При срабатывании: красный экран, до 10 с вибрации, до 5 звуковых сигналов.
+  BACK        — выключить будильник
+
+━━ 5 СЕКУНДОМЕРОВ (BACK × 2) ━━
+
+Пять независимых секундомеров с точностью до секунды.
+Продолжают отсчёт в фоне — время не теряется при выходе из приложения.
+На циферблате отображается время выбранного секундомера.
+
+  UP / DOWN              — выбор секундомера (1–5)
+  START (одиночное)      — старт / стоп выбранного
+  START × 2 (≤0.5 с)    — сброс выбранного
+  BACK                   — выход на главный экран
+
+━━ ТАЙМЕР (DOWN × 2) ━━
+
+Обратный отсчёт с настраиваемой длительностью.
+Если время истекло при закрытом приложении — вибрирует при следующем запуске.
+
+  UP / DOWN   — изменить значение (+1 / −1)
+  START       — переключить поле (часы → минуты → секунды)
+  BACK        — сохранить установку
+  START (на экране таймера) — старт / пауза
+  DOWN (на экране таймера)  — сброс и выход
+
+━━ КОМПАС (START × 2) ━━
+
+Стрелки севера (синий) и юга (красный) поверх циферблата.
+Повторное двойное нажатие START — выключить.
 
 ━━ СОВМЕСТИМЫЕ УСТРОЙСТВА ━━
 
-Fenix 8 Solar 47mm / 51mm
-Fenix 8 AMOLED 47mm
-Fenix 8 Pro 47mm
-Fenix 7 / 7 Pro
-Fenix 7S / 7S Pro
-Fenix 7X / 7X Pro
-Forerunner 265 / 265S
-Forerunner 965 / 955
-Forerunner 570 47mm / 970
-Forerunner 255 / 255S
+Fenix 8 Solar 47mm / 51mm       Fenix 8 AMOLED 47mm
+Fenix 8 Pro 47mm                Fenix 7 / 7 Pro / 7S / 7S Pro / 7X / 7X Pro
+Forerunner 265 / 265S           Forerunner 965 / 955
+Forerunner 570 47mm / 970       Forerunner 255 / 255S
 Epix 2 / Epix 2 Pro 42mm / 47mm / 51mm
-D2 Mach 2 / 2 Pro
-Descent Mk3 51mm
-Approach S70 47mm
-Venu 3 / 3S
-Venu 2 / 2S
-Venu 4 45mm
-
-━━ ОСОБЕННОСТИ ━━
-
-• Фон глобуса адаптирован под 7 разрешений экрана (от 240×240 до 454×454)
-• Поддержка русского и английского языков
-• Работает в режиме Always-On и сна
-• Минимальный расход батареи
+D2 Mach 2 / 2 Pro               Descent Mk3 51mm
+Approach S70 47mm               Venu 3 / 3S / 2 / 2S / 4 45mm
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-TACTIX CLEAR — Tactical-style analog watch face
+TACTIX BLACK — Tactical-style analog watch face
 
-Dark analog face with globe map background, analog hands and 7-segment digital display. 
-Designed for Garmin Tactix, Fenix
+Dark analog face with globe map background, analog hands and 7-segment digital display.
+Five stopwatches, alarms, countdown timer and compass — all controlled by double-press.
 
-DISPLAY
+━━ DISPLAY ━━
 
+• Globe background image (unique per screen resolution)
 • Analog hour, minute and second hands
 • 7-segment digital time (HH:MM:SS) below center
-• Alarm time (HH:MM) with clock icon above center
-• Three-level tick marks: 15-min / 5-min / 1-min
+• Nearest active alarm time with icon above center
+• Three-level tick marks
 
-DATA FIELDS (12 positions around the dial)
-• Battery % and days remaining
-• Heart rate (latest reading)
-• Elevation
-• Barometric pressure
-• Air temperature
-• Next sunrise or sunset time
-• Daily steps
-• Calories burned
-• Day of week, date and month
+━━ DATA FIELDS ━━
 
-Globe background adapts to 7 screen sizes (240–454 px). English and Russian language support.
+12 positions around the dial:
+Battery % & days  ·  Heart rate  ·  Elevation  ·  Barometric pressure
+Temperature  ·  Next sunrise/sunset  ·  Daily steps  ·  Calories  ·  Date
+
+━━ NAVIGATION ━━
+
+All features are opened by double-press (two presses within 0.5 s):
+
+  UP × 2    →  Alarms
+  DOWN × 2  →  Countdown timer
+  BACK × 2  →  5 Stopwatches
+  START × 2 →  Compass on/off
+
+━━ ALARMS (UP × 2) ━━
+
+Up to 5 independent alarms. Nearest active alarm time always shown on dial.
+
+Alarm list:
+  UP / DOWN   — navigate list
+  START       — open alarm menu (Edit time / Enable / Vibration / Sound / Delete)
+  BACK        — exit
+
+Time editor:
+  UP / DOWN   — change value (+1 / −1)
+  START       — switch field (hours ↔ minutes)
+  BACK        — save and exit
+
+On trigger: red full-screen alert, up to 10 s vibration, up to 5 tones.
+  BACK        — dismiss
+
+━━ 5 STOPWATCHES (BACK × 2) ━━
+
+Five independent stopwatches. Continue running in the background.
+Selected stopwatch time is displayed on the main watch face.
+
+  UP / DOWN              — select stopwatch (1–5)
+  START (single)         — start / stop selected
+  START × 2 (≤0.5 s)    — reset selected
+  BACK                   — return to watch face
+
+━━ TIMER (DOWN × 2) ━━
+
+Countdown timer. If it expires while the app is closed, vibration fires on next launch.
+
+  UP / DOWN   — change value
+  START       — switch field (hours → minutes → seconds)
+  BACK        — confirm setting
+  START       — start / pause (on timer screen)
+  DOWN        — reset and exit (on timer screen)
+
+━━ COMPASS (START × 2) ━━
+
+North (blue) / South (red) arrows on the dial. Double-press START again to turn off.
+
+━━ COMPATIBLE DEVICES ━━
+
+Fenix 8 Solar 47mm / 51mm · Fenix 8 AMOLED 47mm · Fenix 8 Pro 47mm
+Fenix 7 / 7 Pro / 7S / 7S Pro / 7X / 7X Pro
+Forerunner 265 / 265S · 965 / 955 · 570 47mm / 970 · 255 / 255S
+Epix 2 / Epix 2 Pro 42mm / 47mm / 51mm
+D2 Mach 2 / 2 Pro · Descent Mk3 51mm · Approach S70 47mm
+Venu 3 / 3S · Venu 2 / 2S · Venu 4 45mm
