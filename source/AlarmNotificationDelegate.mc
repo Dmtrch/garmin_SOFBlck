@@ -1,0 +1,15 @@
+import Toybox.Application;
+import Toybox.Lang;
+import Toybox.WatchUi;
+
+class AlarmNotificationDelegate extends WatchUi.BehaviorDelegate {
+    function initialize() {
+        BehaviorDelegate.initialize();
+    }
+
+    function onBack() as Boolean {
+        (Application.getApp() as TactixApp).stopAlarmNotification();
+        WatchUi.popView(WatchUi.SLIDE_DOWN);
+        return true;
+    }
+}

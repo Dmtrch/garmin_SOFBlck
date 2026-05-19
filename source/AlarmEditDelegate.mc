@@ -12,9 +12,9 @@ class AlarmEditDelegate extends WatchUi.BehaviorDelegate {
 
     function onPreviousPage() as Boolean {
         if (mView.field == 0) {
-            mView.hour = (mView.hour + 23) % 24;
+            mView.hour = (mView.hour + 1) % 24;
         } else {
-            mView.min = (mView.min + 59) % 60;
+            mView.min = (mView.min + 1) % 60;
         }
         WatchUi.requestUpdate();
         return true;
@@ -22,9 +22,9 @@ class AlarmEditDelegate extends WatchUi.BehaviorDelegate {
 
     function onNextPage() as Boolean {
         if (mView.field == 0) {
-            mView.hour = (mView.hour + 1) % 24;
+            mView.hour = (mView.hour + 23) % 24;
         } else {
-            mView.min = (mView.min + 1) % 60;
+            mView.min = (mView.min + 59) % 60;
         }
         WatchUi.requestUpdate();
         return true;

@@ -18,48 +18,53 @@ class AlarmEditView extends WatchUi.View {
     function getIdx() as Number { return mIdx; }
 
     function onUpdate(dc as Graphics.Dc) as Void {
+        var w  = dc.getWidth();
+        var h  = dc.getHeight();
+        var cx = w / 2;
+        var cy = h / 2;
+
         dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_BLACK);
         dc.clear();
 
-        var cx = dc.getWidth()  / 2;
-        var cy = dc.getHeight() / 2;
-
-        // Title
+        // Заголовок
         dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
-        dc.drawText(cx, cy - 68, Graphics.FONT_SMALL,
+        dc.drawText(cx, cy - 72, Graphics.FONT_SMALL,
             "Будильник " + (mIdx + 1).format("%d"),
             Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
 
-        // Hour (right-aligned to center)
-        dc.setColor(field == 0 ? Graphics.COLOR_YELLOW : Graphics.COLOR_WHITE,
-                    Graphics.COLOR_TRANSPARENT);
-        dc.drawText(cx - 6, cy, Graphics.FONT_NUMBER_HOT, hour.format("%02d"),
+        // Время: часы и минуты раздельно, двоеточие между ними
+        var hColor = (field == 0) ? Graphics.COLOR_YELLOW : Graphics.COLOR_WHITE;
+        var mColor = (field == 1) ? Graphics.COLOR_YELLOW : Graphics.COLOR_WHITE;
+
+        dc.setColor(hColor, Graphics.COLOR_TRANSPARENT);
+        dc.drawText(cx - 8, cy - 10, Graphics.FONT_NUMBER_HOT, hour.format("%02d"),
             Graphics.TEXT_JUSTIFY_RIGHT | Graphics.TEXT_JUSTIFY_VCENTER);
 
-        // Colon
         dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
-        dc.drawText(cx, cy - 6, Graphics.FONT_MEDIUM, ":",
+        dc.drawText(cx, cy - 16, Graphics.FONT_MEDIUM, ":",
             Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
 
-        // Minute (left-aligned from center)
-        dc.setColor(field == 1 ? Graphics.COLOR_YELLOW : Graphics.COLOR_WHITE,
-                    Graphics.COLOR_TRANSPARENT);
-        dc.drawText(cx + 6, cy, Graphics.FONT_NUMBER_HOT, min.format("%02d"),
+        dc.setColor(mColor, Graphics.COLOR_TRANSPARENT);
+        dc.drawText(cx + 8, cy - 10, Graphics.FONT_NUMBER_HOT, min.format("%02d"),
             Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
 
-        // Field indicator arrow
+        // Индикатор активного поля — маленькие стрелки под нужной цифрой
         dc.setColor(Graphics.COLOR_YELLOW, Graphics.COLOR_TRANSPARENT);
-        var fontH = Graphics.getFontHeight(Graphics.FONT_NUMBER_HOT);
-        var arrowX = (field == 0) ? cx - 6 : cx + 6;
+        var arrowX   = (field == 0) ? cx - 8 : cx + 8;
         var arrowJust = (field == 0)
             ? Graphics.TEXT_JUSTIFY_RIGHT
             : Graphics.TEXT_JUSTIFY_LEFT;
-        dc.drawText(arrowX, cy + fontH / 2 + 4, Graphics.FONT_XTINY, "^^^", arrowJust);
+        dc.drawText(arrowX, cy + 30, Graphics.FONT_XTINY, "^ ^ ^", arrowJust);
 
-        // Hints
+        // Подсказка — 3 строки по центру
         dc.setColor(Graphics.COLOR_LT_GRAY, Graphics.COLOR_TRANSPARENT);
-        dc.drawText(cx, cy + 68, Graphics.FONT_XTINY,
-            "UP/DOWN: знач.  START: поле  BACK: сохр.",
+        var lineH = Graphics.getFontHeight(Graphics.FONT_XTINY) + 2;
+        var y0    = cy + 55;
+        dc.drawText(cx, y0,          Graphics.FONT_XTINY, "UP / DOWN: значение",
+            Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
+        dc.drawText(cx, y0 + lineH,  Graphics.FONT_XTINY, "START: поле",
+            Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
+        dc.drawText(cx, y0 + lineH * 2, Graphics.FONT_XTINY, "BACK: сохранить",
             Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
     }
 }

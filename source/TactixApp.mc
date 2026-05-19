@@ -24,6 +24,12 @@ class TactixApp extends Application.AppBase {
     private var mAlarms       as Array?  = null;
     private var mLastFiredMin as Number  = -1;
 
+    // --- Alarm notification state ---
+    private var mAlarmNotifTimer as Timer.Timer? = null;
+    private var mAlarmToneCount  as Number       = 0;
+    private var mAlarmVibe       as Boolean      = false;
+    private var mAlarmSound      as Boolean      = false;
+
     // --- Compass state ---
     var compassActive  as Boolean = false;   // sensor on, drawing arrows
     var compassError   as Boolean = false;   // heading unavailable, show msg
@@ -144,18 +150,49 @@ class TactixApp extends Application.AppBase {
     }
 
     private function _fireAlarm(alarm as Dictionary) as Void {
-        if ((alarm["vibe"] as Boolean) && (Attention has :vibrate)) {
-            var pattern = [
-                new Attention.VibeProfile(100, 500),
-                new Attention.VibeProfile(0,   250),
-                new Attention.VibeProfile(100, 500),
-                new Attention.VibeProfile(0,   250),
-                new Attention.VibeProfile(100, 800)
-            ] as Array<Attention.VibeProfile>;
-            Attention.vibrate(pattern);
+        mAlarmVibe      = alarm["vibe"]  as Boolean;
+        mAlarmSound     = alarm["sound"] as Boolean;
+        mAlarmToneCount = 0;
+
+        _alarmPulse(); // первый импульс сразу
+
+        if (mAlarmNotifTimer == null) { mAlarmNotifTimer = new Timer.Timer(); }
+        mAlarmNotifTimer.start(method(:onAlarmTick), 1000, true);
+
+        WatchUi.pushView(
+            new AlarmNotificationView(alarm["hour"] as Number, alarm["min"] as Number),
+            new AlarmNotificationDelegate(),
+            WatchUi.SLIDE_UP);
+    }
+
+    // Таймер: 1 раз в секунду, 9 дополнительных = 10 импульсов итого
+    function onAlarmTick() as Void {
+        mAlarmToneCount++;
+        _alarmPulse();
+        if (mAlarmToneCount >= 9) {
+            _stopAlarmNotifTimer();
         }
-        if ((alarm["sound"] as Boolean) && (Attention has :playTone)) {
+    }
+
+    // Вибро каждый тик (10 раз), звук на чётных тиках (5 раз: 0,2,4,6,8)
+    private function _alarmPulse() as Void {
+        if (mAlarmVibe && (Attention has :vibrate)) {
+            var p = [new Attention.VibeProfile(100, 600)] as Array<Attention.VibeProfile>;
+            Attention.vibrate(p);
+        }
+        if (mAlarmSound && (mAlarmToneCount % 2 == 0) && (Attention has :playTone)) {
             Attention.playTone(Attention.TONE_ALARM);
+        }
+    }
+
+    function stopAlarmNotification() as Void {
+        _stopAlarmNotifTimer();
+    }
+
+    private function _stopAlarmNotifTimer() as Void {
+        if (mAlarmNotifTimer != null) {
+            mAlarmNotifTimer.stop();
+            mAlarmNotifTimer = null;
         }
     }
 
