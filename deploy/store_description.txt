@@ -4,9 +4,12 @@ TACTIX BLACK — аналоговый циферблат в тактическо
 
 ━━ ЭКОНОМНЫЙ ЭКРАН (стартовый) ━━
 
-Минимальное отображение: время ЧЧ:ММ крупно по центру, дата дд-мм-ДН. Выше времени — ближайший активный таймер (T ЧЧ:ММ) и будильник (Б ЧЧ:ММ). Сигналы будильников и таймеров срабатывают здесь. LIGHT — подсветка на 15 с.
+Минимальное отображение: время ЧЧ:ММ крупно по центру, дата дд-мм-ДН. Выше времени — ближайший активный таймер (T ЧЧ:ММ) и будильник (Б ЧЧ:ММ). Сигналы будильников и таймеров срабатывают здесь.
+
+Подсветка: по умолчанию выключена (экономия). LIGHT — включить на 15 с. Повторный LIGHT — выключить досрочно.
 
   BACK        → главный экран
+  LIGHT       → подсветка вкл (15 с) / выкл
 
 ━━ ГЛАВНЫЙ ЭКРАН ━━
 
@@ -67,9 +70,12 @@ Globe background · analog hands · 7-segment display. Eco screen, 5 alarms, 5 s
 
 ━━ ECO SCREEN (startup) ━━
 
-Minimal view: large HH:MM centered, date dd-mm-DY. Nearest active timer (T HH:MM) and alarm (Al HH:MM) shown above. Alarms and timers fire here. LIGHT — backlight 15 s.
+Minimal view: large HH:MM centered, date dd-mm-DY. Nearest active timer (T HH:MM) and alarm (Al HH:MM) shown above. Alarms and timers fire here.
+
+Backlight: off by default (power saving). LIGHT — turn on for 15 s. Press LIGHT again to turn off early.
 
   BACK        → main screen
+  LIGHT       → backlight on (15 s) / off
 
 ━━ MAIN SCREEN ━━
 
