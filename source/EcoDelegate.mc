@@ -1,12 +1,12 @@
 import Toybox.Lang;
 import Toybox.WatchUi;
 
-class EcoDelegate extends WatchUi.BehaviorDelegate {
+class EcoDelegate extends NoTouchDelegate {
 
     private var mView as EcoView;
 
     function initialize(view as EcoView) {
-        BehaviorDelegate.initialize();
+        NoTouchDelegate.initialize();
         mView = view;
     }
 

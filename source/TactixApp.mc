@@ -446,5 +446,8 @@ class TactixApp extends Application.AppBase {
             ] as Array<Attention.VibeProfile>;
             Attention.vibrate(pattern);
         }
+        if (Attention has :playTone) {
+            Attention.playTone(Attention.TONE_ALARM);
+        }
     }
 }

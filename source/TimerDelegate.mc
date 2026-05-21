@@ -4,7 +4,7 @@ import Toybox.System;
 import Toybox.Timer;
 import Toybox.WatchUi;
 
-class TimerDelegate extends WatchUi.BehaviorDelegate {
+class TimerDelegate extends NoTouchDelegate {
 
     private static const DOUBLE_MS as Number = 500;
 
@@ -13,7 +13,7 @@ class TimerDelegate extends WatchUi.BehaviorDelegate {
     private var mPendingTimer as Timer.Timer? = null;
 
     function initialize(view as TimerView) {
-        BehaviorDelegate.initialize();
+        NoTouchDelegate.initialize();
         mView = view;
     }
 

@@ -4,7 +4,7 @@ import Toybox.System;
 import Toybox.Timer;
 import Toybox.WatchUi;
 
-class StopwatchListDelegate extends WatchUi.BehaviorDelegate {
+class StopwatchListDelegate extends NoTouchDelegate {
 
     private static const DOUBLE_MS as Number = 500;
 
@@ -12,7 +12,7 @@ class StopwatchListDelegate extends WatchUi.BehaviorDelegate {
     private var mPendingTimer as Timer.Timer? = null;
 
     function initialize() {
-        BehaviorDelegate.initialize();
+        NoTouchDelegate.initialize();
     }
 
     function onPreviousPage() as Boolean {

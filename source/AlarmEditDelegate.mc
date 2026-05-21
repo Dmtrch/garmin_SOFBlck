@@ -2,11 +2,11 @@ import Toybox.Application;
 import Toybox.Lang;
 import Toybox.WatchUi;
 
-class AlarmEditDelegate extends WatchUi.BehaviorDelegate {
+class AlarmEditDelegate extends NoTouchDelegate {
     private var mView as AlarmEditView;
 
     function initialize(view as AlarmEditView) {
-        BehaviorDelegate.initialize();
+        NoTouchDelegate.initialize();
         mView = view;
     }
 

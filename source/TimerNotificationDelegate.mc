@@ -2,11 +2,11 @@ import Toybox.Application;
 import Toybox.Lang;
 import Toybox.WatchUi;
 
-class TimerNotificationDelegate extends WatchUi.BehaviorDelegate {
+class TimerNotificationDelegate extends NoTouchDelegate {
     private var mIdx as Number;
 
     function initialize(idx as Number) {
-        BehaviorDelegate.initialize();
+        NoTouchDelegate.initialize();
         mIdx = idx;
     }
 

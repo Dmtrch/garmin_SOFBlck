@@ -2,9 +2,9 @@ import Toybox.Application;
 import Toybox.Lang;
 import Toybox.WatchUi;
 
-class AlarmNotificationDelegate extends WatchUi.BehaviorDelegate {
+class AlarmNotificationDelegate extends NoTouchDelegate {
     function initialize() {
-        BehaviorDelegate.initialize();
+        NoTouchDelegate.initialize();
     }
 
     function onSelect() as Boolean {

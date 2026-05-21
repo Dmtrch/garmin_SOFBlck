@@ -103,7 +103,7 @@ class EcoView extends WatchUi.View {
         var timeCy = h / 2;
 
         // Строки выше времени рисуем снизу вверх
-        var aboveY = timeCy - timeH / 2;
+        var aboveY = timeCy - timeH / 2 + 10;
         if (nearestAlarm != null) {
             aboveY -= subH;
             var alarm    = nearestAlarm as Array<Number>;

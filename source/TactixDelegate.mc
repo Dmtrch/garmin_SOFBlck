@@ -4,7 +4,7 @@ import Toybox.System;
 import Toybox.Timer;
 import Toybox.WatchUi;
 
-class TactixDelegate extends WatchUi.BehaviorDelegate {
+class TactixDelegate extends NoTouchDelegate {
 
     private static const DOUBLE_PRESS_MS as Number = 500;
 
@@ -15,7 +15,7 @@ class TactixDelegate extends WatchUi.BehaviorDelegate {
     private var mBackTimer    as Timer.Timer? = null;
 
     function initialize() {
-        BehaviorDelegate.initialize();
+        NoTouchDelegate.initialize();
     }
 
     function onPreviousPage() as Boolean {

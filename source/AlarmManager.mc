@@ -10,7 +10,13 @@ class AlarmManager {
         var v = Application.Storage.getValue(KEY);
         if (v instanceof Array) {
             var arr = v as Array;
-            if (arr.size() == MAX) { return arr; }
+            if (arr.size() == MAX) {
+                for (var i = 0; i < MAX; i++) {
+                    var a = arr[i] as Dictionary;
+                    if (!(a["sound"] instanceof Boolean)) { a["sound"] = true; }
+                }
+                return arr;
+            }
         }
         return _defaults();
     }
@@ -52,7 +58,7 @@ class AlarmManager {
     }
 
     static function defaultAlarm() as Dictionary {
-        return {"hour" => 7, "min" => 0, "enabled" => false, "vibe" => true, "sound" => false} as Dictionary;
+        return {"hour" => 7, "min" => 0, "enabled" => false, "vibe" => true, "sound" => true} as Dictionary;
     }
 
     private static function _defaults() as Array {
