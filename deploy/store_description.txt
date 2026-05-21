@@ -1,170 +1,113 @@
 TACTIX BLACK — аналоговый циферблат в тактическом стиле
 
-Строгий циферблат с фоном в виде карты земного шара, аналоговыми стрелками и 7-сегментным цифровым дисплеем. Будильники, 5 секундомеров, таймер и компас — всё управляется двойным нажатием кнопок.
+Строгий циферблат с фоном-глобусом, аналоговыми стрелками и 7-сегментным дисплеем. Экономный экран, 5 будильников, 5 секундомеров, 5 таймеров, компас.
 
-━━ ДИСПЛЕЙ ━━
+━━ ЭКОНОМНЫЙ ЭКРАН (стартовый) ━━
 
-• Фоновое изображение глобуса (уникальное для каждого разрешения)
-• Аналоговые стрелки часов, минут и секунд
-• 7-сегментный цифровой дисплей (ЧЧ:ММ:СС) — внизу
-• Значок и время ближайшего активного будильника — вверху
-• Минутная шкала с тремя уровнями делений
+Минимальное отображение: время ЧЧ:ММ крупно по центру, дата дд-мм-ДН. Выше времени — ближайший активный таймер (T ЧЧ:ММ) и будильник (Б ЧЧ:ММ). Сигналы будильников и таймеров срабатывают здесь. LIGHT — подсветка на 15 с.
 
-━━ ДАННЫЕ ━━
+  BACK        → главный экран
 
-12 полей вокруг циферблата:
-• Заряд батареи (% и дни)          • Пульс
-• Высота над уровнем моря           • Атмосферное давление
-• Температура воздуха               • Рассвет / закат
-• Шаги за день                      • Калории
-• День недели, дата и месяц
+━━ ГЛАВНЫЙ ЭКРАН ━━
 
-━━ НАВИГАЦИЯ ━━
+Глобус · аналоговые стрелки · 7-сегментный ЧЧ:ММ:СС · 12 полей данных (батарея, пульс, высота, давление, температура, рассвет/закат, шаги, калории, дата) · будильник · секундомер/таймер · компас.
 
-Все функции открываются двойным нажатием (два нажатия за 0.5 с):
+  BACK (одиночный)  → экономный экран + компас выкл
+  BACK × 2          → компас вкл/выкл
+  START × 2         → 5 секундомеров
+  UP × 2            → 5 будильников
+  DOWN × 2          → 5 таймеров
 
-  UP × 2    →  Будильники
-  DOWN × 2  →  Таймер
-  BACK × 2  →  5 секундомеров
-  START × 2 →  Компас вкл/выкл
+━━ 5 СЕКУНДОМЕРОВ (START×2) ━━
 
-━━ БУДИЛЬНИКИ (UP × 2) ━━
+Точность до сотых секунды (ЧЧ:ММ:СС.сс). Продолжают отсчёт в фоне.
 
-До 5 независимых будильников. Время ближайшего активного отображается на циферблате.
+  UP / DOWN       — выбор секундомера
+  START           — старт / стоп
+  START × 2       — сброс
+  BACK            — выход
 
-Список будильников:
-  UP / DOWN   — перемещение по списку
-  START       — открыть меню будильника
-  BACK        — выход
+━━ 5 ТАЙМЕРОВ (DOWN×2) ━━
 
-Меню будильника:
-  • Изменить время — редактор часов и минут
-  • Включить / Выключить
-  • Вибрация вкл/выкл
-  • Звук вкл/выкл
-  • Удалить (сброс к 07:00)
+Пять независимых обратных отсчётов. При срабатывании — зелёный экран, вибрация до отключения.
 
-Редактор времени:
-  UP / DOWN   — изменить значение (+1 / −1)
-  START       — переключить поле (часы ↔ минуты)
-  BACK        — сохранить и выйти
+  UP / DOWN       — выбор таймера / изменение значения
+  START           — старт/пауза; если не настроен → установка времени
+  START × 2       — сброс
+  BACK            — выход / предыдущее поле установки
 
-При срабатывании: красный экран, до 10 с вибрации, до 5 звуковых сигналов.
-  BACK        — выключить будильник
+Уведомление таймера: START — выключить сигнал.
 
-━━ 5 СЕКУНДОМЕРОВ (BACK × 2) ━━
+━━ 5 БУДИЛЬНИКОВ (UP×2) ━━
 
-Пять независимых секундомеров с точностью до секунды.
-Продолжают отсчёт в фоне — время не теряется при выходе из приложения.
-На циферблате отображается время выбранного секундомера.
+До 5 будильников с настройкой вибрации и звука. Ближайший активный — на циферблате.
 
-  UP / DOWN              — выбор секундомера (1–5)
-  START (одиночное)      — старт / стоп выбранного
-  START × 2 (≤0.5 с)    — сброс выбранного
-  BACK                   — выход на главный экран
+  UP / DOWN       — навигация по списку
+  START           — меню (время / вкл-выкл / вибрация / звук / удалить)
+  BACK            — выход
 
-━━ ТАЙМЕР (DOWN × 2) ━━
+Уведомление будильника: START — выключить сигнал.
 
-Обратный отсчёт с настраиваемой длительностью.
-Если время истекло при закрытом приложении — вибрирует при следующем запуске.
+━━ КОМПАС (BACK×2) ━━
 
-  UP / DOWN   — изменить значение (+1 / −1)
-  START       — переключить поле (часы → минуты → секунды)
-  BACK        — сохранить установку
-  START (на экране таймера) — старт / пауза
-  DOWN (на экране таймера)  — сброс и выход
-
-━━ КОМПАС (START × 2) ━━
-
-Стрелки севера (синий) и юга (красный) поверх циферблата.
-Повторное двойное нажатие START — выключить.
+Стрелки N (синий) / S (оранжевый) поверх циферблата. BACK×2 или BACK (одиночный с главного) — выкл.
 
 ━━ СОВМЕСТИМЫЕ УСТРОЙСТВА ━━
 
-Fenix 8 Solar 47mm / 51mm       Fenix 8 AMOLED 47mm
-Fenix 8 Pro 47mm                Fenix 7 / 7 Pro / 7S / 7S Pro / 7X / 7X Pro
-Forerunner 265 / 265S           Forerunner 965 / 955
-Forerunner 570 47mm / 970       Forerunner 255 / 255S
-Epix 2 / Epix 2 Pro 42mm / 47mm / 51mm
-D2 Mach 2 / 2 Pro               Descent Mk3 51mm
-Approach S70 47mm               Venu 3 / 3S / 2 / 2S / 4 45mm
+Fenix 8 Solar 47mm/51mm · Fenix 8 AMOLED 47mm · Fenix 8 Pro 47mm
+Fenix 7/7Pro/7S/7X · Forerunner 265/265S · 965/955 · 570/970 · 255/255S
+Epix 2 / Epix 2 Pro 42mm/47mm/51mm · D2 Mach 2/2 Pro
+Descent Mk3 51mm · Approach S70 47mm · Venu 3/3S/2/2S/4
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 TACTIX BLACK — Tactical-style analog watch face
 
-Dark analog face with globe map background, analog hands and 7-segment digital display.
-Five stopwatches, alarms, countdown timer and compass — all controlled by double-press.
+Globe background · analog hands · 7-segment display. Eco screen, 5 alarms, 5 stopwatches, 5 timers, compass.
 
-━━ DISPLAY ━━
+━━ ECO SCREEN (startup) ━━
 
-• Globe background image (unique per screen resolution)
-• Analog hour, minute and second hands
-• 7-segment digital time (HH:MM:SS) below center
-• Nearest active alarm time with icon above center
-• Three-level tick marks
+Minimal view: large HH:MM centered, date dd-mm-DY. Nearest active timer (T HH:MM) and alarm (Al HH:MM) shown above. Alarms and timers fire here. LIGHT — backlight 15 s.
 
-━━ DATA FIELDS ━━
+  BACK        → main screen
 
-12 positions around the dial:
-Battery % & days  ·  Heart rate  ·  Elevation  ·  Barometric pressure
-Temperature  ·  Next sunrise/sunset  ·  Daily steps  ·  Calories  ·  Date
+━━ MAIN SCREEN ━━
 
-━━ NAVIGATION ━━
+Globe · analog hands · 7-segment HH:MM:SS · 12 data fields (battery, HR, elevation, pressure, temp, sunrise/sunset, steps, calories, date) · alarm · stopwatch/timer overlay · compass.
 
-All features are opened by double-press (two presses within 0.5 s):
+  BACK (single)   → eco screen + compass off
+  BACK × 2        → compass on/off
+  START × 2       → 5 stopwatches
+  UP × 2          → 5 alarms
+  DOWN × 2        → 5 timers
 
-  UP × 2    →  Alarms
-  DOWN × 2  →  Countdown timer
-  BACK × 2  →  5 Stopwatches
-  START × 2 →  Compass on/off
+━━ 5 STOPWATCHES (START×2) ━━
 
-━━ ALARMS (UP × 2) ━━
+Hundredths precision (HH:MM:SS.ss). Keep running in background.
 
-Up to 5 independent alarms. Nearest active alarm time always shown on dial.
+  UP / DOWN   — select · START — start/stop · START×2 — reset · BACK — exit
 
-Alarm list:
-  UP / DOWN   — navigate list
-  START       — open alarm menu (Edit time / Enable / Vibration / Sound / Delete)
-  BACK        — exit
+━━ 5 TIMERS (DOWN×2) ━━
 
-Time editor:
-  UP / DOWN   — change value (+1 / −1)
-  START       — switch field (hours ↔ minutes)
-  BACK        — save and exit
+Five independent countdowns. On expiry: green alert screen, vibration until dismissed.
 
-On trigger: red full-screen alert, up to 10 s vibration, up to 5 tones.
-  BACK        — dismiss
+  UP/DOWN — select/adjust · START — start/pause or enter setup · START×2 — reset · BACK — exit
+  Notification: START — stop alert.
 
-━━ 5 STOPWATCHES (BACK × 2) ━━
+━━ 5 ALARMS (UP×2) ━━
 
-Five independent stopwatches. Continue running in the background.
-Selected stopwatch time is displayed on the main watch face.
+Up to 5 alarms with vibration and sound options. Nearest shown on dial.
 
-  UP / DOWN              — select stopwatch (1–5)
-  START (single)         — start / stop selected
-  START × 2 (≤0.5 s)    — reset selected
-  BACK                   — return to watch face
+  UP/DOWN — navigate · START — menu (time/on-off/vibration/sound/delete) · BACK — exit
+  Notification: START — dismiss.
 
-━━ TIMER (DOWN × 2) ━━
+━━ COMPASS (BACK×2) ━━
 
-Countdown timer. If it expires while the app is closed, vibration fires on next launch.
-
-  UP / DOWN   — change value
-  START       — switch field (hours → minutes → seconds)
-  BACK        — confirm setting
-  START       — start / pause (on timer screen)
-  DOWN        — reset and exit (on timer screen)
-
-━━ COMPASS (START × 2) ━━
-
-North (blue) / South (red) arrows on the dial. Double-press START again to turn off.
+N (blue) / S (orange) arrows on dial. BACK×2 or single BACK from main — turns off.
 
 ━━ COMPATIBLE DEVICES ━━
 
-Fenix 8 Solar 47mm / 51mm · Fenix 8 AMOLED 47mm · Fenix 8 Pro 47mm
-Fenix 7 / 7 Pro / 7S / 7S Pro / 7X / 7X Pro
-Forerunner 265 / 265S · 965 / 955 · 570 47mm / 970 · 255 / 255S
-Epix 2 / Epix 2 Pro 42mm / 47mm / 51mm
-D2 Mach 2 / 2 Pro · Descent Mk3 51mm · Approach S70 47mm
-Venu 3 / 3S · Venu 2 / 2S · Venu 4 45mm
+Fenix 8 Solar 47mm/51mm · Fenix 8 AMOLED 47mm · Fenix 8 Pro 47mm
+Fenix 7/7Pro/7S/7X · Forerunner 265/265S · 965/955 · 570/970 · 255/255S
+Epix 2 / Epix 2 Pro 42mm/47mm/51mm · D2 Mach 2/2 Pro
+Descent Mk3 51mm · Approach S70 47mm · Venu 3/3S/2/2S/4
