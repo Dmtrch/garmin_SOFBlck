@@ -107,7 +107,7 @@ class EcoView extends WatchUi.View {
         if (nearestAlarm != null) {
             aboveY -= subH;
             var alarm    = nearestAlarm as Array<Number>;
-            var prefix   = rus ? "Б " : "Al ";
+            var prefix   = rus ? "Б " : "A ";
             var alarmStr = prefix + (alarm[0] as Number).format("%02d") + ":" + (alarm[1] as Number).format("%02d");
             dc.setColor(Graphics.COLOR_YELLOW, Graphics.COLOR_TRANSPARENT);
             dc.drawText(cx, aboveY, subFont, alarmStr, Graphics.TEXT_JUSTIFY_CENTER);

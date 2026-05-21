@@ -1,5 +1,6 @@
 import Toybox.Graphics;
 import Toybox.Lang;
+import Toybox.System;
 import Toybox.WatchUi;
 
 class AlarmEditView extends WatchUi.View {
@@ -27,9 +28,10 @@ class AlarmEditView extends WatchUi.View {
         dc.clear();
 
         // Заголовок
+        var rus = (System.getDeviceSettings().systemLanguage == System.LANGUAGE_RUS);
         dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
         dc.drawText(cx, cy - 72, Graphics.FONT_SMALL,
-            "Будильник " + (mIdx + 1).format("%d"),
+            (rus ? "Будильник " : "Alarm ") + (mIdx + 1).format("%d"),
             Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
 
         // Время: часы и минуты раздельно, двоеточие между ними
@@ -60,11 +62,11 @@ class AlarmEditView extends WatchUi.View {
         dc.setColor(Graphics.COLOR_LT_GRAY, Graphics.COLOR_TRANSPARENT);
         var lineH = Graphics.getFontHeight(Graphics.FONT_XTINY) + 2;
         var y0    = cy + 55;
-        dc.drawText(cx, y0,          Graphics.FONT_XTINY, "UP / DOWN: значение",
+        dc.drawText(cx, y0,          Graphics.FONT_XTINY, rus ? "UP / DOWN: значение" : "UP / DOWN: value",
             Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
-        dc.drawText(cx, y0 + lineH,  Graphics.FONT_XTINY, "START: поле",
+        dc.drawText(cx, y0 + lineH,  Graphics.FONT_XTINY, rus ? "START: поле" : "START: field",
             Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
-        dc.drawText(cx, y0 + lineH * 2, Graphics.FONT_XTINY, "BACK: сохранить",
+        dc.drawText(cx, y0 + lineH * 2, Graphics.FONT_XTINY, rus ? "BACK: сохранить" : "BACK: save",
             Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
     }
 }

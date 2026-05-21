@@ -35,7 +35,8 @@ class TactixApp extends Application.AppBase {
     private var mAlarmSound      as Boolean      = false;
 
     // --- Timer notification state ---
-    private var mTimerNotifTimer as Timer.Timer? = null;
+    private var mTimerNotifTimer  as Timer.Timer? = null;
+    private var mTimerToneCount   as Number       = 0;
 
     // --- Compass state ---
     var compassActive  as Boolean = false;   // sensor on, drawing arrows
@@ -322,7 +323,8 @@ class TactixApp extends Application.AppBase {
     }
 
     private function _fireTimerExpired(idx as Number) as Void {
-        _vibrateOnExpire();
+        mTimerToneCount = 0;
+        _timerAlertPulse();
         if (mTimerNotifTimer == null) { mTimerNotifTimer = new Timer.Timer(); }
         mTimerNotifTimer.start(method(:onTimerNotifTick), 1000, true);
         WatchUi.pushView(
@@ -332,7 +334,8 @@ class TactixApp extends Application.AppBase {
     }
 
     function onTimerNotifTick() as Void {
-        _vibrateOnExpire();
+        mTimerToneCount++;
+        _timerAlertPulse();
     }
 
     function stopTimerNotification() as Void {
@@ -340,6 +343,7 @@ class TactixApp extends Application.AppBase {
             mTimerNotifTimer.stop();
             mTimerNotifTimer = null;
         }
+        mTimerToneCount = 0;
     }
 
     function getNearestTimerRemainingMs() as Number {
@@ -435,6 +439,16 @@ class TactixApp extends Application.AppBase {
         }
     }
 
+    private function _timerAlertPulse() as Void {
+        if (Attention has :vibrate) {
+            var p = [new Attention.VibeProfile(100, 600)] as Array<Attention.VibeProfile>;
+            Attention.vibrate(p);
+        }
+        if (mTimerToneCount % 2 == 0 && (Attention has :playTone)) {
+            Attention.playTone(Attention.TONE_ALARM);
+        }
+    }
+
     private function _vibrateOnExpire() as Void {
         if (Attention has :vibrate) {
             var pattern = [
@@ -445,9 +459,6 @@ class TactixApp extends Application.AppBase {
                 new Attention.VibeProfile(100, 400)
             ] as Array<Attention.VibeProfile>;
             Attention.vibrate(pattern);
-        }
-        if (Attention has :playTone) {
-            Attention.playTone(Attention.TONE_ALARM);
         }
     }
 }

@@ -1,5 +1,6 @@
 import Toybox.Application;
 import Toybox.Lang;
+import Toybox.System;
 import Toybox.WatchUi;
 
 class AlarmListDelegate extends NoTouchDelegate {
@@ -38,16 +39,19 @@ class AlarmListDelegate extends NoTouchDelegate {
 function _pushSubMenu(idx as Number) as Void {
     var alarms = AlarmManager.load();
     var a      = alarms[idx] as Dictionary;
-    var title  = "Будильник " + (idx + 1).format("%d");
+    var rus    = (System.getDeviceSettings().systemLanguage == System.LANGUAGE_RUS);
+    var title  = (rus ? "Будильник " : "Alarm ") + (idx + 1).format("%d");
     var menu   = new WatchUi.Menu2({:title => title});
-    menu.addItem(new WatchUi.MenuItem("Изменить время", null, :editTime, null));
+    menu.addItem(new WatchUi.MenuItem(
+        rus ? "Изменить время" : "Edit time", null, :editTime, null));
     menu.addItem(new WatchUi.ToggleMenuItem(
-        "Включён", null, :enabled, a["enabled"] as Boolean, null));
+        rus ? "Включён" : "Enabled", null, :enabled, a["enabled"] as Boolean, null));
     menu.addItem(new WatchUi.ToggleMenuItem(
-        "Вибрация", null, :vibe, a["vibe"] as Boolean, null));
+        rus ? "Вибрация" : "Vibrate", null, :vibe, a["vibe"] as Boolean, null));
     menu.addItem(new WatchUi.ToggleMenuItem(
-        "Звук", null, :sound, a["sound"] as Boolean, null));
-    menu.addItem(new WatchUi.MenuItem("Удалить", null, :delete, null));
+        rus ? "Звук" : "Sound", null, :sound, a["sound"] as Boolean, null));
+    menu.addItem(new WatchUi.MenuItem(
+        rus ? "Удалить" : "Delete", null, :delete, null));
     WatchUi.pushView(menu, new AlarmSubMenuDelegate(idx), WatchUi.SLIDE_LEFT);
 }
 
