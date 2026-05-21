@@ -7,6 +7,12 @@ class AlarmNotificationDelegate extends WatchUi.BehaviorDelegate {
         BehaviorDelegate.initialize();
     }
 
+    function onSelect() as Boolean {
+        (Application.getApp() as TactixApp).stopAlarmNotification();
+        WatchUi.popView(WatchUi.SLIDE_DOWN);
+        return true;
+    }
+
     function onBack() as Boolean {
         (Application.getApp() as TactixApp).stopAlarmNotification();
         WatchUi.popView(WatchUi.SLIDE_DOWN);

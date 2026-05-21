@@ -9,21 +9,38 @@ class AlarmListView extends WatchUi.View {
         View.initialize();
     }
 
+    private function drawAlarmIcon(dc as Graphics.Dc, x as Number, y as Number, r as Number) as Void {
+        dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
+        dc.drawCircle(x, y, r);
+        dc.drawArc(x, y - r, r / 2, Graphics.ARC_COUNTER_CLOCKWISE, 0, 180);
+        var fr = r / 5;
+        if (fr < 2) { fr = 2; }
+        dc.fillCircle(x - r / 2, y + r + fr, fr);
+        dc.fillCircle(x + r / 2, y + r + fr, fr);
+        dc.drawLine(x, y, x, y - r + 3);
+        dc.drawLine(x, y, x + r * 2 / 3, y + r / 3);
+    }
+
     function onUpdate(dc as Graphics.Dc) as Void {
         dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_BLACK);
         dc.clear();
 
         var w  = dc.getWidth();
         var h  = dc.getHeight();
-        var cx = w / 2;
 
-        dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
-        dc.drawText(cx, 18, Graphics.FONT_SMALL, "Будильники",
-            Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
+        var iconR    = h / 12;
+        var iconX    = iconR + 6;
+        var iconY    = h / 2;
+        drawAlarmIcon(dc, iconX, iconY, iconR);
+
+        var listLeft = iconR * 2 + 14 - 20;
+        if (listLeft < 0) { listLeft = 0; }
+        var cx       = listLeft + (w - listLeft) / 2;
 
         var alarms  = AlarmManager.load();
-        var listTop = 38;
-        var itemH   = (h - listTop - 4) / AlarmManager.MAX;
+        var pad     = 8;
+        var itemH   = (h - pad * 2) / AlarmManager.MAX;
+        var listTop = pad;
 
         for (var i = 0; i < AlarmManager.MAX; i++) {
             var a    = alarms[i] as Dictionary;
@@ -32,7 +49,7 @@ class AlarmListView extends WatchUi.View {
 
             if (i == selectedIdx) {
                 dc.setColor(0x003366, Graphics.COLOR_TRANSPARENT);
-                dc.fillRoundedRectangle(14, iy + 1, w - 28, itemH - 2, 5);
+                dc.fillRoundedRectangle(listLeft, iy + 1, w - listLeft - 4, itemH - 2, 5);
             }
 
             var en    = a["enabled"] as Boolean;

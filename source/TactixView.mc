@@ -629,6 +629,7 @@ class TactixView extends WatchUi.View {
             mTimer = new Timer.Timer();
         }
         mTimer.start(method(:onTick), 1000, true);
+        if (System has :setBacklight) { System.setBacklight(true); }
     }
 
     function onHide() as Void {
@@ -640,6 +641,7 @@ class TactixView extends WatchUi.View {
 
     function onTick() as Void {
         (Application.getApp() as TactixApp).checkAlarms();
+        if (System has :setBacklight) { System.setBacklight(true); }
         WatchUi.requestUpdate();
     }
 }

@@ -1,16 +1,15 @@
 import Toybox.Application;
 import Toybox.Graphics;
 import Toybox.Lang;
-import Toybox.System;
 import Toybox.Timer;
 import Toybox.WatchUi;
 
 class TimerView extends WatchUi.View {
 
-    private var mTimer as Timer.Timer?;
+    private var mTimer as Timer.Timer? = null;
 
     var mSetupMode  as Boolean = false;
-    var mSetupField as Number  = 0;    // 0=h, 1=m, 2=s
+    var mSetupField as Number  = 0;
     var mSetH       as Number  = 0;
     var mSetM       as Number  = 5;
     var mSetS       as Number  = 0;
@@ -23,14 +22,7 @@ class TimerView extends WatchUi.View {
     }
 
     function onShow() as Void {
-        var app = Application.getApp() as TactixApp;
-        mSetupMode = !app.hasTimer();
-        if (mSetupMode) {
-            mSetupField = 0;
-            mSetH = 0;
-            mSetM = 5;
-            mSetS = 0;
-        }
+        mSetupMode = false;
         if (mTimer == null) {
             mTimer = new Timer.Timer();
         }
@@ -48,25 +40,34 @@ class TimerView extends WatchUi.View {
         WatchUi.requestUpdate();
     }
 
+    function enterSetup() as Void {
+        mSetupMode  = true;
+        mSetupField = 0;
+        var app = Application.getApp() as TactixApp;
+        var dur = app.tmDurationMs[app.tmSelectedIdx] as Number;
+        if (dur > 0) {
+            var totalSec = dur / 1000;
+            mSetH = totalSec / 3600;
+            mSetM = (totalSec % 3600) / 60;
+            mSetS = totalSec % 60;
+        } else {
+            mSetH = 0;
+            mSetM = 5;
+            mSetS = 0;
+        }
+    }
+
     function getSetupDurationMs() as Number {
         return ((mSetH * 3600) + (mSetM * 60) + mSetS) * 1000;
     }
 
-    // Returns true if focus moved; false if already on last field
     function gotoNextField() as Boolean {
-        if (mSetupField < 2) {
-            mSetupField += 1;
-            return true;
-        }
+        if (mSetupField < 2) { mSetupField += 1; return true; }
         return false;
     }
 
-    // Returns true if focus moved; false if already on first field
     function gotoPrevField() as Boolean {
-        if (mSetupField > 0) {
-            mSetupField -= 1;
-            return true;
-        }
+        if (mSetupField > 0) { mSetupField -= 1; return true; }
         return false;
     }
 
@@ -86,61 +87,87 @@ class TimerView extends WatchUi.View {
         }
     }
 
+    private function drawTimerIcon(dc as Dc, x as Number, y as Number, r as Number) as Void {
+        dc.setColor(Graphics.COLOR_RED, Graphics.COLOR_TRANSPARENT);
+        dc.fillRectangle(x - r, y - r - 2, r * 2 + 1, 3);
+        dc.fillRectangle(x - r, y + r,     r * 2 + 1, 3);
+        dc.drawLine(x - r, y - r, x, y);
+        dc.drawLine(x + r, y - r, x, y);
+        dc.fillPolygon([[x, y], [x - r, y + r], [x + r, y + r]] as Array<[Number, Number]>);
+    }
+
     function onUpdate(dc as Dc) as Void {
         dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_BLACK);
         dc.clear();
-
-        var cx = dc.getWidth() / 2;
-        var cy = dc.getHeight() / 2;
-
         if (mSetupMode) {
-            drawSetup(dc, cx, cy);
+            drawSetup(dc);
         } else {
-            drawCountdown(dc, cx, cy);
+            drawList(dc);
         }
     }
 
-    private function drawCountdown(dc as Dc, cx as Number, cy as Number) as Void {
+    private function drawList(dc as Dc) as Void {
         var app = Application.getApp() as TactixApp;
-        var ms  = app.getTimerRemainingMs();
+        var w   = dc.getWidth();
+        var h   = dc.getHeight();
 
-        var totalSec = (ms / 1000).toNumber();
-        var hh = totalSec / 3600;
-        var mm = (totalSec % 3600) / 60;
-        var ss = totalSec % 60;
-        var timeStr = Lang.format("$1$:$2$:$3$", [
-            hh.format("%02d"), mm.format("%02d"), ss.format("%02d")
-        ]);
+        var iconR    = h / 12;
+        var iconX    = iconR + 6;
+        var iconY    = h / 2;
+        drawTimerIcon(dc, iconX, iconY, iconR);
 
-        dc.setColor(Graphics.COLOR_RED, Graphics.COLOR_TRANSPARENT);
-        dc.drawText(cx, cy, Graphics.FONT_NUMBER_MEDIUM, timeStr,
-                    Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
+        var listLeft = iconR * 2 + 14 - 20;
+        if (listLeft < 0) { listLeft = 0; }
+        var cx       = listLeft + (w - listLeft) / 2;
 
-        dc.setColor(Graphics.COLOR_LT_GRAY, Graphics.COLOR_TRANSPARENT);
-        var hintTop;
-        var hintBot1;
-        var hintBot2;
-        if (app.tExpired) {
-            hintTop  = "EXPIRED";
-            hintBot1 = "DOWN=reset";
-            hintBot2 = "BACK=home";
-        } else if (app.tRunning) {
-            hintTop  = "START=pause";
-            hintBot1 = "DOWN=reset";
-            hintBot2 = "BACK=home";
-        } else {
-            hintTop  = "START=run";
-            hintBot1 = "DOWN=reset";
-            hintBot2 = "BACK=home";
+        var lineH  = Graphics.getFontHeight(Graphics.FONT_SMALL);
+        var startY = h / 2 - (lineH * 5) / 2;
+
+        for (var i = 0; i < 5; i++) {
+            var y        = startY + i * lineH;
+            var selected = (i == app.tmSelectedIdx);
+            var running  = app.tmRunning[i] as Boolean;
+            var expired  = app.tmExpired[i] as Boolean;
+            var remain   = app.getTimerRemainingMsAt(i);
+            var hasDur   = (app.tmDurationMs[i] as Number) > 0;
+
+            if (selected) {
+                dc.setColor(0x330000, 0x330000);
+                dc.fillRectangle(listLeft, y - 2, w - listLeft, lineH + 4);
+            }
+
+            var color;
+            if (expired) {
+                color = Graphics.COLOR_RED;
+            } else if (selected) {
+                color = Graphics.COLOR_YELLOW;
+            } else if (running || hasDur) {
+                color = Graphics.COLOR_WHITE;
+            } else {
+                color = Graphics.COLOR_DK_GRAY;
+            }
+            dc.setColor(color, Graphics.COLOR_TRANSPARENT);
+
+            var totalSec = (remain / 1000).toNumber();
+            var hh  = totalSec / 3600;
+            var mm  = (totalSec % 3600) / 60;
+            var ss  = totalSec % 60;
+            var timeStr = hasDur || running || expired
+                ? Lang.format("$1$:$2$:$3$", [hh.format("%02d"), mm.format("%02d"), ss.format("%02d")])
+                : "--:--:--";
+            var status = expired ? " !" : (running ? " >" : (hasDur ? " ||" : ""));
+            dc.drawText(cx, y, Graphics.FONT_SMALL,
+                        Lang.format("$1$. $2$$3$", [(i + 1).format("%d"), timeStr, status]),
+                        Graphics.TEXT_JUSTIFY_CENTER);
         }
-        var lineH = Graphics.getFontHeight(Graphics.FONT_XTINY);
-        var align = Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER;
-        dc.drawText(cx, cy - 60,         Graphics.FONT_XTINY, hintTop,  align);
-        dc.drawText(cx, cy + 60,         Graphics.FONT_XTINY, hintBot1, align);
-        dc.drawText(cx, cy + 60 + lineH, Graphics.FONT_XTINY, hintBot2, align);
+
     }
 
-    private function drawSetup(dc as Dc, cx as Number, cy as Number) as Void {
+    private function drawSetup(dc as Dc) as Void {
+        var app = Application.getApp() as TactixApp;
+        var cx  = dc.getWidth() / 2;
+        var cy  = dc.getHeight() / 2;
+
         var hStr = mSetH.format("%02d");
         var mStr = mSetM.format("%02d");
         var sStr = mSetS.format("%02d");
@@ -153,7 +180,7 @@ class TimerView extends WatchUi.View {
         var x = cx - totalW / 2;
         var y = cy;
 
-        var fields = [hStr, mStr, sStr];
+        var fields = [hStr, mStr, sStr] as Array<String>;
         for (var i = 0; i < 3; i++) {
             var color = (i == mSetupField) ? Graphics.COLOR_YELLOW : Graphics.COLOR_RED;
             dc.setColor(color, Graphics.COLOR_TRANSPARENT);
@@ -169,10 +196,9 @@ class TimerView extends WatchUi.View {
         }
 
         dc.setColor(Graphics.COLOR_LT_GRAY, Graphics.COLOR_TRANSPARENT);
-        var lineH = Graphics.getFontHeight(Graphics.FONT_XTINY);
-        var align = Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER;
-        dc.drawText(cx, cy - 60,         Graphics.FONT_XTINY, "UP/DOWN=value", align);
-        dc.drawText(cx, cy + 60,         Graphics.FONT_XTINY, "START=next",    align);
-        dc.drawText(cx, cy + 60 + lineH, Graphics.FONT_XTINY, "BACK=prev",     align);
+        dc.drawText(cx, cy - 60, Graphics.FONT_XTINY,
+                    Lang.format("Таймер $1$", [(app.tmSelectedIdx + 1).format("%d")]),
+                    Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
+
     }
 }

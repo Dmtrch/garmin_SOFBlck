@@ -15,11 +15,14 @@ class TactixApp extends Application.AppBase {
     var swOffsetMs    as Array = [0, 0, 0, 0, 0] as Array;
     var swSelectedIdx as Number = 0;
 
-    // --- Timer (countdown) state ---
-    var tRunning  as Boolean = false;
-    var tStartMs  as Number  = 0;      // System.getTimer() at last start
-    var tRemainMs as Number  = 0;      // remaining ms at last pause / start
-    var tExpired  as Boolean = false;  // timer reached 0; awaits user reset
+    // --- Timers (5 independent countdown timers) ---
+    var tmRunning     as Array  = [false, false, false, false, false] as Array;
+    var tmStartMs     as Array  = [0, 0, 0, 0, 0] as Array;
+    var tmRemainMs    as Array  = [0, 0, 0, 0, 0] as Array;
+    var tmExpired     as Array  = [false, false, false, false, false] as Array;
+    var tmNotified    as Array  = [false, false, false, false, false] as Array;
+    var tmDurationMs  as Array  = [0, 0, 0, 0, 0] as Array;
+    var tmSelectedIdx as Number = 0;
 
     // --- Alarm state ---
     private var mAlarms       as Array?  = null;
@@ -30,6 +33,9 @@ class TactixApp extends Application.AppBase {
     private var mAlarmToneCount  as Number       = 0;
     private var mAlarmVibe       as Boolean      = false;
     private var mAlarmSound      as Boolean      = false;
+
+    // --- Timer notification state ---
+    private var mTimerNotifTimer as Timer.Timer? = null;
 
     // --- Compass state ---
     var compassActive  as Boolean = false;   // sensor on, drawing arrows
@@ -52,7 +58,8 @@ class TactixApp extends Application.AppBase {
     }
 
     function getInitialView() as [Views] or [Views, InputDelegates] {
-        return [new TactixView(), new TactixDelegate()];
+        var view = new EcoView();
+        return [view, new EcoDelegate(view)];
     }
 
     // ====== Persistence ======
@@ -99,45 +106,59 @@ class TactixApp extends Application.AppBase {
     }
 
     private function _saveTimer() as Void {
-        var remain = tRunning
-            ? tRemainMs - (System.getTimer() - tStartMs)
-            : tRemainMs;
-        if (remain < 0) { remain = 0; }
-        Application.Storage.setValue("t_remain",  remain);
-        Application.Storage.setValue("t_running", tRunning);
-        Application.Storage.setValue("t_expired", tExpired);
-        if (tRunning) {
-            Application.Storage.setValue("t_save_t", Time.now().value());
+        var saveData = new [5] as Array;
+        for (var i = 0; i < 5; i++) {
+            var running = tmRunning[i] as Boolean;
+            var remain = running
+                ? (tmRemainMs[i] as Number) - (System.getTimer() - (tmStartMs[i] as Number))
+                : tmRemainMs[i] as Number;
+            if (remain < 0) { remain = 0; }
+            saveData[i] = {
+                "remain"   => remain,
+                "duration" => tmDurationMs[i] as Number,
+                "running"  => running,
+                "expired"  => tmExpired[i] as Boolean,
+                "save_t"   => running ? Time.now().value() : 0l
+            } as Dictionary;
         }
+        Application.Storage.setValue("tm5_data", saveData);
     }
 
     private function _restoreTimer() as Void {
-        var remain = Application.Storage.getValue("t_remain");
-        if (!(remain instanceof Number)) { return; }
-        tExpired = false;
-        var wasRunning = Application.Storage.getValue("t_running");
-        var wasExpired = Application.Storage.getValue("t_expired");
-        if (wasExpired instanceof Boolean) { tExpired = wasExpired as Boolean; }
-        if (wasRunning instanceof Boolean && wasRunning as Boolean) {
-            var saveT = Application.Storage.getValue("t_save_t");
-            var elapsedMs = 0;
-            if (saveT != null) {
-                elapsedMs = ((Time.now().value() - (saveT as Long)) * 1000l).toNumber();
-            }
-            var newRemain = (remain as Number) - elapsedMs;
-            if (newRemain <= 0) {
-                tRemainMs = 0;
-                tRunning  = false;
-                tExpired  = true;
-                _vibrateOnExpire();
+        var raw = Application.Storage.getValue("tm5_data");
+        if (!(raw instanceof Array)) { return; }
+        var arr = raw as Array;
+        var n = arr.size() < 5 ? arr.size() : 5;
+        for (var i = 0; i < n; i++) {
+            var entry = arr[i];
+            if (!(entry instanceof Dictionary)) { continue; }
+            var d = entry as Dictionary;
+            var dur = d["duration"];
+            if (dur instanceof Number) { tmDurationMs[i] = dur as Number; }
+            var wasExpired = d["expired"];
+            if (wasExpired instanceof Boolean) { tmExpired[i] = wasExpired as Boolean; }
+            var remain = d["remain"];
+            if (!(remain instanceof Number)) { continue; }
+            var wasRunning = d["running"];
+            if (wasRunning instanceof Boolean && wasRunning as Boolean) {
+                var saveT = d["save_t"];
+                var elapsedMs = 0;
+                if (saveT != null) {
+                    elapsedMs = ((Time.now().value() - (saveT as Long)) * 1000l).toNumber();
+                }
+                var newRemain = (remain as Number) - elapsedMs;
+                if (newRemain <= 0) {
+                    tmRemainMs[i] = 0;
+                    tmExpired[i]  = true;
+                    _vibrateOnExpire();
+                } else {
+                    tmRemainMs[i] = newRemain;
+                    tmStartMs[i]  = System.getTimer();
+                    tmRunning[i]  = true;
+                }
             } else {
-                tRemainMs = newRemain;
-                tStartMs  = System.getTimer();
-                tRunning  = true;
+                tmRemainMs[i] = remain as Number;
             }
-        } else {
-            tRemainMs = remain as Number;
-            tRunning  = false;
         }
     }
 
@@ -180,13 +201,9 @@ class TactixApp extends Application.AppBase {
             WatchUi.SLIDE_UP);
     }
 
-    // Таймер: 1 раз в секунду, 9 дополнительных = 10 импульсов итого
     function onAlarmTick() as Void {
         mAlarmToneCount++;
         _alarmPulse();
-        if (mAlarmToneCount >= 9) {
-            _stopAlarmNotifTimer();
-        }
     }
 
     // Вибро каждый тик (10 раз), звук на чётных тиках (5 раз: 0,2,4,6,8)
@@ -243,50 +260,128 @@ class TactixApp extends Application.AppBase {
 
     // ====== Timer (countdown) ======
 
-    function startTimer(durationMs as Number) as Void {
-        tRemainMs = durationMs;
-        tStartMs  = System.getTimer();
-        tRunning  = true;
-        tExpired  = false;
+    function startTimerAt(idx as Number, durationMs as Number) as Void {
+        tmDurationMs[idx] = durationMs;
+        tmRemainMs[idx]   = durationMs;
+        tmStartMs[idx]    = System.getTimer();
+        tmRunning[idx]    = true;
+        tmExpired[idx]    = false;
     }
 
-    function toggleTimerPause() as Void {
-        if (tExpired) { return; }
-        if (tRunning) {
-            var elapsed = System.getTimer() - tStartMs;
-            tRemainMs = tRemainMs - elapsed;
-            if (tRemainMs < 0) { tRemainMs = 0; }
-            tRunning = false;
-        } else if (tRemainMs > 0) {
-            tStartMs = System.getTimer();
-            tRunning = true;
+    function toggleTimerPauseAt(idx as Number) as Void {
+        if (tmExpired[idx] as Boolean) { return; }
+        if (tmRunning[idx] as Boolean) {
+            var elapsed = System.getTimer() - (tmStartMs[idx] as Number);
+            var remain = (tmRemainMs[idx] as Number) - elapsed;
+            tmRemainMs[idx] = remain < 0 ? 0 : remain;
+            tmRunning[idx]  = false;
+        } else if ((tmRemainMs[idx] as Number) > 0) {
+            tmStartMs[idx] = System.getTimer();
+            tmRunning[idx] = true;
         }
     }
 
-    function resetTimer() as Void {
-        tRunning  = false;
-        tStartMs  = 0;
-        tRemainMs = 0;
-        tExpired  = false;
+    function resetTimerAt(idx as Number) as Void {
+        tmRunning[idx]   = false;
+        tmStartMs[idx]   = 0;
+        tmRemainMs[idx]  = 0;
+        tmExpired[idx]   = false;
+        tmNotified[idx]  = false;
     }
 
-    function getTimerRemainingMs() as Number {
-        if (tRunning) {
-            var remain = tRemainMs - (System.getTimer() - tStartMs);
+    function getTimerRemainingMsAt(idx as Number) as Number {
+        if (tmRunning[idx] as Boolean) {
+            var remain = (tmRemainMs[idx] as Number) - (System.getTimer() - (tmStartMs[idx] as Number));
             if (remain <= 0) {
-                tRunning  = false;
-                tRemainMs = 0;
-                tExpired  = true;
+                tmRunning[idx]  = false;
+                tmRemainMs[idx] = 0;
+                tmExpired[idx]  = true;
                 _vibrateOnExpire();
                 return 0;
             }
             return remain;
         }
-        return tRemainMs;
+        return tmRemainMs[idx] as Number;
+    }
+
+    function hasTimerAt(idx as Number) as Boolean {
+        return (tmRunning[idx] as Boolean) || (tmRemainMs[idx] as Number) > 0 || (tmExpired[idx] as Boolean);
+    }
+
+    function checkTimers() as Void {
+        for (var i = 0; i < 5; i++) {
+            if (tmRunning[i] as Boolean) {
+                getTimerRemainingMsAt(i); // обновляет expired если истёк
+            }
+            if ((tmExpired[i] as Boolean) && !(tmNotified[i] as Boolean)) {
+                tmNotified[i] = true;
+                _fireTimerExpired(i);
+                break;
+            }
+        }
+    }
+
+    private function _fireTimerExpired(idx as Number) as Void {
+        _vibrateOnExpire();
+        if (mTimerNotifTimer == null) { mTimerNotifTimer = new Timer.Timer(); }
+        mTimerNotifTimer.start(method(:onTimerNotifTick), 1000, true);
+        WatchUi.pushView(
+            new TimerNotificationView(idx + 1),
+            new TimerNotificationDelegate(idx),
+            WatchUi.SLIDE_UP);
+    }
+
+    function onTimerNotifTick() as Void {
+        _vibrateOnExpire();
+    }
+
+    function stopTimerNotification() as Void {
+        if (mTimerNotifTimer != null) {
+            mTimerNotifTimer.stop();
+            mTimerNotifTimer = null;
+        }
+    }
+
+    function getNearestTimerRemainingMs() as Number {
+        var best = -1;
+        for (var i = 0; i < 5; i++) {
+            if (tmRunning[i] as Boolean) {
+                var r = getTimerRemainingMsAt(i);
+                if (r > 0 && (best < 0 || r < best)) { best = r; }
+            }
+        }
+        return best;
+    }
+
+    function getNearestAlarmTime() as Array? {
+        var alarms  = getAlarms();
+        var clock   = System.getClockTime();
+        var nowMins = clock.hour * 60 + clock.min;
+        var best    = -1;
+        var bestH   = 0;
+        var bestM   = 0;
+        for (var i = 0; i < alarms.size(); i++) {
+            var a = alarms[i] as Dictionary;
+            if (!(a["enabled"] as Boolean)) { continue; }
+            var h    = a["hour"] as Number;
+            var m    = a["min"]  as Number;
+            var diff = h * 60 + m - nowMins;
+            if (diff < 0) { diff += 24 * 60; }
+            if (best < 0 || diff < best) { best = diff; bestH = h; bestM = m; }
+        }
+        if (best < 0) { return null; }
+        return [bestH, bestM] as Array<Number>;
     }
 
     function hasTimer() as Boolean {
-        return tRunning || tRemainMs > 0 || tExpired;
+        for (var i = 0; i < 5; i++) {
+            if (hasTimerAt(i)) { return true; }
+        }
+        return false;
+    }
+
+    function getTimerRemainingMs() as Number {
+        return getTimerRemainingMsAt(tmSelectedIdx);
     }
 
     // ====== Compass ======

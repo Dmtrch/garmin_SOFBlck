@@ -19,7 +19,7 @@ class StopwatchListView extends WatchUi.View {
         if (mTimer == null) {
             mTimer = new Timer.Timer();
         }
-        mTimer.start(method(:onTick), 100, true);
+        mTimer.start(method(:onTick), 40, true);
     }
 
     function onHide() as Void {
@@ -33,6 +33,19 @@ class StopwatchListView extends WatchUi.View {
         WatchUi.requestUpdate();
     }
 
+    private function drawStopwatchIcon(dc as Dc, x as Number, y as Number, r as Number) as Void {
+        dc.setColor(Graphics.COLOR_BLUE, Graphics.COLOR_TRANSPARENT);
+        dc.drawCircle(x, y, r);
+        var sw = r / 4;
+        if (sw < 2) { sw = 2; }
+        dc.fillRoundedRectangle(x - sw, y - r - r / 3, sw * 2, r / 3, 2);
+        var br = r / 5;
+        if (br < 2) { br = 2; }
+        dc.fillCircle(x + r / 2, y - r - br, br);
+        dc.drawLine(x, y, x + r * 2 / 3, y - r / 2);
+        dc.fillCircle(x, y, 2);
+    }
+
     function onUpdate(dc as Dc) as Void {
         dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_BLACK);
         dc.clear();
@@ -40,11 +53,15 @@ class StopwatchListView extends WatchUi.View {
         var app = Application.getApp() as TactixApp;
         var w   = dc.getWidth();
         var h   = dc.getHeight();
-        var cx  = w / 2;
 
-        dc.setColor(Graphics.COLOR_BLUE, Graphics.COLOR_TRANSPARENT);
-        dc.drawText(cx, 10, Graphics.FONT_TINY, "СЕКУНДОМЕРЫ",
-                    Graphics.TEXT_JUSTIFY_CENTER);
+        var iconR    = h / 12;
+        var iconX    = iconR + 6;
+        var iconY    = h / 2;
+        drawStopwatchIcon(dc, iconX, iconY, iconR);
+
+        var listLeft = iconR * 2 + 14 - 30;
+        if (listLeft < 0) { listLeft = 0; }
+        var cx       = listLeft + (w - listLeft) / 2;
 
         var lineH  = Graphics.getFontHeight(Graphics.FONT_SMALL);
         var startY = h / 2 - (lineH * 5) / 2;
@@ -57,7 +74,7 @@ class StopwatchListView extends WatchUi.View {
 
             if (selected) {
                 dc.setColor(Graphics.COLOR_DK_BLUE, Graphics.COLOR_DK_BLUE);
-                dc.fillRectangle(0, y - 2, w, lineH + 4);
+                dc.fillRectangle(listLeft, y - 2, w - listLeft, lineH + 4);
             }
 
             if (selected) {
@@ -72,8 +89,9 @@ class StopwatchListView extends WatchUi.View {
             var hh  = totalSec / 3600;
             var mm  = (totalSec % 3600) / 60;
             var ss  = totalSec % 60;
-            var timeStr = Lang.format("$1$:$2$:$3$", [
-                hh.format("%02d"), mm.format("%02d"), ss.format("%02d")
+            var cs  = (elapsed % 1000) / 10;
+            var timeStr = Lang.format("$1$:$2$:$3$.$4$", [
+                hh.format("%02d"), mm.format("%02d"), ss.format("%02d"), cs.format("%02d")
             ]);
 
             var status = running ? " >" : (elapsed > 0 ? " ||" : "");
@@ -82,9 +100,5 @@ class StopwatchListView extends WatchUi.View {
                         Graphics.TEXT_JUSTIFY_CENTER);
         }
 
-        dc.setColor(Graphics.COLOR_LT_GRAY, Graphics.COLOR_TRANSPARENT);
-        dc.drawText(cx, h - Graphics.getFontHeight(Graphics.FONT_XTINY) - 4,
-                    Graphics.FONT_XTINY, "START=меню  BACK=выход",
-                    Graphics.TEXT_JUSTIFY_CENTER);
     }
 }
