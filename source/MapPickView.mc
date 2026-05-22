@@ -60,7 +60,7 @@ class MapPickView extends WatchUi.MapView {
     }
 
     function onUpdate(dc as Graphics.Dc) as Void {
-        MapView.onUpdate(dc); // карта (тайлы через привязанный телефон)
+        MapView.onUpdate(dc); // офлайн-карты OSM с диска часов
         _drawOverlay(dc);
     }
 

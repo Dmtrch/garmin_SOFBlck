@@ -49,10 +49,10 @@ monkeydo bin/SOFBlck_<device>.prg <device>
 | `WaypointMenuDelegate.mc` | Подменю «Установить метку»: GPS / вручную / карта / удалить |
 | `WaypointListDelegate.mc` | Список меток: режимы `:pickForDelete` и `:pickForBearing` |
 | `WaypointEditView.mc` | Ручной ввод координат (6 полей: знак/°/дробь для lat и lon) |
-| `MapPickView.mc` | Карта `WatchUi.MapView`: тайлы через привязанный телефон; курсор-крест в центре; pan; bbox ±500 м |
+| `MapPickView.mc` | Карта `WatchUi.MapView`: офлайн-карты OSM с диска часов; курсор-крест в центре; pan; bbox ±500 м |
 | `MapPickDelegate.mc` | `BehaviorDelegate` (touch вкл): `onDrag` → pan; UP/DOWN → шаг 50 м по оси; START → переключение оси; SELECT → сохранить |
 
-Пермишны `Positioning` и `Communications` объявлены в `manifest_clear.xml` (последний нужен для тайлов карты через телефон).  
+Пермишн `Positioning` объявлен в `manifest_clear.xml`. `Communications` удалён — `WatchUi.MapView` использует офлайн-карты и сетевого доступа не требует.  
 Состояние пеленга хранится в `TactixApp` (`bearingActive`, `bearingDirectionRad`, …); отрисовка — `TactixView.drawBearing()`.
 
 Подробный план реализации MapPick — в `Map_navi.md`.
