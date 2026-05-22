@@ -57,7 +57,7 @@ TACTIX BLACK — аналоговый циферблат в тактическо
 
 **Компас** — стрелки N (синий) / S (оранжевый) поверх циферблата.
 
-**Метки** — до 20 точек маршрута. Добавить по GPS-координатам текущего положения или ввести вручную. Удаление из списка.
+**Метки** — до 20 точек маршрута. Три способа добавления: по GPS-координатам текущего положения, вручную (широта/долгота), или указать точку на нативной карте часов (тайлы тянутся через привязанный смартфон, pan пальцем или кнопками UP/DOWN, START переключает ось lat/lon). Удаление из списка.
 
 **Пеленг** — выбрать метку из списка → на циферблате появляется зелёная стрелка направления и расстояние в метрах. При включённом компасе стрелка автоматически корректируется с поворотом часов.
 
@@ -121,7 +121,7 @@ Three modes in one menu:
 
 **Compass** — N (blue) / S (orange) arrows on dial.
 
-**Waypoints** — up to 20 points. Add by current GPS position or enter coordinates manually. Delete from list.
+**Waypoints** — up to 20 points. Three ways to add: by current GPS position, manual lat/lon entry, or pick a point on the native watch map (tiles streamed via paired phone; pan by touch or UP/DOWN buttons, START toggles lat/lon axis). Delete from list.
 
 **Bearing** — pick a waypoint → a green arrow and distance in metres appear on the dial. With compass active, the arrow auto-corrects as the watch rotates.
 

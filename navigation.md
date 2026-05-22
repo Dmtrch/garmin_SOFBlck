@@ -131,12 +131,12 @@
 
 > Зависимость: офлайн-карта устройства. ConnectIQ не предоставляет универсального API «показать растровую карту». Реализация в два шага.
 
-- [x] **8.1** **Исследование:** `Toybox.Map` недоступен в watchface-режиме на всех 6 целевых устройствах → выбран **План Б**.
-- [x] **8.2** **План А** — отложен (не реализован).
-- [x] **8.3** **План А** — отложен (не реализован).
-- [x] **8.4** **План А** — отложен (не реализован).
-- [x] **8.5** **План А** — отложен (не реализован).
-- [x] **8.6** **План Б** реализован: в `WaypointMenuDelegate.mc:14` пункт «Указать на карте» добавляется только при `Toybox has :Map`; на watchface-устройствах пункт отсутствует.
+- [x] **8.1** **План А реализован** в отдельной итерации (`Map_navi.md`, этапы 1–4). Все 6 устройств собираются с `Toybox.WatchUi.MapView`. Подробности — `Map_navi.md`.
+- [x] **8.2** `source/MapPickView.mc` — `extends WatchUi.MapView`, `setMapMode(MAP_MODE_BROWSE)`, центрирование на `Position.getInfo()` через `setMapVisibleArea(sw, ne)` с фиксированным радиусом 500 м. Курсор-крест в центре (overlay поверх `MapView.onUpdate`).
+- [x] **8.3** `source/MapPickDelegate.mc` — `extends BehaviorDelegate` (touch вкл): `onDrag` → pan карты (pixels → degrees через `metersPerPixel` и `cos(lat)`); SELECT → сохранить; BACK → отмена. UP/DOWN на оси `mAxisLat` (шаг 50 м); START → переключение оси.
+- [x] **8.4** Прокрутка реализована через жесты `onDrag` (START/CONTINUE/STOP) и через кнопки UP/DOWN.
+- [x] **8.5** При сохранении `NavManager.add(lat, lon)` → если успех: `popView×3` (MapPick → WaypointMenu → NavMenu → main). При MAX=20 — оверлей «Максимум меток».
+- [x] **8.6** **План Б** оставлен как fallback: в `WaypointMenuDelegate.mc:14` пункт «Указать на карте» добавляется только при `Toybox has :Map`.
 
 ---
 

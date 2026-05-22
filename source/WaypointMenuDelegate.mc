@@ -54,8 +54,15 @@ class WaypointMenuDelegate extends WatchUi.Menu2InputDelegate {
         }
 
         if (id == :map) {
-            // placeholder — MapPickView (future stage)
-            WatchUi.popView(WatchUi.SLIDE_RIGHT);
+            var posInfo = Position.getInfo();
+            if (posInfo.position == null || posInfo.accuracy < Position.QUALITY_POOR) {
+                var msg = rus ? "Нет фикса GPS" : "No GPS fix";
+                WatchUi.pushView(new _NavMsgView(msg), new _NavMsgDelegate(), WatchUi.SLIDE_UP);
+                return;
+            }
+            var coords = (posInfo.position as Position.Location).toDegrees();
+            var view   = new MapPickView(coords[0] as Double, coords[1] as Double);
+            WatchUi.pushView(view, new MapPickDelegate(view), WatchUi.SLIDE_LEFT);
             return;
         }
 
