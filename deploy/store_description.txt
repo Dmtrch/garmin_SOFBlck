@@ -15,8 +15,8 @@ TACTIX BLACK — аналоговый циферблат в тактическо
 
 Глобус · аналоговые стрелки · 7-сегментный ЧЧ:ММ:СС · 12 полей данных (батарея, пульс, высота, давление, температура, рассвет/закат, шаги, калории, дата) · будильник · секундомер/таймер · компас.
 
-  BACK (одиночный)  → экономный экран + компас выкл
-  BACK × 2          → компас вкл/выкл
+  BACK (одиночный)  → экономный экран / остановить пеленг
+  BACK × 2          → меню навигации
   START × 2         → 5 секундомеров
   UP × 2            → 5 будильников
   DOWN × 2          → 5 таймеров
@@ -51,9 +51,17 @@ TACTIX BLACK — аналоговый циферблат в тактическо
 
 Уведомление будильника: START — выключить сигнал.
 
-━━ КОМПАС (BACK×2) ━━
+━━ МЕНЮ НАВИГАЦИИ (BACK×2) ━━
 
-Стрелки N (синий) / S (оранжевый) поверх циферблата. BACK×2 или BACK (одиночный с главного) — выкл.
+Три режима в одном меню:
+
+**Компас** — стрелки N (синий) / S (оранжевый) поверх циферблата.
+
+**Метки** — до 20 точек маршрута. Добавить по GPS-координатам текущего положения или ввести вручную. Удаление из списка.
+
+**Пеленг** — выбрать метку из списка → на циферблате появляется зелёная стрелка направления и расстояние в метрах. При включённом компасе стрелка автоматически корректируется с поворотом часов.
+
+  BACK (одиночный) — остановить активный пеленг.
 
 ━━ СОВМЕСТИМЫЕ УСТРОЙСТВА ━━
 
@@ -81,8 +89,8 @@ Backlight: off by default (power saving). LIGHT — turn on for 15 s. Press LIGH
 
 Globe · analog hands · 7-segment HH:MM:SS · 12 data fields (battery, HR, elevation, pressure, temp, sunrise/sunset, steps, calories, date) · alarm · stopwatch/timer overlay · compass.
 
-  BACK (single)   → eco screen + compass off
-  BACK × 2        → compass on/off
+  BACK (single)   → eco screen / stop bearing
+  BACK × 2        → navigation menu
   START × 2       → 5 stopwatches
   UP × 2          → 5 alarms
   DOWN × 2        → 5 timers
@@ -107,9 +115,17 @@ Up to 5 alarms with vibration and sound options. Nearest shown on dial.
   UP/DOWN — navigate · START — menu (time/on-off/vibration/sound/delete) · BACK — exit
   Notification: START — dismiss.
 
-━━ COMPASS (BACK×2) ━━
+━━ NAVIGATION MENU (BACK×2) ━━
 
-N (blue) / S (orange) arrows on dial. BACK×2 or single BACK from main — turns off.
+Three modes in one menu:
+
+**Compass** — N (blue) / S (orange) arrows on dial.
+
+**Waypoints** — up to 20 points. Add by current GPS position or enter coordinates manually. Delete from list.
+
+**Bearing** — pick a waypoint → a green arrow and distance in metres appear on the dial. With compass active, the arrow auto-corrects as the watch rotates.
+
+  Single BACK — stop active bearing.
 
 ━━ COMPATIBLE DEVICES ━━
 
