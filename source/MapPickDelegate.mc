@@ -70,31 +70,33 @@ class MapPickDelegate extends WatchUi.BehaviorDelegate {
     }
 
     function onNextPage() as Boolean {
-        // DOWN: −шаг по активной оси
-        _stepAxis(-1);
+        _stepControl(-1);
         return true;
     }
 
     function onPreviousPage() as Boolean {
-        // UP: +шаг по активной оси
-        _stepAxis(1);
+        _stepControl(1);
         return true;
     }
 
-    private function _stepAxis(sign as Number) as Void {
-        var stepM  = mView.mRadiusM * 0.1d;            // шаг 10% от радиуса (~50 м)
-        var cosLat = Math.cos(mView.mCenterLat * Math.PI / 180.0d);
-        if (cosLat < 0.01d) { cosLat = 0.01d; }
-        if (mView.mAxisLat) {
-            mView.pan(sign * stepM / 111000.0d, 0.0d);
+    private function _stepControl(sign as Number) as Void {
+        if (mView.mMode == 2) {
+            mView.stepZoom(sign);
         } else {
-            mView.pan(0.0d, sign * stepM / (111000.0d * cosLat));
+            var stepM  = mView.mRadiusM * 0.1d;
+            var cosLat = Math.cos(mView.mCenterLat * Math.PI / 180.0d);
+            if (cosLat < 0.01d) { cosLat = 0.01d; }
+            if (mView.mMode == 0) {
+                mView.pan(sign * stepM / 111000.0d, 0.0d);
+            } else {
+                mView.pan(0.0d, sign * stepM / (111000.0d * cosLat));
+            }
         }
         WatchUi.requestUpdate();
     }
 
     function onMenu() as Boolean {
-        mView.mAxisLat = !mView.mAxisLat;
+        mView.cycleMode();
         WatchUi.requestUpdate();
         return true;
     }
