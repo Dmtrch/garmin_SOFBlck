@@ -77,6 +77,7 @@ class TactixView extends WatchUi.View {
         drawStatusOverlay(dc, cx, cy);
         drawCenterStopwatch(dc, cx, cy);
         drawCompass(dc, cx, cy);
+        drawBearing(dc, cx, cy);
     }
 
     private function drawCenterStopwatch(dc as Dc, cx as Number, cy as Number) as Void {
@@ -159,6 +160,75 @@ class TactixView extends WatchUi.View {
             [bxL.toNumber(), byL.toNumber()],
             [bxR.toNumber(), byR.toNumber()]
         ] as Array<[Number, Number]>);
+    }
+
+    private function drawBearing(dc as Dc, cx as Number, cy as Number) as Void {
+        var app = Application.getApp() as TactixApp;
+        if (!app.bearingActive) { return; }
+
+        var angle = app.bearingDirectionRad;
+        if (app.compassActive && app.compassHeading != null) {
+            // show bearing relative to current compass heading
+            angle = angle - (app.compassHeading as Float);
+        }
+
+        drawCompassArrow(dc, cx, cy, angle, Graphics.COLOR_GREEN);
+
+        var distText = (app.bearingDistanceM < 0.0f)
+            ? "--"
+            : (app.bearingDistanceM < 10000.0f
+                ? app.bearingDistanceM.format("%d") + "m"
+                : (app.bearingDistanceM / 1000.0f).format("%.1f") + "km");
+
+        // rText = rTip - len - 5 - textH/2  (spec §9.8)
+        var rTip  = s(125).toFloat();
+        var len   = s(20).toFloat();
+        var textH = Graphics.getFontHeight(Graphics.FONT_XTINY).toFloat();
+        var rText = (rTip - len - 5.0f - textH / 2.0f).toNumber();
+
+        var deg = (angle * 180.0f / Math.PI.toFloat()).toNumber();
+        deg = ((deg % 360) + 360) % 360;
+
+        placeTextColored(dc, cx, cy, rText, deg, distText,
+                         Graphics.FONT_XTINY, Graphics.COLOR_GREEN);
+    }
+
+    private function placeTextColored(dc as Dc, cx as Number, cy as Number, r as Number,
+                                      angleDeg as Number, text as String,
+                                      font as FontDefinition, color as Number) as Void {
+        var angleRad = angleDeg.toFloat() * Math.PI.toFloat() / 180.0f;
+        var sinA = Math.sin(angleRad).toFloat();
+        var cosA = Math.cos(angleRad).toFloat();
+        var tx = cx.toFloat() + r.toFloat() * sinA;
+        var ty = cy.toFloat() - r.toFloat() * cosA;
+
+        var textW = dc.getTextWidthInPixels(text, font);
+        var textH = Graphics.getFontHeight(font);
+        var pad   = 2;
+        var bmpW  = textW + pad * 2;
+        var bmpH  = textH + pad * 2;
+
+        var bmpRef = Graphics.createBufferedBitmap({:width => bmpW, :height => bmpH});
+        if (bmpRef == null) { return; }
+        var bmp = bmpRef.get() as Graphics.BufferedBitmap;
+        if (bmp == null) { return; }
+
+        var bmpDc = bmp.getDc();
+        bmpDc.setColor(color, Graphics.COLOR_TRANSPARENT);
+        bmpDc.drawText(pad, pad, font, text, Graphics.TEXT_JUSTIFY_LEFT);
+
+        var rotAngle = (angleDeg > 90 && angleDeg < 270)
+            ? angleRad + Math.PI.toFloat()
+            : angleRad;
+
+        var cxB = (bmpW / 2.0f).toFloat();
+        var cyB = (bmpH / 2.0f).toFloat();
+        var t = new Graphics.AffineTransform();
+        t.translate(tx, ty);
+        t.rotate(rotAngle);
+        t.translate(-cxB, -cyB);
+
+        dc.drawBitmap2(0, 0, bmp, {:transform => t});
     }
 
     private function drawTactixLabel(dc as Dc, cx as Number, cy as Number) as Void {

@@ -39,3 +39,16 @@ monkeyc -f monkey_clear.jungle \
 ```bash
 monkeydo bin/SOFBlck_<device>.prg <device>
 ```
+
+## Навигационные модули (source/)
+
+| Файл | Назначение |
+|------|-----------|
+| `NavManager.mc` | Хранение меток в `Application.Storage` ("nav_wp"), гаверсинус-дистанция, пеленг |
+| `NavMenuDelegate.mc` | Корневое меню навигации (двойной BACK); `pushNavMenu()` |
+| `WaypointMenuDelegate.mc` | Подменю «Установить метку»: GPS / вручную / карта (Plan B) / удалить |
+| `WaypointListDelegate.mc` | Список меток: режимы `:pickForDelete` и `:pickForBearing` |
+| `WaypointEditView.mc` | Ручной ввод координат (6 полей: знак/°/дробь для lat и lon) |
+
+Пермишн `Positioning` уже объявлен в `manifest_clear.xml`.  
+Состояние пеленга хранится в `TactixApp` (`bearingActive`, `bearingDirectionRad`, …); отрисовка — `TactixView.drawBearing()`.

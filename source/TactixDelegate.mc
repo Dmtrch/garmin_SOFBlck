@@ -35,9 +35,7 @@ class TactixDelegate extends NoTouchDelegate {
         if (now - mLastBackMs <= DOUBLE_PRESS_MS) {
             mLastBackMs = 0;
             _cancelBackTimer();
-            var app = Application.getApp() as TactixApp;
-            app.toggleCompass();
-            WatchUi.requestUpdate();
+            pushNavMenu();
         } else {
             mLastBackMs = now;
             _cancelBackTimer();
@@ -51,6 +49,11 @@ class TactixDelegate extends NoTouchDelegate {
         mBackTimer  = null;
         mLastBackMs = 0;
         var app = Application.getApp() as TactixApp;
+        if (app.bearingActive) {
+            // first back press stops bearing without exiting (like compass toggle)
+            app.stopBearing();
+            return;
+        }
         if (app.compassActive || app.compassError) {
             app.toggleCompass();
         }

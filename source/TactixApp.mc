@@ -1,6 +1,7 @@
 import Toybox.Application;
 import Toybox.Attention;
 import Toybox.Lang;
+import Toybox.Position;
 import Toybox.Sensor;
 import Toybox.System;
 import Toybox.Time;
@@ -43,6 +44,14 @@ class TactixApp extends Application.AppBase {
     var compassError   as Boolean = false;   // heading unavailable, show msg
     var compassHeading as Float?  = null;    // radians, 0 = N, CW
     private var mCompassErrTimer as Timer.Timer?;
+
+    // --- Bearing state ---
+    var bearingActive       as Boolean = false;
+    var bearingTargetIdx    as Number  = -1;
+    var bearingLastLat      as Double  = 0.0d;
+    var bearingLastLon      as Double  = 0.0d;
+    var bearingDistanceM    as Float   = -1.0f;
+    var bearingDirectionRad as Float   = 0.0f;
 
     function initialize() {
         AppBase.initialize();
@@ -423,6 +432,42 @@ class TactixApp extends Application.AppBase {
             mCompassErrTimer.stop();
             mCompassErrTimer = null;
         }
+        WatchUi.requestUpdate();
+    }
+
+    // ====== Bearing ======
+
+    function startBearing(idx as Number) as Void {
+        bearingTargetIdx  = idx;
+        bearingActive     = true;
+        bearingDistanceM  = -1.0f;
+        Position.enableLocationEvents(Position.LOCATION_CONTINUOUS, method(:onPositionUpdate));
+        WatchUi.requestUpdate();
+    }
+
+    function stopBearing() as Void {
+        bearingActive    = false;
+        bearingTargetIdx = -1;
+        bearingDistanceM = -1.0f;
+        Position.enableLocationEvents(Position.LOCATION_DISABLE, null);
+        WatchUi.requestUpdate();
+    }
+
+    function onPositionUpdate(info as Position.Info) as Void {
+        if (!bearingActive) { return; }
+        if (info.position == null) { return; }
+        var coords = info.position.toDegrees();
+        bearingLastLat = coords[0] as Double;
+        bearingLastLon = coords[1] as Double;
+        var wps = NavManager.load();
+        if (bearingTargetIdx < 0 || bearingTargetIdx >= wps.size()) { return; }
+        var wp = wps[bearingTargetIdx] as Dictionary;
+        bearingDistanceM    = NavManager.distanceM(
+            bearingLastLat, bearingLastLon,
+            wp["lat"] as Double, wp["lon"] as Double);
+        bearingDirectionRad = NavManager.bearingRad(
+            bearingLastLat, bearingLastLon,
+            wp["lat"] as Double, wp["lon"] as Double);
         WatchUi.requestUpdate();
     }
 

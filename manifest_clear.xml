@@ -1,7 +1,7 @@
 <iq:manifest xmlns:iq="http://www.garmin.com/xml/connectiq" version="3">
   <iq:application
     entry="TactixApp"
-    id="0c5beaf5-c1a4-4d47-8f81-5cdda6d3de19"
+    id="a6494193-2cb9-41b6-888a-458bf0254801"
     launcherIcon="@Drawables.LauncherIcon"
     minApiLevel="4.0.0"
     name="@Strings.AppName"
