@@ -18,4 +18,9 @@ class AlarmNotificationDelegate extends NoTouchDelegate {
         WatchUi.popView(WatchUi.SLIDE_DOWN);
         return true;
     }
+
+    function onMenu() as Boolean {
+        pushHelp(:alarmNotif);
+        return true;
+    }
 }

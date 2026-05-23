@@ -101,6 +101,11 @@ class TimerDelegate extends NoTouchDelegate {
         return true;
     }
 
+    function onMenu() as Boolean {
+        pushHelp(:timer);
+        return true;
+    }
+
     private function _cancelPending() as Void {
         if (mPendingTimer != null) {
             mPendingTimer.stop();

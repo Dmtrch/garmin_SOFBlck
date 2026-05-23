@@ -11,7 +11,7 @@ function pushWaypointMenu() as Void {
         rus ? "Текущие координаты" : "Current coordinates", null, :current, null));
     menu.addItem(new WatchUi.MenuItem(
         rus ? "Ввести вручную" : "Enter manually", null, :manual, null));
-    if (Toybox has :Map) {
+    if (WatchUi has :MapView) {
         menu.addItem(new WatchUi.MenuItem(
             rus ? "Указать на карте" : "Pick on map", null, :map, null));
     }

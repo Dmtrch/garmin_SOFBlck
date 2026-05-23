@@ -155,6 +155,11 @@ class WaypointEditDelegate extends NoTouchDelegate {
         return true;
     }
 
+    function onMenu() as Boolean {
+        pushHelp(:waypointEdit);
+        return true;
+    }
+
     private function _adjust(delta as Number) as Void {
         var v = mView;
         if      (v.field == 0) { v.latSign = -v.latSign; }

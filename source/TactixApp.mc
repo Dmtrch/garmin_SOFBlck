@@ -45,13 +45,13 @@ class TactixApp extends Application.AppBase {
     var compassHeading as Float?  = null;    // radians, 0 = N, CW
     private var mCompassErrTimer as Timer.Timer?;
 
-    // --- Bearing state ---
-    var bearingActive       as Boolean = false;
-    var bearingTargetIdx    as Number  = -1;
-    var bearingLastLat      as Double  = 0.0d;
-    var bearingLastLon      as Double  = 0.0d;
-    var bearingDistanceM    as Float   = -1.0f;
-    var bearingDirectionRad as Float   = 0.0f;
+    // --- Bearing state (multi-target) ---
+    var bearingActive          as Boolean        = false;
+    var bearingTargetIndices   as Array<Number>  = [] as Array<Number>;
+    var bearingDistancesM      as Array<Float>   = [] as Array<Float>;
+    var bearingDirectionsRad   as Array<Float>   = [] as Array<Float>;
+    var bearingLastLat         as Double         = 0.0d;
+    var bearingLastLon         as Double         = 0.0d;
 
     function initialize() {
         AppBase.initialize();
@@ -437,18 +437,25 @@ class TactixApp extends Application.AppBase {
 
     // ====== Bearing ======
 
-    function startBearing(idx as Number) as Void {
-        bearingTargetIdx  = idx;
-        bearingActive     = true;
-        bearingDistanceM  = -1.0f;
+    function startBearing(indices as Array<Number>) as Void {
+        if (indices.size() == 0) { return; }
+        bearingTargetIndices = indices;
+        bearingActive = true;
+        bearingDistancesM = new [indices.size()] as Array<Float>;
+        bearingDirectionsRad = new [indices.size()] as Array<Float>;
+        for (var i = 0; i < indices.size(); i++) {
+            bearingDistancesM[i] = -1.0f;
+            bearingDirectionsRad[i] = 0.0f;
+        }
         Position.enableLocationEvents(Position.LOCATION_CONTINUOUS, method(:onPositionUpdate));
         WatchUi.requestUpdate();
     }
 
     function stopBearing() as Void {
-        bearingActive    = false;
-        bearingTargetIdx = -1;
-        bearingDistanceM = -1.0f;
+        bearingActive = false;
+        bearingTargetIndices = [] as Array<Number>;
+        bearingDistancesM = [] as Array<Float>;
+        bearingDirectionsRad = [] as Array<Float>;
         Position.enableLocationEvents(Position.LOCATION_DISABLE, null);
         WatchUi.requestUpdate();
     }
@@ -460,14 +467,17 @@ class TactixApp extends Application.AppBase {
         bearingLastLat = coords[0] as Double;
         bearingLastLon = coords[1] as Double;
         var wps = NavManager.load();
-        if (bearingTargetIdx < 0 || bearingTargetIdx >= wps.size()) { return; }
-        var wp = wps[bearingTargetIdx] as Dictionary;
-        bearingDistanceM    = NavManager.distanceM(
-            bearingLastLat, bearingLastLon,
-            wp["lat"] as Double, wp["lon"] as Double);
-        bearingDirectionRad = NavManager.bearingRad(
-            bearingLastLat, bearingLastLon,
-            wp["lat"] as Double, wp["lon"] as Double);
+        for (var i = 0; i < bearingTargetIndices.size(); i++) {
+            var idx = bearingTargetIndices[i] as Number;
+            if (idx < 0 || idx >= wps.size()) { continue; }
+            var wp = wps[idx] as Dictionary;
+            bearingDistancesM[i] = NavManager.distanceM(
+                bearingLastLat, bearingLastLon,
+                wp["lat"] as Double, wp["lon"] as Double);
+            bearingDirectionsRad[i] = NavManager.bearingRad(
+                bearingLastLat, bearingLastLon,
+                wp["lat"] as Double, wp["lon"] as Double);
+        }
         WatchUi.requestUpdate();
     }
 

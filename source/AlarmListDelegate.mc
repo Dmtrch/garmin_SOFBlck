@@ -32,6 +32,11 @@ class AlarmListDelegate extends NoTouchDelegate {
         WatchUi.popView(WatchUi.SLIDE_DOWN);
         return true;
     }
+
+    function onMenu() as Boolean {
+        pushHelp(:alarmList);
+        return true;
+    }
 }
 
 // ─── Per-alarm submenu ────────────────────────────────────────────────────────

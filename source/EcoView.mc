@@ -74,6 +74,22 @@ class EcoView extends WatchUi.View {
         var h  = dc.getHeight();
         var cx = w / 2;
 
+        // Заряд батареи — вверху экрана
+        var stats   = System.getSystemStats();
+        var battery = stats.battery; // 0.0..100.0
+        var battStr = battery.format("%d") + "%";
+        var battColor = Graphics.COLOR_WHITE;
+        if (battery <= 10.0) {
+            battColor = Graphics.COLOR_RED;
+        } else if (battery <= 25.0) {
+            battColor = Graphics.COLOR_ORANGE;
+        } else {
+            battColor = Graphics.COLOR_LT_GRAY;
+        }
+        dc.setColor(battColor, Graphics.COLOR_TRANSPARENT);
+        dc.drawText(cx, 8, Graphics.FONT_SMALL, battStr,
+                    Graphics.TEXT_JUSTIFY_CENTER);
+
         var clock   = System.getClockTime();
         var timeStr = clock.hour.format("%02d") + ":" + clock.min.format("%02d");
 

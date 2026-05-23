@@ -90,4 +90,9 @@ class TactixDelegate extends NoTouchDelegate {
         }
         return true;
     }
+
+    function onMenu() as Boolean {
+        pushHelp(:main);
+        return true;
+    }
 }

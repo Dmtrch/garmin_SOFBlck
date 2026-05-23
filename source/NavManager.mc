@@ -1,10 +1,29 @@
 import Toybox.Application;
+import Toybox.Graphics;
 import Toybox.Lang;
 import Toybox.Math;
 
 class NavManager {
     static const MAX as Number = 20;
     private static const KEY as String = "nav_wp";
+
+    // Контрастная палитра для отображения меток разными цветами.
+    // Цвет привязан к индексу метки в списке.
+    private static const COLORS as Array<Number> = [
+        0x00FF00, // green
+        0x00FFFF, // cyan
+        0xFF00FF, // magenta
+        0xFFAA00, // orange
+        0xFFFF00, // yellow
+        0xFF0055, // pink
+        0xAAFF00, // lime
+        0x55AAFF  // light blue
+    ] as Array<Number>;
+
+    static function colorFor(idx as Number) as Number {
+        if (idx < 0) { idx = 0; }
+        return COLORS[idx % COLORS.size()] as Number;
+    }
 
     // Returns array of waypoint dicts: {name, lat, lon, t}
     static function load() as Array {

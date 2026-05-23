@@ -26,4 +26,9 @@ class EcoDelegate extends NoTouchDelegate {
         WatchUi.pushView(new TactixView(), new TactixDelegate(), WatchUi.SLIDE_LEFT);
         return true;
     }
+
+    function onMenu() as Boolean {
+        pushHelp(:eco);
+        return true;
+    }
 }

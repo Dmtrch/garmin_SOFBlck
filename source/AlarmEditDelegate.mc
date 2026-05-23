@@ -47,4 +47,9 @@ class AlarmEditDelegate extends NoTouchDelegate {
         WatchUi.popView(WatchUi.SLIDE_RIGHT);
         return true;
     }
+
+    function onMenu() as Boolean {
+        pushHelp(:alarmEdit);
+        return true;
+    }
 }

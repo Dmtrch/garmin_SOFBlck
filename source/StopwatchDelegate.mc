@@ -65,6 +65,11 @@ class StopwatchListDelegate extends NoTouchDelegate {
         return true;
     }
 
+    function onMenu() as Boolean {
+        pushHelp(:stopwatch);
+        return true;
+    }
+
     private function _cancelPending() as Void {
         if (mPendingTimer != null) {
             mPendingTimer.stop();

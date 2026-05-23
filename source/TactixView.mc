@@ -166,31 +166,39 @@ class TactixView extends WatchUi.View {
         var app = Application.getApp() as TactixApp;
         if (!app.bearingActive) { return; }
 
-        var angle = app.bearingDirectionRad;
-        if (app.compassActive && app.compassHeading != null) {
-            // show bearing relative to current compass heading
-            angle = angle - (app.compassHeading as Float);
-        }
+        var indices = app.bearingTargetIndices;
+        var count   = indices.size();
+        if (count == 0) { return; }
 
-        drawCompassArrow(dc, cx, cy, angle, Graphics.COLOR_GREEN);
+        var headingOffset = (app.compassActive && app.compassHeading != null)
+            ? (app.compassHeading as Float)
+            : 0.0f;
 
-        var distText = (app.bearingDistanceM < 0.0f)
-            ? "--"
-            : (app.bearingDistanceM < 10000.0f
-                ? app.bearingDistanceM.format("%d") + "m"
-                : (app.bearingDistanceM / 1000.0f).format("%.1f") + "km");
-
-        // rText = rTip - len - 5 - textH/2  (spec §9.8)
         var rTip  = s(125).toFloat();
         var len   = s(20).toFloat();
         var textH = Graphics.getFontHeight(Graphics.FONT_XTINY).toFloat();
         var rText = (rTip - len - 5.0f - textH / 2.0f).toNumber();
 
-        var deg = (angle * 180.0f / Math.PI.toFloat()).toNumber();
-        deg = ((deg % 360) + 360) % 360;
+        for (var i = 0; i < count; i++) {
+            var wpIdx = indices[i] as Number;
+            var color = NavManager.colorFor(wpIdx);
 
-        placeTextColored(dc, cx, cy, rText, deg, distText,
-                         Graphics.FONT_XTINY, Graphics.COLOR_GREEN);
+            var angle = (app.bearingDirectionsRad[i] as Float) - headingOffset;
+            drawCompassArrow(dc, cx, cy, angle, color);
+
+            var distM = app.bearingDistancesM[i] as Float;
+            var distText = (distM < 0.0f)
+                ? "--"
+                : (distM < 10000.0f
+                    ? distM.format("%d") + "m"
+                    : (distM / 1000.0f).format("%.1f") + "km");
+
+            var deg = (angle * 180.0f / Math.PI.toFloat()).toNumber();
+            deg = ((deg % 360) + 360) % 360;
+
+            placeTextColored(dc, cx, cy, rText, deg, distText,
+                             Graphics.FONT_XTINY, color);
+        }
     }
 
     private function placeTextColored(dc as Dc, cx as Number, cy as Number, r as Number,

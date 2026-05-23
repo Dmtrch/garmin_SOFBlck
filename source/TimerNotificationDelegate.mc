@@ -25,4 +25,9 @@ class TimerNotificationDelegate extends NoTouchDelegate {
         WatchUi.popView(WatchUi.SLIDE_DOWN);
         return true;
     }
+
+    function onMenu() as Boolean {
+        pushHelp(:timerNotif);
+        return true;
+    }
 }
