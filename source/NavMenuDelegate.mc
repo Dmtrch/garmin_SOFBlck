@@ -12,6 +12,8 @@ function pushNavMenu() as Void {
         rus ? "Установить метку" : "Set waypoint", null, :setWp, null));
     menu.addItem(new WatchUi.MenuItem(
         rus ? "Направление на метку" : "Bearing to waypoint", null, :bearing, null));
+    menu.addItem(new WatchUi.MenuItem(
+        rus ? "Справка" : "Help", null, :help, null));
     WatchUi.pushView(menu, new NavMenuDelegate(), WatchUi.SLIDE_UP);
 }
 
@@ -34,6 +36,10 @@ class NavMenuDelegate extends WatchUi.Menu2InputDelegate {
         }
         if (id == :bearing) {
             pushWaypointList(:pickForBearing);
+            return;
+        }
+        if (id == :help) {
+            pushHelp(:navMenu);
             return;
         }
         WatchUi.popView(WatchUi.SLIDE_DOWN);

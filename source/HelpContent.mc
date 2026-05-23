@@ -21,7 +21,36 @@ class HelpContent {
         if (screenId == :timerNotif)   { return _timerNotif(rus); }
         if (screenId == :waypointList) { return _waypointList(rus); }
         if (screenId == :waypointEdit) { return _waypointEdit(rus); }
+        if (screenId == :navMenu)      { return _navMenu(rus); }
+        if (screenId == :waypointMenu) { return _waypointMenu(rus); }
         return _unknown(rus);
+    }
+
+    private static function _navMenu(rus as Boolean) as Dictionary {
+        return {
+            :title => rus ? "Меню навигации" : "Navigation menu",
+            :lines => [
+                [rus ? "Компас"        : "Compass",         rus ? "вкл/выкл"            : "on/off"],
+                [rus ? "Уст. метку"    : "Set waypoint",    rus ? "GPS / вручную / карта/удалить" : "GPS / manual / map / delete"],
+                [rus ? "Направление"   : "Bearing",         rus ? "пуск пеленга по меткам" : "start bearing"],
+                [rus ? "Справка"       : "Help",            rus ? "этот экран"          : "this screen"],
+                [rus ? "НАЗАД"         : "BACK",            rus ? "выход"               : "exit"]
+            ] as Array
+        } as Dictionary;
+    }
+
+    private static function _waypointMenu(rus as Boolean) as Dictionary {
+        return {
+            :title => rus ? "Установить метку" : "Set waypoint",
+            :lines => [
+                [rus ? "Тек. коорд."  : "Current",       rus ? "по текущему GPS"     : "by current GPS"],
+                [rus ? "Вручную"      : "Manual",        rus ? "ввести широту/долготу" : "enter lat/lon"],
+                [rus ? "На карте"     : "Map",           rus ? "офлайн карта часов"  : "offline watch map"],
+                [rus ? "Удалить"      : "Delete",        rus ? "выбрать и удалить"   : "pick to delete"],
+                [rus ? "Справка"      : "Help",          rus ? "этот экран"          : "this screen"],
+                [rus ? "НАЗАД"        : "BACK",          rus ? "выход"               : "exit"]
+            ] as Array
+        } as Dictionary;
     }
 
     private static function _main(rus as Boolean) as Dictionary {
@@ -129,11 +158,10 @@ class HelpContent {
         return {
             :title => rus ? "Список меток" : "Waypoint list",
             :lines => [
-                [rus ? "ВВЕРХ/ВНИЗ"  : "UP/DOWN",  rus ? "прокрутка"            : "scroll"],
-                [rus ? "ПУСК"         : "START",    rus ? "выбрать / удалить"    : "toggle / delete"],
-                [rus ? "ПУСК долго"   : "START hold",rus ? "пуск пеленга"        : "start bearing"],
-                [rus ? "НАЗАД"        : "BACK",     rus ? "выход"                : "exit"],
-                [rus ? "ВВЕРХ долго"  : "UP hold",  rus ? "эта справка"          : "this help"]
+                [rus ? "ВВЕРХ/ВНИЗ"  : "UP/DOWN",  rus ? "прокрутка"                       : "scroll"],
+                [rus ? "ПУСК"         : "START",    rus ? "выбрать / удалить"               : "toggle / delete"],
+                [rus ? "НАЗАД"        : "BACK",     rus ? "если выбрано: пуск пеленга; иначе выход" : "if picked: start bearing; else exit"],
+                [rus ? "ВВЕРХ долго"  : "UP hold",  rus ? "эта справка"                     : "this help"]
             ] as Array
         } as Dictionary;
     }
@@ -142,11 +170,11 @@ class HelpContent {
         return {
             :title => rus ? "Ввод координат" : "Coord entry",
             :lines => [
-                [rus ? "ВВЕРХ"       : "UP",     rus ? "+1 в поле"          : "+1 in field"],
-                [rus ? "ВНИЗ"        : "DOWN",   rus ? "-1 в поле"          : "-1 in field"],
-                [rus ? "ПУСК"        : "START",  rus ? "след. поле / сохр." : "next field / save"],
-                [rus ? "НАЗАД"       : "BACK",   rus ? "выход без сохр."    : "exit no save"],
-                [rus ? "ВВЕРХ долго" : "UP hold",rus ? "эта справка"        : "this help"]
+                [rus ? "ВВЕРХ"       : "UP",     rus ? "+1 цифра (0-9 цикл)" : "+1 digit (0-9 cycle)"],
+                [rus ? "ВНИЗ"        : "DOWN",   rus ? "-1 цифра (0-9 цикл)" : "-1 digit (0-9 cycle)"],
+                [rus ? "ПУСК"        : "START",  rus ? "след. цифра / сохр." : "next digit / save"],
+                [rus ? "НАЗАД"       : "BACK",   rus ? "выход без сохр."     : "exit no save"],
+                [rus ? "ВВЕРХ долго" : "UP hold",rus ? "эта справка"         : "this help"]
             ] as Array
         } as Dictionary;
     }

@@ -45,9 +45,13 @@ class MapPickDelegate extends WatchUi.BehaviorDelegate {
         var dLat = ( dy * mpp) / 111000.0d;
         mView.pan(dLat, dLon);
 
+        // Карту перерисовываем ТОЛЬКО при отпускании пальца.
+        // setMapVisibleArea на каждый drag-тик вешает симулятор
+        // (десятки перечитываний тайлов в секунду).
         if (type == WatchUi.DRAG_TYPE_STOP) {
             mLastDragX = -1;
             mLastDragY = -1;
+            mView.commitRedraw();
         }
 
         WatchUi.requestUpdate();
@@ -91,6 +95,7 @@ class MapPickDelegate extends WatchUi.BehaviorDelegate {
             } else {
                 mView.pan(0.0d, sign * stepM / (111000.0d * cosLat));
             }
+            mView.commitRedraw();
         }
         WatchUi.requestUpdate();
     }

@@ -447,8 +447,32 @@ class TactixApp extends Application.AppBase {
             bearingDistancesM[i] = -1.0f;
             bearingDirectionsRad[i] = 0.0f;
         }
+        // Синхронно заполняем дистанции/направления из текущего фикса —
+        // чтобы числа появились сразу, не дожидаясь callback'а LOCATION_CONTINUOUS.
+        _seedBearingFromCurrentFix();
         Position.enableLocationEvents(Position.LOCATION_CONTINUOUS, method(:onPositionUpdate));
         WatchUi.requestUpdate();
+    }
+
+    private function _seedBearingFromCurrentFix() as Void {
+        var posInfo = Position.getInfo();
+        if (posInfo == null || posInfo.position == null
+            || posInfo.accuracy < Position.QUALITY_POOR) { return; }
+        var coords = (posInfo.position as Position.Location).toDegrees();
+        bearingLastLat = coords[0] as Double;
+        bearingLastLon = coords[1] as Double;
+        var wps = NavManager.load();
+        for (var i = 0; i < bearingTargetIndices.size(); i++) {
+            var idx = bearingTargetIndices[i] as Number;
+            if (idx < 0 || idx >= wps.size()) { continue; }
+            var wp = wps[idx] as Dictionary;
+            bearingDistancesM[i] = NavManager.distanceM(
+                bearingLastLat, bearingLastLon,
+                wp["lat"] as Double, wp["lon"] as Double);
+            bearingDirectionsRad[i] = NavManager.bearingRad(
+                bearingLastLat, bearingLastLon,
+                wp["lat"] as Double, wp["lon"] as Double);
+        }
     }
 
     function stopBearing() as Void {

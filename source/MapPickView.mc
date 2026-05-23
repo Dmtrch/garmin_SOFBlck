@@ -16,7 +16,16 @@ class MapPickView extends WatchUi.MapView {
         MapView.initialize();
         mCenterLat = lat;
         mCenterLon = lon;
-        setMapMode(WatchUi.MAP_MODE_BROWSE);
+        // PREVIEW — статическая отрисовка, чтобы touch-события доходили до делегата
+        // и центр карты двигался через наш pan() (а не нативным pan'ом).
+        setMapMode(WatchUi.MAP_MODE_PREVIEW);
+        // Видимая область экрана для карты — на весь экран.
+        // Без этого вызова MapView бросает UnexpectedTypeException
+        // "Screen visible area top left is not set".
+        var ds = System.getDeviceSettings();
+        var sw = ds.screenWidth;
+        var sh = ds.screenHeight;
+        setScreenVisibleArea(0, 0, sw, sh);
         _recenterMap();
     }
 
@@ -36,7 +45,9 @@ class MapPickView extends WatchUi.MapView {
         _recenterMap();
     }
 
-    // Сместить центр на dLat/dLon градусов и перерисовать карту.
+    // Сместить центр на dLat/dLon градусов БЕЗ перерисовки карты
+    // (только обновление координат — overlay покажет новые цифры).
+    // Карту нужно перерисовать отдельно: commitRedraw().
     public function pan(dLat as Double, dLon as Double) as Void {
         mCenterLat += dLat;
         mCenterLon += dLon;
@@ -45,6 +56,11 @@ class MapPickView extends WatchUi.MapView {
         if (mCenterLat < -89.9d) { mCenterLat = -89.9d; }
         if (mCenterLon >  180.0d) { mCenterLon -= 360.0d; }
         if (mCenterLon < -180.0d) { mCenterLon += 360.0d; }
+    }
+
+    // Применить накопленный pan к карте — вызов setMapVisibleArea.
+    // Дорогая операция (перечитываются тайлы), вызывать редко.
+    public function commitRedraw() as Void {
         _recenterMap();
     }
 
@@ -60,17 +76,20 @@ class MapPickView extends WatchUi.MapView {
         var dLat = mRadiusM / 111000.0d;
         var dLon = mRadiusM / (111000.0d * cosLat);
 
-        var sw = new Position.Location({
-            :latitude  => mCenterLat - dLat,
+        // API ждёт top-left (NW) и bottom-right (SE) геогр. углы:
+        //   topLeft     = (centerLat + dLat,  centerLon - dLon)
+        //   bottomRight = (centerLat - dLat,  centerLon + dLon)
+        var topLeft = new Position.Location({
+            :latitude  => mCenterLat + dLat,
             :longitude => mCenterLon - dLon,
             :format    => :degrees
         });
-        var ne = new Position.Location({
-            :latitude  => mCenterLat + dLat,
+        var bottomRight = new Position.Location({
+            :latitude  => mCenterLat - dLat,
             :longitude => mCenterLon + dLon,
             :format    => :degrees
         });
-        setMapVisibleArea(sw, ne);
+        setMapVisibleArea(topLeft, bottomRight);
     }
 
     function onUpdate(dc as Graphics.Dc) as Void {

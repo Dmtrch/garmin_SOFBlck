@@ -17,6 +17,8 @@ function pushWaypointMenu() as Void {
     }
     menu.addItem(new WatchUi.MenuItem(
         rus ? "Удалить метку" : "Delete waypoint", null, :delete, null));
+    menu.addItem(new WatchUi.MenuItem(
+        rus ? "Справка" : "Help", null, :help, null));
     WatchUi.pushView(menu, new WaypointMenuDelegate(), WatchUi.SLIDE_LEFT);
 }
 
@@ -68,6 +70,11 @@ class WaypointMenuDelegate extends WatchUi.Menu2InputDelegate {
 
         if (id == :delete) {
             pushWaypointList(:pickForDelete);
+            return;
+        }
+
+        if (id == :help) {
+            pushHelp(:waypointMenu);
             return;
         }
 

@@ -84,8 +84,8 @@ class WaypointListView extends WatchUi.View {
         if (mode == :pickForBearing) {
             var cnt = selectedCount();
             var hint = rus
-                ? "SEL: выбор   HOLD: пуск (" + cnt.format("%d") + ")"
-                : "SEL: pick   HOLD: go (" + cnt.format("%d") + ")";
+                ? "SEL: выбор   BACK: пуск (" + cnt.format("%d") + ")"
+                : "SEL: pick   BACK: go (" + cnt.format("%d") + ")";
             dc.setColor(Graphics.COLOR_LT_GRAY, Graphics.COLOR_TRANSPARENT);
             dc.drawText(w / 2, h - 18, Graphics.FONT_XTINY, hint,
                         Graphics.TEXT_JUSTIFY_CENTER);
@@ -195,25 +195,19 @@ class WaypointListDelegate extends NoTouchDelegate {
         return true;
     }
 
-    // Long-press SELECT — подтверждение мульти-выбора
-    function onHold(clickEvent as WatchUi.ClickEvent) as Boolean {
-        if (mView.mode != :pickForBearing) { return true; }
-        var indices = mView.collectIndices();
-        if (indices.size() == 0) {
-            // Если ничего не выбрано — берём текущий выделенный элемент
-            var idx = mView.selectedIdx;
-            if (idx >= 0 && idx < NavManager.load().size()) {
-                indices.add(idx);
+    function onBack() as Boolean {
+        // В режиме пеленга BACK = «пуск выбранных меток + возврат на главный».
+        // Если ничего не выбрано — просто выход в меню навигации (без пеленга).
+        if (mView.mode == :pickForBearing) {
+            var indices = mView.collectIndices();
+            if (indices.size() > 0) {
+                (Application.getApp() as TactixApp).startBearing(indices);
+                // pop WaypointList + pop NavMenu → главный экран
+                WatchUi.popView(WatchUi.SLIDE_DOWN);
+                WatchUi.popView(WatchUi.SLIDE_DOWN);
+                return true;
             }
         }
-        if (indices.size() == 0) { return true; }
-        (Application.getApp() as TactixApp).startBearing(indices);
-        WatchUi.popView(WatchUi.SLIDE_DOWN);
-        WatchUi.popView(WatchUi.SLIDE_DOWN);
-        return true;
-    }
-
-    function onBack() as Boolean {
         WatchUi.popView(WatchUi.SLIDE_RIGHT);
         return true;
     }
