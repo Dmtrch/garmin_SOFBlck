@@ -5,13 +5,57 @@ base.resourcePath = resources
 
 # 260x260
 fenix8solar47mm.resourcePath = resources;resources-round-260x260
+fenix7.resourcePath          = resources;resources-round-260x260
+fenix7s.resourcePath         = resources;resources-round-260x260
+fr255.resourcePath           = resources;resources-round-260x260
+fr255m.resourcePath          = resources;resources-round-260x260
+fr955.resourcePath           = resources;resources-round-260x260
+
 # 280x280
 fenix8solar51mm.resourcePath = resources;resources-round-280x280
+fenix7x.resourcePath         = resources;resources-round-280x280
+enduro3.resourcePath         = resources;resources-round-280x280
+
 # 454x454
-fenix847mm.resourcePath = resources;resources-round-454x454
+fenix847mm.resourcePath      = resources;resources-round-454x454
+fenix8pro47mm.resourcePath   = resources;resources-round-454x454
+epix2pro51mm.resourcePath    = resources;resources-round-454x454
+fr57047mm.resourcePath       = resources;resources-round-454x454
+fr965.resourcePath           = resources;resources-round-454x454
+fr970.resourcePath           = resources;resources-round-454x454
+venu3.resourcePath           = resources;resources-round-454x454
+venu445mm.resourcePath       = resources;resources-round-454x454
+d2mach2.resourcePath         = resources;resources-round-454x454
+approachs7047mm.resourcePath = resources;resources-round-454x454
+
 # 416x416
-epix2pro47mm.resourcePath = resources;resources-round-416x416
+epix2pro47mm.resourcePath       = resources;resources-round-416x416
+fenix843mm.resourcePath         = resources;resources-round-416x416
+epix2.resourcePath              = resources;resources-round-416x416
+instinct3amoled50mm.resourcePath = resources;resources-round-416x416
+fr265.resourcePath              = resources;resources-round-416x416
+venu2.resourcePath              = resources;resources-round-416x416
+venu2plus.resourcePath          = resources;resources-round-416x416
+d2mach1.resourcePath            = resources;resources-round-416x416
+
 # 390x390
-epix2pro42mm.resourcePath = resources;resources-round-390x390
+epix2pro42mm.resourcePath        = resources;resources-round-390x390
+instinct3amoled45mm.resourcePath = resources;resources-round-390x390
+fr57042mm.resourcePath           = resources;resources-round-390x390
+fr165.resourcePath               = resources;resources-round-390x390
+fr165m.resourcePath              = resources;resources-round-390x390
+venu441mm.resourcePath           = resources;resources-round-390x390
+vivoactive5.resourcePath         = resources;resources-round-390x390
+vivoactive6.resourcePath         = resources;resources-round-390x390
+marq2.resourcePath               = resources;resources-round-390x390
+marq2aviator.resourcePath        = resources;resources-round-390x390
+descentmk343mm.resourcePath      = resources;resources-round-390x390
+approachs7042mm.resourcePath     = resources;resources-round-390x390
+
 # 360x360
 fr265s.resourcePath = resources;resources-round-360x360
+
+# нестандартные экраны — только базовые ресурсы
+instinct3solar45mm.resourcePath = resources
+venusq2.resourcePath            = resources
+venux1.resourcePath             = resources
