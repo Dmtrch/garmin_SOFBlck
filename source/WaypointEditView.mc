@@ -235,10 +235,12 @@ class WaypointEditDelegate extends NoTouchDelegate {
         var v   = mView;
         var lat = v.latSign.toDouble() * (v.latDeg.toDouble() + v.latFrac.toDouble() / 10000.0d);
         var lon = v.lonSign.toDouble() * (v.lonDeg.toDouble() + v.lonFrac.toDouble() / 10000.0d);
-        NavManager.add(lat, lon);
-        // pop WaypointEdit + WaypointMenu + NavMenu → main
+        var newIdx = NavManager.add(lat, lon);
+        // pop ×2: WaypointEdit + WaypointMenu → редактор имени (выход вернёт в NavMenu)
         WatchUi.popView(WatchUi.SLIDE_RIGHT);
         WatchUi.popView(WatchUi.SLIDE_RIGHT);
-        WatchUi.popView(WatchUi.SLIDE_DOWN);
+        if (newIdx >= 0) {
+            pushNameEdit(newIdx);
+        }
     }
 }

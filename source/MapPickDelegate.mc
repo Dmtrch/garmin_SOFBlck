@@ -109,14 +109,15 @@ class MapPickDelegate extends WatchUi.BehaviorDelegate {
     // ──────────────────────────────────────────────────────────────────────
     private function _save() as Void {
         var rus = (System.getDeviceSettings().systemLanguage == System.LANGUAGE_RUS);
-        if (!NavManager.add(mView.mCenterLat, mView.mCenterLon)) {
+        var newIdx = NavManager.add(mView.mCenterLat, mView.mCenterLon);
+        if (newIdx < 0) {
             var msg = rus ? "Максимум меток" : "Max waypoints";
             WatchUi.pushView(new _NavMsgView(msg), new _NavMsgDelegate(), WatchUi.SLIDE_UP);
             return;
         }
-        // popView×3: MapPick → WaypointMenu → NavMenu → main
+        // pop ×2: MapPick + WaypointMenu → открыть редактор имени → выход вернёт в NavMenu
         WatchUi.popView(WatchUi.SLIDE_RIGHT);
         WatchUi.popView(WatchUi.SLIDE_RIGHT);
-        WatchUi.popView(WatchUi.SLIDE_DOWN);
+        pushNameEdit(newIdx);
     }
 }

@@ -39,14 +39,15 @@ class WaypointMenuDelegate extends WatchUi.Menu2InputDelegate {
                 return;
             }
             var coords = (posInfo.position as Position.Location).toDegrees();
-            if (!NavManager.add(coords[0] as Double, coords[1] as Double)) {
+            var newIdx = NavManager.add(coords[0] as Double, coords[1] as Double);
+            if (newIdx < 0) {
                 var msg = rus ? "Максимум меток" : "Max waypoints";
                 WatchUi.pushView(new _NavMsgView(msg), new _NavMsgDelegate(), WatchUi.SLIDE_UP);
                 return;
             }
-            // pop WaypointMenu + NavMenu → main screen
+            // pop WaypointMenu → открыть редактор имени (выход из него вернёт в NavMenu)
             WatchUi.popView(WatchUi.SLIDE_RIGHT);
-            WatchUi.popView(WatchUi.SLIDE_DOWN);
+            pushNameEdit(newIdx);
             return;
         }
 

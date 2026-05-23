@@ -36,14 +36,14 @@ class NavManager {
         Application.Storage.setValue(KEY, arr);
     }
 
-    // Returns false if MAX already reached
-    static function add(lat as Double, lon as Double) as Boolean {
+    // Returns index of added waypoint, or -1 if MAX reached
+    static function add(lat as Double, lon as Double) as Number {
         var arr = load();
-        if (arr.size() >= MAX) { return false; }
+        if (arr.size() >= MAX) { return -1; }
         var name = "WP" + (arr.size() + 1).format("%d");
         arr.add({"name" => name, "lat" => lat, "lon" => lon} as Dictionary);
         save(arr);
-        return true;
+        return arr.size() - 1;
     }
 
     static function removeAt(idx as Number) as Void {
@@ -51,6 +51,15 @@ class NavManager {
         if (idx >= 0 && idx < arr.size()) {
             arr.remove(arr[idx]);
         }
+        save(arr);
+    }
+
+    static function rename(idx as Number, name as String) as Void {
+        var arr = load();
+        if (idx < 0 || idx >= arr.size()) { return; }
+        var wp = arr[idx] as Dictionary;
+        wp["name"] = name;
+        arr[idx] = wp;
         save(arr);
     }
 

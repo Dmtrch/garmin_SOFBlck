@@ -49,11 +49,8 @@ class TactixDelegate extends NoTouchDelegate {
         mBackTimer  = null;
         mLastBackMs = 0;
         var app = Application.getApp() as TactixApp;
-        if (app.bearingActive) {
-            // first back press stops bearing without exiting (like compass toggle)
-            app.stopBearing();
-            return;
-        }
+        // Активный пеленг сохраняется — BACK = обычный переход на эко-экран,
+        // стрелки и дистанции к меткам остаются включёнными.
         if (app.compassActive || app.compassError) {
             app.toggleCompass();
         }

@@ -3,6 +3,7 @@ import Toybox.Graphics;
 import Toybox.Lang;
 import Toybox.Position;
 import Toybox.System;
+import Toybox.Timer;
 import Toybox.WatchUi;
 
 function pushWaypointList(mode as Symbol) as Void {
@@ -22,6 +23,19 @@ class WaypointListView extends WatchUi.View {
         var n = NavManager.load().size();
         selectedFlags = new [n] as Array<Boolean>;
         for (var i = 0; i < n; i++) { selectedFlags[i] = false; }
+        // Подсветить уже активные метки пеленга — чтобы их можно было снять.
+        if (mode == :pickForBearing) {
+            var app = Application.getApp() as TactixApp;
+            if (app.bearingActive) {
+                var active = app.bearingTargetIndices;
+                for (var j = 0; j < active.size(); j++) {
+                    var idx = active[j] as Number;
+                    if (idx >= 0 && idx < n) {
+                        selectedFlags[idx] = true;
+                    }
+                }
+            }
+        }
     }
 
     // Гарантирует, что размер selectedFlags соответствует текущему числу меток
@@ -73,9 +87,14 @@ class WaypointListView extends WatchUi.View {
             return;
         }
 
-        var title = (mode == :pickForDelete)
-            ? (rus ? "Удалить метку" : "Delete waypoint")
-            : (rus ? "Направление на" : "Bearing to");
+        var title;
+        if (mode == :pickForDelete) {
+            title = rus ? "Удалить метку" : "Delete waypoint";
+        } else if (mode == :manage) {
+            title = rus ? "Список меток" : "Waypoint list";
+        } else {
+            title = rus ? "Направление на" : "Bearing to";
+        }
         dc.setColor(Graphics.COLOR_YELLOW, Graphics.COLOR_TRANSPARENT);
         dc.drawText(w / 2, 8, Graphics.FONT_XTINY, title,
                     Graphics.TEXT_JUSTIFY_CENTER);
@@ -88,6 +107,13 @@ class WaypointListView extends WatchUi.View {
                 : "SEL: pick   BACK: go (" + cnt.format("%d") + ")";
             dc.setColor(Graphics.COLOR_LT_GRAY, Graphics.COLOR_TRANSPARENT);
             dc.drawText(w / 2, h - 18, Graphics.FONT_XTINY, hint,
+                        Graphics.TEXT_JUSTIFY_CENTER);
+        } else if (mode == :manage) {
+            var hint2 = rus
+                ? "START×2: удалить"
+                : "START×2: delete";
+            dc.setColor(Graphics.COLOR_LT_GRAY, Graphics.COLOR_TRANSPARENT);
+            dc.drawText(w / 2, h - 18, Graphics.FONT_XTINY, hint2,
                         Graphics.TEXT_JUSTIFY_CENTER);
         }
 
@@ -102,7 +128,7 @@ class WaypointListView extends WatchUi.View {
         var font    = Graphics.FONT_XTINY;
         var fontH   = Graphics.getFontHeight(font);
         var topPad  = 26;
-        var bottomReserve = (mode == :pickForBearing) ? 28 : 8;
+        var bottomReserve = (mode == :pickForBearing || mode == :manage) ? 28 : 8;
         var rowH    = fontH + 4;
         var maxRows = (h - topPad - bottomReserve) / rowH;
         if (maxRows < 1) { maxRows = 1; }
@@ -145,7 +171,10 @@ class WaypointListView extends WatchUi.View {
 }
 
 class WaypointListDelegate extends NoTouchDelegate {
-    private var mView as WaypointListView;
+    private static const DOUBLE_MS as Number = 500;
+
+    private var mView         as WaypointListView;
+    private var mLastSelectMs as Number = 0;
 
     function initialize(view as WaypointListView) {
         NoTouchDelegate.initialize();
@@ -187,6 +216,15 @@ class WaypointListDelegate extends NoTouchDelegate {
                 }
                 WatchUi.requestUpdate();
             }
+        } else if (mView.mode == :manage) {
+            // Двойной START → подтверждение удаления.
+            var now = System.getTimer();
+            if (now - mLastSelectMs <= DOUBLE_MS) {
+                mLastSelectMs = 0;
+                pushConfirmDelete(idx);
+            } else {
+                mLastSelectMs = now;
+            }
         } else { // :pickForBearing — toggle выбора метки
             mView.ensureFlagsSize();
             mView.selectedFlags[idx] = !(mView.selectedFlags[idx] as Boolean);
@@ -196,13 +234,19 @@ class WaypointListDelegate extends NoTouchDelegate {
     }
 
     function onBack() as Boolean {
-        // В режиме пеленга BACK = «пуск выбранных меток + возврат на главный».
-        // Если ничего не выбрано — просто выход в меню навигации (без пеленга).
         if (mView.mode == :pickForBearing) {
+            var app     = Application.getApp() as TactixApp;
             var indices = mView.collectIndices();
             if (indices.size() > 0) {
-                (Application.getApp() as TactixApp).startBearing(indices);
-                // pop WaypointList + pop NavMenu → главный экран
+                // Запуск/обновление пеленга для выбранных меток → главный экран.
+                app.startBearing(indices);
+                WatchUi.popView(WatchUi.SLIDE_DOWN);
+                WatchUi.popView(WatchUi.SLIDE_DOWN);
+                return true;
+            }
+            // Если был активный пеленг и все метки сняты — остановить пеленг.
+            if (app.bearingActive) {
+                app.stopBearing();
                 WatchUi.popView(WatchUi.SLIDE_DOWN);
                 WatchUi.popView(WatchUi.SLIDE_DOWN);
                 return true;
@@ -213,7 +257,11 @@ class WaypointListDelegate extends NoTouchDelegate {
     }
 
     function onMenu() as Boolean {
-        pushHelp(:waypointList);
+        if (mView.mode == :manage) {
+            pushHelp(:waypointManage);
+        } else {
+            pushHelp(:waypointList);
+        }
         return true;
     }
 }

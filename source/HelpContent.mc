@@ -19,22 +19,50 @@ class HelpContent {
         if (screenId == :alarmEdit)    { return _alarmEdit(rus); }
         if (screenId == :alarmNotif)   { return _alarmNotif(rus); }
         if (screenId == :timerNotif)   { return _timerNotif(rus); }
-        if (screenId == :waypointList) { return _waypointList(rus); }
-        if (screenId == :waypointEdit) { return _waypointEdit(rus); }
-        if (screenId == :navMenu)      { return _navMenu(rus); }
-        if (screenId == :waypointMenu) { return _waypointMenu(rus); }
+        if (screenId == :waypointList)   { return _waypointList(rus); }
+        if (screenId == :waypointEdit)   { return _waypointEdit(rus); }
+        if (screenId == :navMenu)        { return _navMenu(rus); }
+        if (screenId == :waypointMenu)   { return _waypointMenu(rus); }
+        if (screenId == :waypointName)   { return _waypointName(rus); }
+        if (screenId == :waypointManage) { return _waypointManage(rus); }
         return _unknown(rus);
+    }
+
+    private static function _waypointName(rus as Boolean) as Dictionary {
+        return {
+            :title => rus ? "Имя метки" : "Waypoint name",
+            :lines => [
+                [rus ? "ВВЕРХ"       : "UP",       rus ? "след. символ"           : "next char"],
+                [rus ? "ВНИЗ"        : "DOWN",     rus ? "пред. символ"           : "prev char"],
+                [rus ? "ПУСК"        : "START",    rus ? "след. позиция / сохр."  : "next pos / save"],
+                [rus ? "НАЗАД"       : "BACK",     rus ? "сохранить и выйти"      : "save and exit"],
+                [rus ? "ВВЕРХ долго" : "UP hold",  rus ? "эта справка"            : "this help"]
+            ] as Array
+        } as Dictionary;
+    }
+
+    private static function _waypointManage(rus as Boolean) as Dictionary {
+        return {
+            :title => rus ? "Список меток" : "Waypoint list",
+            :lines => [
+                [rus ? "ВВЕРХ/ВНИЗ" : "UP/DOWN",   rus ? "прокрутка"             : "scroll"],
+                [rus ? "ПУСК x2"     : "START x2", rus ? "удалить (подтв.)"      : "delete (confirm)"],
+                [rus ? "НАЗАД"       : "BACK",     rus ? "выход в меню навиг."   : "exit to nav menu"],
+                [rus ? "ВВЕРХ долго" : "UP hold",  rus ? "эта справка"           : "this help"]
+            ] as Array
+        } as Dictionary;
     }
 
     private static function _navMenu(rus as Boolean) as Dictionary {
         return {
             :title => rus ? "Меню навигации" : "Navigation menu",
             :lines => [
-                [rus ? "Компас"        : "Compass",         rus ? "вкл/выкл"            : "on/off"],
-                [rus ? "Уст. метку"    : "Set waypoint",    rus ? "GPS / вручную / карта/удалить" : "GPS / manual / map / delete"],
-                [rus ? "Направление"   : "Bearing",         rus ? "пуск пеленга по меткам" : "start bearing"],
-                [rus ? "Справка"       : "Help",            rus ? "этот экран"          : "this screen"],
-                [rus ? "НАЗАД"         : "BACK",            rus ? "выход"               : "exit"]
+                [rus ? "Компас"        : "Compass",         rus ? "вкл/выкл"                       : "on/off"],
+                [rus ? "Уст. метку"    : "Set waypoint",    rus ? "GPS / вручную / карта / удал." : "GPS / manual / map / delete"],
+                [rus ? "Направление"   : "Bearing",         rus ? "пуск пеленга по меткам"         : "start bearing"],
+                [rus ? "Список меток"  : "Waypoint list",   rus ? "обзор + удалить (×2 START)"    : "browse + delete (×2 START)"],
+                [rus ? "Справка"       : "Help",            rus ? "этот экран"                     : "this screen"],
+                [rus ? "НАЗАД"         : "BACK",            rus ? "выход"                          : "exit"]
             ] as Array
         } as Dictionary;
     }
@@ -60,7 +88,7 @@ class HelpContent {
                 [rus ? "ВВЕРХ x2"   : "UP x2",     rus ? "будильники"           : "alarms list"],
                 [rus ? "ВНИЗ x2"    : "DOWN x2",   rus ? "таймер"               : "timer"],
                 [rus ? "ПУСК x2"    : "START x2",  rus ? "секундомер"           : "stopwatch list"],
-                [rus ? "НАЗАД"      : "BACK",      rus ? "стоп компас/пеленг"   : "stop compass/bearing"],
+                [rus ? "НАЗАД"      : "BACK",      rus ? "эко-экран (компас выкл)" : "eco screen (compass off)"],
                 [rus ? "НАЗАД x2"   : "BACK x2",   rus ? "меню навигации"       : "navigation menu"],
                 [rus ? "ВВЕРХ долго": "UP hold",   rus ? "эта справка"          : "this help"]
             ] as Array
