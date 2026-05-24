@@ -170,7 +170,16 @@ class TactixView extends WatchUi.View {
         var count   = indices.size();
         if (count == 0) { return; }
 
-        var headingOffset = (app.compassActive && app.compassHeading != null)
+        if (!app.bearingGpsFix) {
+            dc.setColor(Graphics.COLOR_YELLOW, Graphics.COLOR_TRANSPARENT);
+            dc.drawText(cx, cy - s(85), Graphics.FONT_XTINY, "GPS...",
+                        Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
+            return;
+        }
+
+        // Магнитометр включается автоматически при startBearing(), поэтому
+        // heading доступен независимо от состояния отображения компаса.
+        var headingOffset = (app.compassHeading != null)
             ? (app.compassHeading as Float)
             : 0.0f;
 
