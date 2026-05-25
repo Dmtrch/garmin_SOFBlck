@@ -1,5 +1,6 @@
 import Toybox.Graphics;
 import Toybox.Lang;
+import Toybox.Position;
 import Toybox.System;
 import Toybox.WatchUi;
 
@@ -50,46 +51,47 @@ class WaypointEditView extends WatchUi.View {
         dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_BLACK);
         dc.clear();
 
+        // GPS-фикс справочно
+        var posInfo = Position.getInfo();
+        var gpsStr  = "";
+        if (posInfo.position == null) {
+            gpsStr = "GPS: --";
+        } else {
+            var coords = (posInfo.position as Position.Location).toDegrees();
+            gpsStr = "GPS: " + (coords[0] as Double).format("%.4f") + "  " +
+                     (coords[1] as Double).format("%.4f");
+        }
+        dc.setColor(Graphics.COLOR_LT_GRAY, Graphics.COLOR_TRANSPARENT);
+        dc.drawText(cx, cy - s(80), Graphics.FONT_XTINY, gpsStr,
+            Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
+
         dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
-        dc.drawText(cx, cy - s(100), Graphics.FONT_XTINY,
+        dc.drawText(cx, cy - s(63), Graphics.FONT_XTINY,
             rus ? "Новая метка" : "New waypoint",
             Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
 
         dc.setColor(Graphics.COLOR_LT_GRAY, Graphics.COLOR_TRANSPARENT);
-        dc.drawText(cx, cy - s(68), Graphics.FONT_XTINY,
+        dc.drawText(cx, cy - s(38), Graphics.FONT_XTINY,
             rus ? "Широта" : "Latitude",
             Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
 
         // Lat row: signField=0, degDigits 2 (start=1), fracDigits 4 (start=3)
-        _drawRow(dc, cx, cy - s(48), latSign, latDeg, latFrac, 90,
+        _drawRow(dc, cx, cy - s(18), latSign, latDeg, latFrac, 90,
                  ["N", "S"] as Array<String>, 0, 1, 2, 3, 4);
 
         dc.setColor(Graphics.COLOR_LT_GRAY, Graphics.COLOR_TRANSPARENT);
-        dc.drawText(cx, cy - s(8), Graphics.FONT_XTINY,
+        dc.drawText(cx, cy + s(22), Graphics.FONT_XTINY,
             rus ? "Долгота" : "Longitude",
             Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
 
         // Lon row: signField=7, degDigits 3 (start=8), fracDigits 4 (start=11)
-        _drawRow(dc, cx, cy + s(12), lonSign, lonDeg, lonFrac, 180,
+        _drawRow(dc, cx, cy + s(42), lonSign, lonDeg, lonFrac, 180,
                  ["E", "W"] as Array<String>, 7, 8, 3, 11, 4);
 
         // Стрелка под активной строкой
-        var arrowY = (field < 7) ? cy - s(30) : cy + s(30);
+        var arrowY = (field < 7) ? cy : cy + s(60);
         dc.setColor(Graphics.COLOR_YELLOW, Graphics.COLOR_TRANSPARENT);
         dc.drawText(cx, arrowY, Graphics.FONT_XTINY, "^",
-            Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
-
-        var lineH = Graphics.getFontHeight(Graphics.FONT_XTINY) + 2;
-        var y0    = cy + s(55);
-        dc.setColor(Graphics.COLOR_LT_GRAY, Graphics.COLOR_TRANSPARENT);
-        dc.drawText(cx, y0,             Graphics.FONT_XTINY,
-            rus ? "UP/DOWN: цифра 0-9" : "UP/DOWN: digit 0-9",
-            Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
-        dc.drawText(cx, y0 + lineH,     Graphics.FONT_XTINY,
-            rus ? "START: след.цифра" : "START: next digit",
-            Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
-        dc.drawText(cx, y0 + lineH * 2, Graphics.FONT_XTINY,
-            rus ? "BACK: отмена" : "BACK: cancel",
             Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
     }
 
@@ -235,12 +237,8 @@ class WaypointEditDelegate extends NoTouchDelegate {
         var v   = mView;
         var lat = v.latSign.toDouble() * (v.latDeg.toDouble() + v.latFrac.toDouble() / 10000.0d);
         var lon = v.lonSign.toDouble() * (v.lonDeg.toDouble() + v.lonFrac.toDouble() / 10000.0d);
-        var newIdx = NavManager.add(lat, lon);
-        // pop ×2: WaypointEdit + WaypointMenu → редактор имени (выход вернёт в NavMenu)
-        WatchUi.popView(WatchUi.SLIDE_RIGHT);
-        WatchUi.popView(WatchUi.SLIDE_RIGHT);
-        if (newIdx >= 0) {
-            pushNameEdit(newIdx);
-        }
+        // Переходим к экрану подтверждения вместо немедленного сохранения
+        var confirmView = new WaypointConfirmView(lat, lon);
+        WatchUi.pushView(confirmView, new WaypointConfirmDelegate(confirmView), WatchUi.SLIDE_LEFT);
     }
 }

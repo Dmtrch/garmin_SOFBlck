@@ -24,7 +24,8 @@ class HelpContent {
         if (screenId == :navMenu)        { return _navMenu(rus); }
         if (screenId == :waypointMenu)   { return _waypointMenu(rus); }
         if (screenId == :waypointName)   { return _waypointName(rus); }
-        if (screenId == :waypointManage) { return _waypointManage(rus); }
+        if (screenId == :waypointManage)  { return _waypointManage(rus); }
+        if (screenId == :waypointConfirm) { return _waypointConfirm(rus); }
         return _unknown(rus);
     }
 
@@ -88,7 +89,7 @@ class HelpContent {
                 [rus ? "ВВЕРХ x2"   : "UP x2",     rus ? "будильники"           : "alarms list"],
                 [rus ? "ВНИЗ x2"    : "DOWN x2",   rus ? "таймер"               : "timer"],
                 [rus ? "ПУСК x2"    : "START x2",  rus ? "секундомер"           : "stopwatch list"],
-                [rus ? "НАЗАД"      : "BACK",      rus ? "эко-экран (компас выкл)" : "eco screen (compass off)"],
+                [rus ? "НАЗАД"      : "BACK",      rus ? "эко-экран (сенсоры паузой)" : "eco screen (sensors paused)"],
                 [rus ? "НАЗАД x2"   : "BACK x2",   rus ? "меню навигации"       : "navigation menu"],
                 [rus ? "ВВЕРХ долго": "UP hold",   rus ? "эта справка"          : "this help"]
             ] as Array
@@ -100,7 +101,7 @@ class HelpContent {
             :title => rus ? "Эко-экран" : "Eco screen",
             :lines => [
                 [rus ? "СВЕТ"        : "LIGHT",    rus ? "подсветка 15с"        : "backlight 15s"],
-                [rus ? "НАЗАД"       : "BACK",     rus ? "выход (главный)"      : "main screen"],
+                [rus ? "НАЗАД"       : "BACK",     rus ? "главный (компас/пеленг восстан.)" : "main (compass/bearing restored)"],
                 [rus ? "ВВЕРХ долго" : "UP hold",  rus ? "эта справка"          : "this help"]
             ] as Array
         } as Dictionary;
@@ -188,7 +189,8 @@ class HelpContent {
             :lines => [
                 [rus ? "ВВЕРХ/ВНИЗ"  : "UP/DOWN",  rus ? "прокрутка"                       : "scroll"],
                 [rus ? "ПУСК"         : "START",    rus ? "выбрать / удалить"               : "toggle / delete"],
-                [rus ? "НАЗАД"        : "BACK",     rus ? "если выбрано: пуск пеленга; иначе выход" : "if picked: start bearing; else exit"],
+                [rus ? "ПУСК долго"   : "START hold",rus ? "пуск пеленга (выбранные)"               : "start bearing (selected)"],
+                [rus ? "НАЗАД"        : "BACK",     rus ? "выход"                                   : "exit"],
                 [rus ? "ВВЕРХ долго"  : "UP hold",  rus ? "эта справка"                     : "this help"]
             ] as Array
         } as Dictionary;
@@ -200,9 +202,20 @@ class HelpContent {
             :lines => [
                 [rus ? "ВВЕРХ"       : "UP",     rus ? "+1 цифра (0-9 цикл)" : "+1 digit (0-9 cycle)"],
                 [rus ? "ВНИЗ"        : "DOWN",   rus ? "-1 цифра (0-9 цикл)" : "-1 digit (0-9 cycle)"],
-                [rus ? "ПУСК"        : "START",  rus ? "след. цифра / сохр." : "next digit / save"],
-                [rus ? "НАЗАД"       : "BACK",   rus ? "выход без сохр."     : "exit no save"],
+                [rus ? "ПУСК"        : "START",  rus ? "след. цифра / подтв." : "next digit / confirm"],
+                [rus ? "НАЗАД"       : "BACK",   rus ? "пред. цифра / выход" : "prev digit / exit"],
                 [rus ? "ВВЕРХ долго" : "UP hold",rus ? "эта справка"         : "this help"]
+            ] as Array
+        } as Dictionary;
+    }
+
+    private static function _waypointConfirm(rus as Boolean) as Dictionary {
+        return {
+            :title => rus ? "Подтверждение метки" : "Waypoint confirm",
+            :lines => [
+                [rus ? "ПУСК"        : "START",   rus ? "ввести имя и сохранить" : "name and save"],
+                [rus ? "НАЗАД"       : "BACK",    rus ? "вернуться к редактору"  : "back to editor"],
+                [rus ? "ВВЕРХ долго" : "UP hold", rus ? "эта справка"            : "this help"]
             ] as Array
         } as Dictionary;
     }

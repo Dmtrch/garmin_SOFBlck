@@ -58,15 +58,5 @@ class AlarmEditView extends WatchUi.View {
             : Graphics.TEXT_JUSTIFY_LEFT;
         dc.drawText(arrowX, cy + 30, Graphics.FONT_XTINY, "^ ^ ^", arrowJust);
 
-        // Подсказка — 3 строки по центру
-        dc.setColor(Graphics.COLOR_LT_GRAY, Graphics.COLOR_TRANSPARENT);
-        var lineH = Graphics.getFontHeight(Graphics.FONT_XTINY) + 2;
-        var y0    = cy + 55;
-        dc.drawText(cx, y0,          Graphics.FONT_XTINY, rus ? "UP / DOWN: значение" : "UP / DOWN: value",
-            Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
-        dc.drawText(cx, y0 + lineH,  Graphics.FONT_XTINY, rus ? "START: поле" : "START: field",
-            Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
-        dc.drawText(cx, y0 + lineH * 2, Graphics.FONT_XTINY, rus ? "BACK: сохранить" : "BACK: save",
-            Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
     }
 }

@@ -1,3 +1,4 @@
+import Toybox.Application;
 import Toybox.Graphics;
 import Toybox.Lang;
 import Toybox.Position;
@@ -25,6 +26,8 @@ function pushWaypointMenu() as Void {
 class WaypointMenuDelegate extends WatchUi.Menu2InputDelegate {
     function initialize() {
         Menu2InputDelegate.initialize();
+        var app = Application.getApp() as TactixApp;
+        app.requestGpsForWaypoint();
     }
 
     function onSelect(item as WatchUi.MenuItem) as Void {
@@ -83,6 +86,8 @@ class WaypointMenuDelegate extends WatchUi.Menu2InputDelegate {
     }
 
     function onBack() as Void {
+        var app = Application.getApp() as TactixApp;
+        app.releaseGpsForWaypoint();
         WatchUi.popView(WatchUi.SLIDE_RIGHT);
     }
 

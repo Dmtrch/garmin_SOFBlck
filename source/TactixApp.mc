@@ -53,6 +53,7 @@ class TactixApp extends Application.AppBase {
     var bearingLastLat         as Double         = 0.0d;
     var bearingLastLon         as Double         = 0.0d;
     var bearingGpsFix          as Boolean        = false;
+    private var mGpsForWaypoint as Boolean       = false;
 
     function initialize() {
         AppBase.initialize();
@@ -507,32 +508,81 @@ class TactixApp extends Application.AppBase {
     }
 
     function onPositionUpdate(info as Position.Info) as Void {
-        if (!bearingActive) { return; }
+        if (!bearingActive && !mGpsForWaypoint) { return; }
         if (info.position == null
             || info.accuracy == null
             || info.accuracy < Position.QUALITY_POOR) {
             // фикса нет — отрисовываем "GPS…", координаты не трогаем
-            bearingGpsFix = false;
+            if (bearingActive) {
+                bearingGpsFix = false;
+            }
             WatchUi.requestUpdate();
             return;
         }
         var coords = info.position.toDegrees();
         bearingLastLat = coords[0] as Double;
         bearingLastLon = coords[1] as Double;
-        bearingGpsFix = true;
-        var wps = NavManager.load();
-        for (var i = 0; i < bearingTargetIndices.size(); i++) {
-            var idx = bearingTargetIndices[i] as Number;
-            if (idx < 0 || idx >= wps.size()) { continue; }
-            var wp = wps[idx] as Dictionary;
-            bearingDistancesM[i] = NavManager.distanceM(
-                bearingLastLat, bearingLastLon,
-                wp["lat"] as Double, wp["lon"] as Double);
-            bearingDirectionsRad[i] = NavManager.bearingRad(
-                bearingLastLat, bearingLastLon,
-                wp["lat"] as Double, wp["lon"] as Double);
+        if (bearingActive) {
+            bearingGpsFix = true;
+            var wps = NavManager.load();
+            for (var i = 0; i < bearingTargetIndices.size(); i++) {
+                var idx = bearingTargetIndices[i] as Number;
+                if (idx < 0 || idx >= wps.size()) { continue; }
+                var wp = wps[idx] as Dictionary;
+                bearingDistancesM[i] = NavManager.distanceM(
+                    bearingLastLat, bearingLastLon,
+                    wp["lat"] as Double, wp["lon"] as Double);
+                bearingDirectionsRad[i] = NavManager.bearingRad(
+                    bearingLastLat, bearingLastLon,
+                    wp["lat"] as Double, wp["lon"] as Double);
+            }
         }
         WatchUi.requestUpdate();
+    }
+
+    // ====== GPS для waypoint-экранов ======
+
+    // Включить GPS для экранов установки метки (если не уже работает от bearing).
+    function requestGpsForWaypoint() as Void {
+        if (bearingActive) { return; }  // bearing уже держит GPS включённым
+        var posInfo = Position.getInfo();
+        if (posInfo != null && posInfo.accuracy >= Position.QUALITY_POOR) { return; }
+        if (mGpsForWaypoint) { return; }  // уже запущен нами
+        Position.enableLocationEvents(
+            { :acquisitionType => Position.LOCATION_CONTINUOUS },
+            method(:onPositionUpdate));
+        mGpsForWaypoint = true;
+    }
+
+    // Выключить GPS, если он был включён только для waypoint-экрана.
+    function releaseGpsForWaypoint() as Void {
+        if (!mGpsForWaypoint) { return; }
+        mGpsForWaypoint = false;
+        if (!bearingActive) {
+            Position.enableLocationEvents(Position.LOCATION_DISABLE, null);
+        }
+    }
+
+    // Заглушить сенсоры при уходе на эко-экран (флаги сохраняются).
+    function suspendSensors() as Void {
+        if (bearingActive) {
+            Position.enableLocationEvents(Position.LOCATION_DISABLE, null);
+            bearingGpsFix = false;
+        }
+        if (compassActive || bearingActive) {
+            Sensor.enableSensorEvents(null);
+            compassHeading = null;
+        }
+    }
+
+    // Восстановить сенсоры при возврате на главный экран.
+    function resumeSensors() as Void {
+        if (bearingActive) {
+            Position.enableLocationEvents(
+                { :acquisitionType => Position.LOCATION_CONTINUOUS },
+                method(:onPositionUpdate));
+        }
+        _ensureMagnetometer();
     }
 
     // Включить магнитометр, если нужен (показан компас или активен пеленг).

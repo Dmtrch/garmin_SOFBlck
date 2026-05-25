@@ -1,3 +1,4 @@
+import Toybox.Application;
 import Toybox.Lang;
 import Toybox.WatchUi;
 
@@ -23,6 +24,7 @@ class EcoDelegate extends NoTouchDelegate {
     }
 
     function onBack() as Boolean {
+        (Application.getApp() as TactixApp).resumeSensors();
         WatchUi.pushView(new TactixView(), new TactixDelegate(), WatchUi.SLIDE_LEFT);
         return true;
     }

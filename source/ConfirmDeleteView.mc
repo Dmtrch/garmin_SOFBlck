@@ -41,14 +41,6 @@ class ConfirmDeleteView extends WatchUi.View {
         dc.drawText(cx, cy, Graphics.FONT_MEDIUM, name,
             Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
 
-        var hintH = Graphics.getFontHeight(Graphics.FONT_XTINY) + 2;
-        dc.setColor(Graphics.COLOR_LT_GRAY, Graphics.COLOR_TRANSPARENT);
-        dc.drawText(cx, cy + lineH + 6, Graphics.FONT_XTINY,
-            rus ? "START: да" : "START: yes",
-            Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
-        dc.drawText(cx, cy + lineH + 6 + hintH, Graphics.FONT_XTINY,
-            rus ? "BACK: нет" : "BACK: no",
-            Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
     }
 }
 

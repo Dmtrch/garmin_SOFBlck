@@ -99,22 +99,15 @@ class WaypointListView extends WatchUi.View {
         dc.drawText(w / 2, 8, Graphics.FONT_XTINY, title,
                     Graphics.TEXT_JUSTIFY_CENTER);
 
-        // Подсказка для multi-select + счётчик выбранных
+        // Счётчик выбранных меток для режима пеленга
         if (mode == :pickForBearing) {
             var cnt = selectedCount();
-            var hint = rus
-                ? "SEL: выбор   BACK: пуск (" + cnt.format("%d") + ")"
-                : "SEL: pick   BACK: go (" + cnt.format("%d") + ")";
-            dc.setColor(Graphics.COLOR_LT_GRAY, Graphics.COLOR_TRANSPARENT);
-            dc.drawText(w / 2, h - 18, Graphics.FONT_XTINY, hint,
-                        Graphics.TEXT_JUSTIFY_CENTER);
-        } else if (mode == :manage) {
-            var hint2 = rus
-                ? "START×2: удалить"
-                : "START×2: delete";
-            dc.setColor(Graphics.COLOR_LT_GRAY, Graphics.COLOR_TRANSPARENT);
-            dc.drawText(w / 2, h - 18, Graphics.FONT_XTINY, hint2,
-                        Graphics.TEXT_JUSTIFY_CENTER);
+            if (cnt > 0) {
+                dc.setColor(Graphics.COLOR_YELLOW, Graphics.COLOR_TRANSPARENT);
+                dc.drawText(w / 2, h - 18, Graphics.FONT_XTINY,
+                    "(" + cnt.format("%d") + ")",
+                    Graphics.TEXT_JUSTIFY_CENTER);
+            }
         }
 
         // Distance from current GPS position

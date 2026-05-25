@@ -1,152 +1,53 @@
-TACTIX BLACK — аналоговый циферблат в тактическом стиле
+TACTIX BLACK — Tactical-Style Analog Watch Face
 
-Строгий циферблат с фоном-глобусом, аналоговыми стрелками и 7-сегментным дисплеем. Экономный экран, 5 будильников, 5 секундомеров, 5 таймеров, компас, мульти-пеленг по нескольким меткам и встроенная справка по каждому экрану.
-
-━━ ЭКОНОМНЫЙ ЭКРАН (стартовый) ━━
-
-Минимальное отображение: % заряда часов сверху (цвет меняется: серый/оранжевый/красный), время ЧЧ:ММ крупно по центру, дата дд-мм-ДН. Выше времени — ближайший активный таймер (T ЧЧ:ММ) и будильник (Б ЧЧ:ММ). Сигналы будильников и таймеров срабатывают здесь.
-
-Подсветка: по умолчанию выключена (экономия). LIGHT — включить на 15 с. Повторный LIGHT — выключить досрочно.
-
-  BACK         → главный экран
-  LIGHT        → подсветка вкл (15 с) / выкл
-  UP удерж.    → справка по экрану
-
-━━ ГЛАВНЫЙ ЭКРАН ━━
-
-Глобус · аналоговые стрелки · 7-сегментный ЧЧ:ММ:СС · 12 полей данных (батарея, пульс, высота, давление, температура, рассвет/закат, шаги, калории, дата) · будильник · секундомер/таймер · компас · многоцелевой пеленг.
-
-  BACK (одиночный)  → экономный экран / остановить пеленг
-  BACK × 2          → меню навигации
-  START × 2         → 5 секундомеров
-  UP × 2            → 5 будильников
-  DOWN × 2          → 5 таймеров
-  UP удерж.         → справка по экрану
-
-━━ 5 СЕКУНДОМЕРОВ (START×2) ━━
-
-Точность до сотых секунды (ЧЧ:ММ:СС.сс). Продолжают отсчёт в фоне.
-
-  UP / DOWN       — выбор секундомера
-  START           — старт / стоп
-  START × 2       — сброс
-  BACK            — выход
-  UP удерж.       — справка по экрану
-
-━━ 5 ТАЙМЕРОВ (DOWN×2) ━━
-
-Пять независимых обратных отсчётов. При срабатывании — зелёный экран, вибрация до отключения.
-
-  UP / DOWN       — выбор таймера / изменение значения
-  START           — старт/пауза; если не настроен → установка времени
-  START × 2       — сброс
-  BACK            — выход / предыдущее поле установки
-  UP удерж.       — справка по экрану
-
-Уведомление таймера: START — выключить сигнал.
-
-━━ 5 БУДИЛЬНИКОВ (UP×2) ━━
-
-До 5 будильников с настройкой вибрации и звука. Ближайший активный — на циферблате.
-
-  UP / DOWN       — навигация по списку
-  START           — меню (время / вкл-выкл / вибрация / звук / удалить)
-  BACK            — выход
-  UP удерж.       — справка по экрану
-
-Уведомление будильника: START — выключить сигнал.
-
-━━ МЕНЮ НАВИГАЦИИ (BACK×2) ━━
-
-Три режима в одном меню:
-
-**Компас** — стрелки N (синий) / S (оранжевый) поверх циферблата.
-
-**Метки** — до 20 точек маршрута. Три способа добавления: по GPS-координатам текущего положения, вручную (широта/долгота), или указать точку на нативной карте часов (офлайн-карты OSM с диска часов; pan пальцем или кнопками UP/DOWN, START переключает режим ось lat/lon/zoom). Удаление из списка. В списке каждая метка отображается своим цветом.
-
-**Пеленг (мульти-цель)** — выбрать одну или несколько меток из списка (короткое START — toggle выбора, удерж. START — пуск). На циферблате появляются стрелки направления и расстояния — каждая своим цветом метки. При включённом компасе стрелки автоматически корректируются с поворотом часов.
-
-  BACK (одиночный) — остановить активный пеленг.
-  UP удерж.        — справка по текущему экрану.
-
-━━ СПРАВКА (UP удержать) ━━
-
-На любом экране удержание кнопки UP открывает справку: название экрана, клавиши и их действия на языке системы часов (RU/EN). UP/DOWN — скролл, BACK — выход.
-
-━━ СОВМЕСТИМЫЕ УСТРОЙСТВА ━━
-
-Fenix 8 Solar 47mm/51mm · Fenix 8 AMOLED 47mm · Fenix 8 Pro 47mm
-Fenix 7/7Pro/7S/7X · Forerunner 265/265S · 965/955 · 570/970 · 255/255S
-Epix 2 / Epix 2 Pro 42mm/47mm/51mm · D2 Mach 2/2 Pro
-Descent Mk3 51mm · Approach S70 47mm · Venu 3/3S/2/2S/4
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-TACTIX BLACK — Tactical-style analog watch face
-
-Globe background · analog hands · 7-segment display. Eco screen, 5 alarms, 5 stopwatches, 5 timers, compass, multi-target bearing and built-in help on every screen.
+A disciplined watch face with a globe background, smooth analog hands, and a bold 7-segment digital display. Packed with 5 independent stopwatches, 5 countdown timers, 5 alarms, a live compass, multi-target bearing to up to 20 named waypoints, and context-sensitive help on every screen.
 
 ━━ ECO SCREEN (startup) ━━
 
-Minimal view: watch battery % at top (color changes: gray/orange/red), large HH:MM centered, date dd-mm-DY. Nearest active timer (T HH:MM) and alarm (Al HH:MM) shown above. Alarms and timers fire here.
+Power-saving startup screen. Battery percentage at the top — gray above 30%, orange below 30%, red below 10%. Large HH:MM in the center, full date below. Nearest active timer and upcoming alarm shown automatically.
 
-Backlight: off by default (power saving). LIGHT — turn on for 15 s. Press LIGHT again to turn off early.
-
-  BACK         → main screen
-  LIGHT        → backlight on (15 s) / off
-  UP hold      → screen help
+  BACK → main screen · LIGHT → backlight 15 s · UP hold → help
+  (second LIGHT press turns backlight off early)
 
 ━━ MAIN SCREEN ━━
 
-Globe · analog hands · 7-segment HH:MM:SS · 12 data fields (battery, HR, elevation, pressure, temp, sunrise/sunset, steps, calories, date) · alarm · stopwatch/timer overlay · compass · multi-target bearing.
+The full-feature face: globe background, analog hour/minute/second hands, 7-segment HH:MM:SS readout, 12 data fields (battery, heart rate, elevation, barometric pressure, temperature, sunrise/sunset, steps, calories, date), live compass overlay, and multi-target bearing arrows.
 
-  BACK (single)   → eco screen / stop bearing
-  BACK × 2        → navigation menu
-  START × 2       → 5 stopwatches
-  UP × 2          → 5 alarms
-  DOWN × 2        → 5 timers
-  UP hold         → screen help
+  BACK×2 → navigation menu · START×2 → stopwatches
+  UP×2 → alarms · DOWN×2 → timers · UP hold → help
 
 ━━ 5 STOPWATCHES (START×2) ━━
 
-Hundredths precision (HH:MM:SS.ss). Keep running in background.
+Five independent stopwatches, each with hundredths-of-a-second precision. All keep running in the background — switching screens does not stop them.
 
-  UP / DOWN  — select · START — start/stop · START×2 — reset · BACK — exit · UP hold — help
+  UP/DOWN — select · START — start/stop · START×2 — reset · BACK — exit
 
 ━━ 5 TIMERS (DOWN×2) ━━
 
-Five independent countdowns. On expiry: green alert screen, vibration until dismissed.
+Five fully independent countdown timers. Set each one separately. On expiry: bright green full-screen alert with continuous vibration until dismissed.
 
-  UP/DOWN — select/adjust · START — start/pause or enter setup · START×2 — reset · BACK — exit · UP hold — help
-  Notification: START — stop alert.
+  UP/DOWN — select/adjust · START — start/configure · START×2 — reset · BACK — exit
 
 ━━ 5 ALARMS (UP×2) ━━
 
-Up to 5 alarms with vibration and sound options. Nearest shown on dial.
+Up to 5 alarms. Each has its own time, enabled/disabled toggle, vibration strength, and sound settings. The earliest upcoming active alarm is always visible on the main dial.
 
-  UP/DOWN — navigate · START — menu (time/on-off/vibration/sound/delete) · BACK — exit · UP hold — help
-  Notification: START — dismiss.
+  UP/DOWN — navigate · START — menu (time / on / vibration / sound / delete) · BACK — exit
 
 ━━ NAVIGATION MENU (BACK×2) ━━
 
-Three modes in one menu:
+Compass — N (blue) and S (orange) directional arrows drawn directly over the watch face, rotating in real time with the device.
 
-**Compass** — N (blue) / S (orange) arrows on dial.
+Waypoints — store up to 20 named points. Three methods to add: capture current GPS position, enter coordinates manually (lat/lon digit by digit), or pick a location on the offline OSM watch map (pan by touch or UP/DOWN, START switches between lat/lon/zoom mode). Each waypoint gets a name up to 8 characters. From the waypoint list: view saved coordinates, rename any waypoint, or delete with a confirmation prompt.
 
-**Waypoints** — up to 20 points. Three ways to add: by current GPS position, manual lat/lon entry, or pick a point on the native watch map (offline OSM map from watch storage; pan by touch or UP/DOWN buttons, START toggles lat/lon/zoom mode). Delete from list. In the list each waypoint is rendered in its own color.
+Bearing (multi-target) — pick one or more waypoints (START — toggle selection, hold START — activate). Direction arrows and distances to each selected waypoint appear on the dial in that waypoint's color. If the compass is active, bearing auto-corrects as you rotate the watch. BACK to eco screen suspends GPS and compass but keeps bearing active — returning to the main screen restores them instantly.
 
-**Bearing (multi-target)** — pick one or several waypoints from the list (short START — toggle selection, hold START — start). Direction arrows and distances appear on the dial — each in the color of its waypoint. With compass active, arrows auto-correct as the watch rotates.
-
-  Single BACK — stop active bearing.
-  UP hold     — screen help.
-
-━━ HELP (hold UP) ━━
-
-Holding UP on any screen opens a help overlay: screen title, keys and their actions in the watch system language (RU/EN). UP/DOWN — scroll, BACK — exit.
+UP hold — RU/EN help available on any screen.
 
 ━━ COMPATIBLE DEVICES ━━
 
-Fenix 8 Solar 47mm/51mm · Fenix 8 AMOLED 47mm · Fenix 8 Pro 47mm
-Fenix 7/7Pro/7S/7X · Forerunner 265/265S · 965/955 · 570/970 · 255/255S
-Epix 2 / Epix 2 Pro 42mm/47mm/51mm · D2 Mach 2/2 Pro
-Descent Mk3 51mm · Approach S70 47mm · Venu 3/3S/2/2S/4
+Fenix 8 Solar 47/51mm · Fenix 8 AMOLED 43/47mm · Fenix 8 Pro 47mm · Fenix 7/7S/7X/7Pro
+Epix 2 · Epix 2 Pro 42/47/51mm · Enduro 3 · Instinct 3 AMOLED 45/50mm · Instinct 3 Solar
+Forerunner 165/255/265/265S · FR 570 42/47mm · FR 955/965/970
+Venu 2/2+/Sq2/3 · Venu 4 41/45mm · Venu X1 · Vivoactive 5/6
+MARQ Gen 2 (Athlete/Aviator) · D2 Mach 1/2 · Descent Mk3 43/51mm · Approach S70 42/47mm

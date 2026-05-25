@@ -48,12 +48,7 @@ class TactixDelegate extends NoTouchDelegate {
     function onSingleBack() as Void {
         mBackTimer  = null;
         mLastBackMs = 0;
-        var app = Application.getApp() as TactixApp;
-        // Активный пеленг сохраняется — BACK = обычный переход на эко-экран,
-        // стрелки и дистанции к меткам остаются включёнными.
-        if (app.compassActive || app.compassError) {
-            app.toggleCompass();
-        }
+        (Application.getApp() as TactixApp).suspendSensors();
         WatchUi.popView(WatchUi.SLIDE_RIGHT);
     }
 

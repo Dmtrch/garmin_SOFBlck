@@ -1,3 +1,4 @@
+import Toybox.Application;
 import Toybox.Graphics;
 import Toybox.Lang;
 import Toybox.Position;
@@ -90,6 +91,16 @@ class MapPickView extends WatchUi.MapView {
             :format    => :degrees
         });
         setMapVisibleArea(topLeft, bottomRight);
+    }
+
+    function onShow() as Void {
+        var app = Application.getApp() as TactixApp;
+        app.requestGpsForWaypoint();
+    }
+
+    function onHide() as Void {
+        var app = Application.getApp() as TactixApp;
+        app.releaseGpsForWaypoint();
     }
 
     function onUpdate(dc as Graphics.Dc) as Void {
