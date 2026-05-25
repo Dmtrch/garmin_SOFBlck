@@ -79,32 +79,6 @@ class WaypointConfirmView extends WatchUi.View {
     }
 }
 
-// Делегат для ввода имени метки через TextPicker
-class WaypointNamePickerDelegate extends WatchUi.TextPickerDelegate {
-    private var mWpIdx as Number;
-
-    function initialize(wpIdx as Number) {
-        TextPickerDelegate.initialize();
-        mWpIdx = wpIdx;
-    }
-
-    function onTextEntered(text as String, changed as Boolean) as Boolean {
-        if (changed && text.length() > 0) {
-            NavManager.rename(mWpIdx, text);
-        }
-        // pop TextPicker + WaypointConfirmView → возврат в WaypointEditView не нужен,
-        // поэтому попаем ещё раз чтобы убрать и редактор
-        WatchUi.popView(WatchUi.SLIDE_DOWN);
-        WatchUi.popView(WatchUi.SLIDE_DOWN);
-        WatchUi.popView(WatchUi.SLIDE_DOWN);
-        return true;
-    }
-
-    function onCancel() as Boolean {
-        WatchUi.popView(WatchUi.SLIDE_RIGHT);
-        return true;
-    }
-}
 
 class WaypointConfirmDelegate extends NoTouchDelegate {
     private var mView as WaypointConfirmView;
@@ -134,8 +108,9 @@ class WaypointConfirmDelegate extends NoTouchDelegate {
         var lon    = mView.enteredLon;
         var newIdx = NavManager.add(lat, lon);
         if (newIdx >= 0) {
-            var picker = new WatchUi.TextPicker("");
-            WatchUi.pushView(picker, new WaypointNamePickerDelegate(newIdx), WatchUi.SLIDE_UP);
+            WatchUi.popView(WatchUi.SLIDE_LEFT);  // закрыть WaypointConfirmView
+            WatchUi.popView(WatchUi.SLIDE_LEFT);  // закрыть WaypointEditView
+            pushNameEdit(newIdx);
         } else {
             // MAX меток достигнут — просто закрываем confirm + edit
             WatchUi.popView(WatchUi.SLIDE_DOWN);
