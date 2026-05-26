@@ -11,7 +11,7 @@ Power-saving startup screen. Battery percentage at the top — gray above 30%, o
 
 ━━ MAIN SCREEN ━━
 
-The full-feature face: globe background, analog hour/minute/second hands, 7-segment HH:MM:SS readout, 12 data fields (battery, heart rate, elevation, barometric pressure, temperature, sunrise/sunset, steps, calories, date), live compass overlay, and multi-target bearing arrows. A small GPS status indicator appears on the dial when GPS is active.
+The full-feature face: globe background, analog hour/minute/second hands, 7-segment HH:MM:SS readout, 12 data fields (battery, heart rate, elevation, barometric pressure, temperature, sunrise/sunset, steps, calories, date), live compass overlay, and multi-target bearing arrows. A small GPS status indicator appears on the dial when GPS is active, color-coded by signal quality: green (good), purple (usable), orange (poor), yellow (last known), red (unavailable).
 
   BACK×2 → navigation menu · START → GPS on/off · START×2 → stopwatches
   UP×2 → alarms · DOWN×2 → timers · UP hold → help

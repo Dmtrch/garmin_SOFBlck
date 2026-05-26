@@ -90,6 +90,7 @@ class HelpContent {
                 [rus ? "ВВЕРХ x2"   : "UP x2",     rus ? "будильники"           : "alarms list"],
                 [rus ? "ВНИЗ x2"    : "DOWN x2",   rus ? "таймер"               : "timer"],
                 [rus ? "ПУСК"       : "START",     rus ? "GPS вкл/выкл"         : "GPS on/off"],
+                [rus ? "GPS цвет"   : "GPS color",  rus ? "зел=хор пур=ислп ор=слаб жел=посл кр=нет" : "grn=good pur=usable org=poor yel=last red=none"],
                 [rus ? "ПУСК x2"    : "START x2",  rus ? "секундомер"           : "stopwatch list"],
                 [rus ? "НАЗАД"      : "BACK",      rus ? "эко-экран (сенсоры паузой)" : "eco screen (sensors paused)"],
                 [rus ? "НАЗАД x2"   : "BACK x2",   rus ? "меню навигации"       : "navigation menu"],

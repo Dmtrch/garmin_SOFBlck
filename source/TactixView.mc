@@ -81,8 +81,20 @@ class TactixView extends WatchUi.View {
 
         var app = Application.getApp() as TactixApp;
         if (app.gpsActive) {
-            dc.setColor(Graphics.COLOR_GREEN, Graphics.COLOR_TRANSPARENT);
-            dc.drawText(cx, cy, Graphics.FONT_XTINY, "GPS",
+            var gpsColor;
+            if (app.gpsQuality == Position.QUALITY_GOOD) {
+                gpsColor = Graphics.COLOR_GREEN;
+            } else if (app.gpsQuality == Position.QUALITY_USABLE) {
+                gpsColor = Graphics.COLOR_PURPLE;
+            } else if (app.gpsQuality == Position.QUALITY_POOR) {
+                gpsColor = Graphics.COLOR_ORANGE;
+            } else if (app.gpsQuality == Position.QUALITY_LAST_KNOWN) {
+                gpsColor = Graphics.COLOR_YELLOW;
+            } else {
+                gpsColor = Graphics.COLOR_RED;
+            }
+            dc.setColor(gpsColor, Graphics.COLOR_TRANSPARENT);
+            dc.drawText(cx, cy, Graphics.FONT_TINY, "GPS",
                         Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
         }
     }

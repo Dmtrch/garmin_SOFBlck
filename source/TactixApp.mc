@@ -56,6 +56,7 @@ class TactixApp extends Application.AppBase {
     var bearingLastLon         as Double         = 0.0d;
     var bearingGpsFix          as Boolean        = false;
     var gpsActive              as Boolean        = false;
+    var gpsQuality             as Number         = Position.QUALITY_NOT_AVAILABLE;
 
     function initialize() {
         AppBase.initialize();
@@ -511,6 +512,7 @@ class TactixApp extends Application.AppBase {
     }
 
     function onPositionUpdate(info as Position.Info) as Void {
+        gpsQuality = (info.accuracy != null) ? info.accuracy : Position.QUALITY_NOT_AVAILABLE;
         if (info.position == null
             || info.accuracy == null
             || info.accuracy < Position.QUALITY_POOR) {
@@ -604,6 +606,7 @@ class TactixApp extends Application.AppBase {
     function toggleGps() as Void {
         if (gpsActive) {
             gpsActive = false;
+            gpsQuality = Position.QUALITY_NOT_AVAILABLE;
             Position.enableLocationEvents(Position.LOCATION_DISABLE, null);
             // Пеленг продолжает рисоваться, но без GPS-обновлений данные устаревают —
             // показываем "GPS..." вместо стрелок, чтобы не вводить пользователя в заблуждение.
