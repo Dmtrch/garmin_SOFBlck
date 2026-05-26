@@ -57,6 +57,7 @@ class TactixApp extends Application.AppBase {
     var bearingGpsFix          as Boolean        = false;
     var gpsActive              as Boolean        = false;
     var gpsQuality             as Number         = Position.QUALITY_NOT_AVAILABLE;
+    var hasPositionFix         as Boolean        = false;
 
     function initialize() {
         AppBase.initialize();
@@ -512,17 +513,20 @@ class TactixApp extends Application.AppBase {
     }
 
     function onPositionUpdate(info as Position.Info) as Void {
-        gpsQuality = (info.accuracy != null) ? info.accuracy : Position.QUALITY_NOT_AVAILABLE;
         if (info.position == null
             || info.accuracy == null
             || info.accuracy < Position.QUALITY_POOR) {
-            // фикса нет — отрисовываем "GPS…", координаты не трогаем
+            // accuracy может быть GOOD, но position == null — реального фикса нет.
+            gpsQuality = Position.QUALITY_NOT_AVAILABLE;
+            hasPositionFix = false;
             if (bearingActive) {
                 bearingGpsFix = false;
             }
             WatchUi.requestUpdate();
             return;
         }
+        gpsQuality = info.accuracy;
+        hasPositionFix = true;
         if (bearingActive) {
             var coords = info.position.toDegrees();
             bearingLastLat = coords[0] as Double;
@@ -607,6 +611,7 @@ class TactixApp extends Application.AppBase {
         if (gpsActive) {
             gpsActive = false;
             gpsQuality = Position.QUALITY_NOT_AVAILABLE;
+            hasPositionFix = false;
             Position.enableLocationEvents(Position.LOCATION_DISABLE, null);
             // Пеленг продолжает рисоваться, но без GPS-обновлений данные устаревают —
             // показываем "GPS..." вместо стрелок, чтобы не вводить пользователя в заблуждение.

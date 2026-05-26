@@ -85,7 +85,7 @@ class TactixView extends WatchUi.View {
             if (app.gpsQuality == Position.QUALITY_GOOD) {
                 gpsColor = Graphics.COLOR_GREEN;
             } else if (app.gpsQuality == Position.QUALITY_USABLE) {
-                gpsColor = Graphics.COLOR_PURPLE;
+                gpsColor = 0x808000; // olive
             } else if (app.gpsQuality == Position.QUALITY_POOR) {
                 gpsColor = Graphics.COLOR_ORANGE;
             } else if (app.gpsQuality == Position.QUALITY_LAST_KNOWN) {
@@ -200,9 +200,6 @@ class TactixView extends WatchUi.View {
         if (count == 0) { return; }
 
         if (!app.bearingGpsFix) {
-            dc.setColor(Graphics.COLOR_YELLOW, Graphics.COLOR_TRANSPARENT);
-            dc.drawText(cx, cy - s(85), Graphics.FONT_XTINY, "GPS...",
-                        Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
             return;
         }
 
