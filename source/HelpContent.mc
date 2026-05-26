@@ -229,8 +229,8 @@ class HelpContent {
             :lines => [
                 [rus ? "Перетаскивание" : "Drag",       rus ? "перемещение карты"         : "pan map"],
                 [rus ? "ВВЕРХ / ВНИЗ"  : "UP / DOWN",   rus ? "шаг по оси / изм. зум"     : "step on axis / change zoom"],
-                [rus ? "ПУСК"          : "START",       rus ? "сохранить метку"            : "save waypoint"],
-                [rus ? "ПУСК долго"    : "START hold",  rus ? "смена режима: шир/долг/зум" : "cycle mode: lat/lon/zoom"],
+                [rus ? "ПУСК"          : "START",       rus ? "смена режима: шир/долг/зум" : "cycle mode: lat/lon/zoom"],
+                [rus ? "ПУСК дважды"   : "START ×2",    rus ? "сохранить метку"            : "save waypoint"],
                 [rus ? "ВВЕРХ долго"   : "UP hold",     rus ? "эта справка"                : "this help"],
                 [rus ? "НАЗАД"         : "BACK",        rus ? "выход"                      : "exit"]
             ] as Array

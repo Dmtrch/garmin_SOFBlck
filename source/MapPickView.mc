@@ -142,7 +142,7 @@ class MapPickView extends WatchUi.MapView {
         _shadowText(dc, cx, yTop + lineH * 2, Graphics.FONT_XTINY, zoomText, zoomColor);
 
         // Подсказка снизу
-        var hint = rus ? "SELECT — сохранить" : "SELECT — save";
+        var hint = rus ? "2×ПУСК — сохранить" : "2×START — save";
         var yBot = (h * 0.82).toNumber();
         _shadowText(dc, cx, yBot, Graphics.FONT_XTINY, hint, Graphics.COLOR_WHITE);
     }

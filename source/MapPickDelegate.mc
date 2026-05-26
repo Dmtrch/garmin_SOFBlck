@@ -1,12 +1,15 @@
 import Toybox.Graphics;
 import Toybox.Lang;
 import Toybox.System;
+import Toybox.Timer;
 import Toybox.WatchUi;
 
 class MapPickDelegate extends WatchUi.BehaviorDelegate {
-    private var mView      as MapPickView;
-    private var mLastDragX as Number = -1;
-    private var mLastDragY as Number = -1;
+    private var mView          as MapPickView;
+    private var mLastDragX     as Number      = -1;
+    private var mLastDragY     as Number      = -1;
+    private var mLastSelectMs  as Number      = 0;
+    private var mSelectTimer   as Timer.Timer?= null;
 
     function initialize(view as MapPickView) {
         BehaviorDelegate.initialize();
@@ -64,8 +67,26 @@ class MapPickDelegate extends WatchUi.BehaviorDelegate {
 
     // Кнопки ───────────────────────────────────────────────────────────────
     function onSelect() as Boolean {
-        _save();
+        var now = System.getTimer();
+        if (mLastSelectMs > 0 && now - mLastSelectMs < 450) {
+            // двойное нажатие — сохранить
+            if (mSelectTimer != null) { mSelectTimer.stop(); mSelectTimer = null; }
+            mLastSelectMs = 0;
+            _save();
+        } else {
+            // первое нажатие — ждём второго
+            mLastSelectMs = now;
+            mSelectTimer = new Timer.Timer();
+            mSelectTimer.start(method(:_onSelectSingle), 450, false);
+        }
         return true;
+    }
+
+    function _onSelectSingle() as Void {
+        mSelectTimer = null;
+        mLastSelectMs = 0;
+        mView.cycleMode();
+        WatchUi.requestUpdate();
     }
 
     function onBack() as Boolean {
@@ -105,11 +126,6 @@ class MapPickDelegate extends WatchUi.BehaviorDelegate {
         return true;
     }
 
-    function onSelectHold() as Boolean {
-        mView.cycleMode();
-        WatchUi.requestUpdate();
-        return true;
-    }
 
     // ──────────────────────────────────────────────────────────────────────
     private function _save() as Void {
