@@ -1,48 +1,57 @@
 TACTIX BLACK — Tactical-Style Analog Watch Face
 
-A disciplined watch face with a globe background, smooth analog hands, and a bold 7-segment digital display. Packed with 5 independent stopwatches, 5 countdown timers, 5 alarms, a live compass, multi-target bearing to up to 20 named waypoints, and context-sensitive help on every screen.
+Globe background, analog hands, 7-segment digital display. 5 stopwatches, 5 timers, 5 alarms, compass, multi-target bearing to 20 waypoints. Context-sensitive help on every screen (UP hold).
 
 ━━ ECO SCREEN (startup) ━━
 
-Power-saving startup screen. Battery percentage at the top — gray above 30%, orange below 30%, red below 10%. Large HH:MM in the center, full date below. Nearest active timer and upcoming alarm shown automatically. GPS and sensors are suspended here to save battery — returning to the main screen restores them.
+Low-power screen. Battery % top, HH:MM center, date, nearest timer and alarm. GPS and sensors suspended.
 
-  BACK → main screen · LIGHT → backlight 15 s · UP hold → help
-  (second LIGHT press turns backlight off early)
+  LIGHT → backlight 15 s · BACK → main screen · UP hold → help
 
 ━━ MAIN SCREEN ━━
 
-The full-feature face: globe background, analog hour/minute/second hands, 7-segment HH:MM:SS readout, 12 data fields (battery, heart rate, elevation, barometric pressure, temperature, sunrise/sunset, steps, calories, date), live compass overlay, and multi-target bearing arrows. A small GPS status indicator appears on the dial when GPS is active, color-coded by signal quality: green (good), purple (usable), orange (poor), yellow (last known), red (unavailable).
+Full face: globe, analog hands, HH:MM:SS, 12 data fields, compass, bearing arrows. GPS indicator in dial center when active — color shows signal quality: green (good), olive (usable), orange (poor), yellow (last known), red (unavailable).
 
-  BACK×2 → navigation menu · START → GPS on/off · START×2 → stopwatches
-  UP×2 → alarms · DOWN×2 → timers · UP hold → help
+  START → GPS on/off · START×2 → stopwatches
+  UP×2 → alarms · DOWN×2 → timers
+  BACK → eco · BACK×2 → navigation menu · UP hold → help
 
-━━ 5 STOPWATCHES (START×2) ━━
+━━ 5 STOPWATCHES ━━
 
-Five independent stopwatches, each with hundredths-of-a-second precision. All keep running in the background — switching screens does not stop them.
+Independent, hundredths precision, run in background.
 
-  UP/DOWN — select · START — start/stop · START×2 — reset · BACK — exit
+  UP/DOWN → select 1–5 · START → start/pause · START×2 → reset · BACK → exit · UP hold → help
 
-━━ 5 TIMERS (DOWN×2) ━━
+━━ 5 TIMERS ━━
 
-Five fully independent countdown timers. Set each one separately. On expiry: bright green full-screen alert with continuous vibration until dismissed.
+Independent countdown timers. Expiry: full-screen alert + vibration.
 
-  UP/DOWN — select/adjust · START — start/configure · START×2 — reset · BACK — exit
+  UP/DOWN → select / ±1 in field · START → start/pause / next field
+  START×2 → reset · BACK → prev field/exit · UP hold → help
+  Alert: START or BACK → stop and reset
 
-━━ 5 ALARMS (UP×2) ━━
+━━ 5 ALARMS ━━
 
-Up to 5 alarms. Each has its own time, enabled/disabled toggle, vibration strength, and sound settings. The earliest upcoming active alarm is always visible on the main dial.
+Per-alarm time, on/off, vibration, sound. Next alarm shown on main dial.
 
-  UP/DOWN — navigate · START — menu (time / on / vibration / sound / delete) · BACK — exit
+  UP/DOWN → select · START → alarm menu · BACK → exit · UP hold → help
+  Edit time: UP/DOWN → ±1 · START → next field · BACK → save and exit
+  Alert: START or BACK → stop
 
 ━━ NAVIGATION MENU (BACK×2) ━━
 
-Compass — N (blue) and S (orange) directional arrows drawn directly over the watch face, rotating in real time with the device.
+Compass — live N/S arrows over dial, toggle on/off.
 
-Waypoints — store up to 20 named points. Three methods to add: capture current GPS position, enter coordinates manually (lat/lon digit by digit), or pick a location on the offline OSM watch map (pan by touch or UP/DOWN, START switches between lat/lon/zoom mode). Each waypoint gets a name up to 8 characters. A confirmation screen previews coordinates before saving. From the waypoint list: view saved coordinates, rename any waypoint, or delete with a confirmation prompt.
+Waypoints — up to 20 named points. Add by:
+  • Current GPS position
+  • Manual lat/lon entry (UP/DOWN digit, START next, BACK prev, DOWN hold → toggle DD°MM′SS″/DD.DDDD)
+  • Offline OSM map (drag to pan, UP/DOWN step/zoom, START → cycle lat/lon/zoom mode, START×2 → save)
+  Confirmation screen previews coords. Then name up to 8 chars.
+  Delete: pick from list with confirmation.
 
-Bearing (multi-target) — pick one or more waypoints (START — toggle selection, hold START — activate). Direction arrows and distances to each selected waypoint appear on the dial in that waypoint's color. If the compass is active, bearing auto-corrects as you rotate the watch. BACK to eco screen suspends GPS and compass but keeps bearing active — returning to the main screen restores them instantly.
+Waypoint list: UP/DOWN scroll · START×2 delete · BACK exit · UP hold help
 
-UP hold — RU/EN help available on any screen.
+Bearing — select waypoints (START toggle, BACK activate). Live direction arrows and distances on dial. Auto-corrects with compass. Eco screen suspends GPS but keeps bearing — main screen restores instantly.
 
 ━━ COMPATIBLE DEVICES ━━
 
