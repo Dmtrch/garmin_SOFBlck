@@ -40,10 +40,12 @@ class TactixApp extends Application.AppBase {
     private var mTimerToneCount   as Number       = 0;
 
     // --- Compass state ---
-    var compassActive  as Boolean = false;   // sensor on, drawing arrows
-    var compassError   as Boolean = false;   // heading unavailable, show msg
-    var compassHeading as Float?  = null;    // radians, 0 = N, CW
+    var compassActive    as Boolean = false; // sensor on, drawing arrows
+    var compassError     as Boolean = false; // heading unavailable, show msg
+    var compassHeading   as Float?  = null;  // radians, 0 = N, CW
+    var compassHeadingMs as Number  = 0;     // System.getTimer() at last fresh heading
     private var mCompassErrTimer as Timer.Timer?;
+    private var mSensorWarmupMs  as Number = 0; // System.getTimer() at last _ensureMagnetometer
 
     // --- Bearing state (multi-target) ---
     var bearingActive          as Boolean        = false;
@@ -53,7 +55,7 @@ class TactixApp extends Application.AppBase {
     var bearingLastLat         as Double         = 0.0d;
     var bearingLastLon         as Double         = 0.0d;
     var bearingGpsFix          as Boolean        = false;
-    private var mGpsForWaypoint as Boolean       = false;
+    var gpsActive              as Boolean        = false;
 
     function initialize() {
         AppBase.initialize();
@@ -67,6 +69,8 @@ class TactixApp extends Application.AppBase {
     function onStop(state as Dictionary?) as Void {
         _saveStopwatch();
         _saveTimer();
+        Position.enableLocationEvents(Position.LOCATION_DISABLE, null);
+        Sensor.enableSensorEvents(null);
     }
 
     function getInitialView() as [Views] or [Views, InputDelegates] {
@@ -162,7 +166,6 @@ class TactixApp extends Application.AppBase {
                 if (newRemain <= 0) {
                     tmRemainMs[i] = 0;
                     tmExpired[i]  = true;
-                    _vibrateOnExpire();
                 } else {
                     tmRemainMs[i] = newRemain;
                     tmStartMs[i]  = System.getTimer();
@@ -308,7 +311,6 @@ class TactixApp extends Application.AppBase {
                 tmRunning[idx]  = false;
                 tmRemainMs[idx] = 0;
                 tmExpired[idx]  = true;
-                _vibrateOnExpire();
                 return 0;
             }
             return remain;
@@ -416,9 +418,16 @@ class TactixApp extends Application.AppBase {
     function onCompassSensor(info as Sensor.Info) as Void {
         if (!compassActive && !bearingActive) { return; }
         if (info.heading != null) {
-            compassHeading = info.heading;
-            compassError   = false;
+            compassHeading   = info.heading;
+            compassHeadingMs = System.getTimer();
+            compassError     = false;
         } else {
+            // Магнитометр прогревается ~2 секунды после включения —
+            // в это время null heading нормально, ошибку не показываем.
+            if (System.getTimer() - mSensorWarmupMs < 2000) {
+                WatchUi.requestUpdate();
+                return;
+            }
             // heading недоступен — если показан компас, сообщаем пользователю.
             if (compassActive) {
                 compassActive = false;
@@ -461,12 +470,6 @@ class TactixApp extends Application.AppBase {
         // Синхронно заполняем дистанции/направления из текущего фикса —
         // чтобы числа появились сразу, не дожидаясь callback'а LOCATION_CONTINUOUS.
         _seedBearingFromCurrentFix();
-        // Принудительно включаем GPS в непрерывном режиме. На реальных часах
-        // без явного включения чип может оставаться в спящем состоянии и
-        // фикса не будет до запуска любой активности.
-        Position.enableLocationEvents(
-            { :acquisitionType => Position.LOCATION_CONTINUOUS },
-            method(:onPositionUpdate));
         // Магнитометр должен работать всегда, когда активен пеленг —
         // без heading стрелка не вращается при повороте часов.
         _ensureMagnetometer();
@@ -476,6 +479,7 @@ class TactixApp extends Application.AppBase {
     private function _seedBearingFromCurrentFix() as Void {
         var posInfo = Position.getInfo();
         if (posInfo == null || posInfo.position == null
+            || posInfo.accuracy == null
             || posInfo.accuracy < Position.QUALITY_POOR) { return; }
         var coords = (posInfo.position as Position.Location).toDegrees();
         bearingLastLat = coords[0] as Double;
@@ -501,14 +505,12 @@ class TactixApp extends Application.AppBase {
         bearingTargetIndices = [] as Array<Number>;
         bearingDistancesM = [] as Array<Float>;
         bearingDirectionsRad = [] as Array<Float>;
-        Position.enableLocationEvents(Position.LOCATION_DISABLE, null);
         // Если компас не показан пользователем — магнитометр гасим.
         _releaseMagnetometer();
         WatchUi.requestUpdate();
     }
 
     function onPositionUpdate(info as Position.Info) as Void {
-        if (!bearingActive && !mGpsForWaypoint) { return; }
         if (info.position == null
             || info.accuracy == null
             || info.accuracy < Position.QUALITY_POOR) {
@@ -519,10 +521,10 @@ class TactixApp extends Application.AppBase {
             WatchUi.requestUpdate();
             return;
         }
-        var coords = info.position.toDegrees();
-        bearingLastLat = coords[0] as Double;
-        bearingLastLon = coords[1] as Double;
         if (bearingActive) {
+            var coords = info.position.toDegrees();
+            bearingLastLat = coords[0] as Double;
+            bearingLastLon = coords[1] as Double;
             bearingGpsFix = true;
             var wps = NavManager.load();
             for (var i = 0; i < bearingTargetIndices.size(); i++) {
@@ -540,54 +542,24 @@ class TactixApp extends Application.AppBase {
         WatchUi.requestUpdate();
     }
 
-    // ====== GPS для waypoint-экранов ======
-
-    // Включить GPS для экранов установки метки (если не уже работает от bearing).
-    function requestGpsForWaypoint() as Void {
-        if (bearingActive) { return; }  // bearing уже держит GPS включённым
-        var posInfo = Position.getInfo();
-        if (posInfo != null && posInfo.accuracy >= Position.QUALITY_POOR) { return; }
-        if (mGpsForWaypoint) { return; }  // уже запущен нами
-        Position.enableLocationEvents(
-            { :acquisitionType => Position.LOCATION_CONTINUOUS },
-            method(:onPositionUpdate));
-        mGpsForWaypoint = true;
-    }
-
-    // Выключить GPS, если он был включён только для waypoint-экрана.
-    function releaseGpsForWaypoint() as Void {
-        if (!mGpsForWaypoint) { return; }
-        mGpsForWaypoint = false;
-        if (!bearingActive) {
-            Position.enableLocationEvents(Position.LOCATION_DISABLE, null);
-        }
-    }
-
     // Заглушить сенсоры при уходе на эко-экран (флаги сохраняются).
     function suspendSensors() as Void {
-        if (bearingActive) {
-            Position.enableLocationEvents(Position.LOCATION_DISABLE, null);
-            bearingGpsFix = false;
-        }
         if (compassActive || bearingActive) {
             Sensor.enableSensorEvents(null);
-            compassHeading = null;
+            compassHeading   = null;
+            compassHeadingMs = 0;
         }
     }
 
     // Восстановить сенсоры при возврате на главный экран.
     function resumeSensors() as Void {
-        if (bearingActive) {
-            Position.enableLocationEvents(
-                { :acquisitionType => Position.LOCATION_CONTINUOUS },
-                method(:onPositionUpdate));
-        }
         _ensureMagnetometer();
     }
 
     // Включить магнитометр, если нужен (показан компас или активен пеленг).
     private function _ensureMagnetometer() as Void {
         if (compassActive || bearingActive) {
+            mSensorWarmupMs = System.getTimer();
             Sensor.enableSensorEvents(method(:onCompassSensor));
         }
     }
@@ -596,7 +568,8 @@ class TactixApp extends Application.AppBase {
     private function _releaseMagnetometer() as Void {
         if (compassActive || bearingActive) { return; }
         Sensor.enableSensorEvents(null);
-        compassHeading = null;
+        compassHeading   = null;
+        compassHeadingMs = 0;
         if (mCompassErrTimer != null) {
             mCompassErrTimer.stop();
             mCompassErrTimer = null;
@@ -623,6 +596,25 @@ class TactixApp extends Application.AppBase {
                 new Attention.VibeProfile(100, 400)
             ] as Array<Attention.VibeProfile>;
             Attention.vibrate(pattern);
+        }
+    }
+
+    // ====== GPS (Start кнопка) ======
+
+    function toggleGps() as Void {
+        if (gpsActive) {
+            gpsActive = false;
+            Position.enableLocationEvents(Position.LOCATION_DISABLE, null);
+            // Пеленг продолжает рисоваться, но без GPS-обновлений данные устаревают —
+            // показываем "GPS..." вместо стрелок, чтобы не вводить пользователя в заблуждение.
+            if (bearingActive) {
+                bearingGpsFix = false;
+            }
+        } else {
+            gpsActive = true;
+            Position.enableLocationEvents(
+                { :acquisitionType => Position.LOCATION_CONTINUOUS },
+                method(:onPositionUpdate));
         }
     }
 }

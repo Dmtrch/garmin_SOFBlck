@@ -4,16 +4,16 @@ A disciplined watch face with a globe background, smooth analog hands, and a bol
 
 ━━ ECO SCREEN (startup) ━━
 
-Power-saving startup screen. Battery percentage at the top — gray above 30%, orange below 30%, red below 10%. Large HH:MM in the center, full date below. Nearest active timer and upcoming alarm shown automatically.
+Power-saving startup screen. Battery percentage at the top — gray above 30%, orange below 30%, red below 10%. Large HH:MM in the center, full date below. Nearest active timer and upcoming alarm shown automatically. GPS and sensors are suspended here to save battery — returning to the main screen restores them.
 
   BACK → main screen · LIGHT → backlight 15 s · UP hold → help
   (second LIGHT press turns backlight off early)
 
 ━━ MAIN SCREEN ━━
 
-The full-feature face: globe background, analog hour/minute/second hands, 7-segment HH:MM:SS readout, 12 data fields (battery, heart rate, elevation, barometric pressure, temperature, sunrise/sunset, steps, calories, date), live compass overlay, and multi-target bearing arrows.
+The full-feature face: globe background, analog hour/minute/second hands, 7-segment HH:MM:SS readout, 12 data fields (battery, heart rate, elevation, barometric pressure, temperature, sunrise/sunset, steps, calories, date), live compass overlay, and multi-target bearing arrows. A small GPS status indicator appears on the dial when GPS is active.
 
-  BACK×2 → navigation menu · START×2 → stopwatches
+  BACK×2 → navigation menu · START → GPS on/off · START×2 → stopwatches
   UP×2 → alarms · DOWN×2 → timers · UP hold → help
 
 ━━ 5 STOPWATCHES (START×2) ━━
@@ -38,7 +38,7 @@ Up to 5 alarms. Each has its own time, enabled/disabled toggle, vibration streng
 
 Compass — N (blue) and S (orange) directional arrows drawn directly over the watch face, rotating in real time with the device.
 
-Waypoints — store up to 20 named points. Three methods to add: capture current GPS position, enter coordinates manually (lat/lon digit by digit), or pick a location on the offline OSM watch map (pan by touch or UP/DOWN, START switches between lat/lon/zoom mode). Each waypoint gets a name up to 8 characters. From the waypoint list: view saved coordinates, rename any waypoint, or delete with a confirmation prompt.
+Waypoints — store up to 20 named points. Three methods to add: capture current GPS position, enter coordinates manually (lat/lon digit by digit), or pick a location on the offline OSM watch map (pan by touch or UP/DOWN, START switches between lat/lon/zoom mode). Each waypoint gets a name up to 8 characters. A confirmation screen previews coordinates before saving. From the waypoint list: view saved coordinates, rename any waypoint, or delete with a confirmation prompt.
 
 Bearing (multi-target) — pick one or more waypoints (START — toggle selection, hold START — activate). Direction arrows and distances to each selected waypoint appear on the dial in that waypoint's color. If the compass is active, bearing auto-corrects as you rotate the watch. BACK to eco screen suspends GPS and compass but keeps bearing active — returning to the main screen restores them instantly.
 

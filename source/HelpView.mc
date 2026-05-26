@@ -27,13 +27,13 @@ class HelpView extends WatchUi.View {
         // 5 пустых строк сверху и снизу — для возможности доскроллить
         // любую строку в безопасную центральную зону круглого экрана.
         var padded = [] as Array;
-        for (var i = 0; i < 5; i++) {
+        for (var i = 0; i < 2; i++) {
             padded.add(["", ""] as Array);
         }
         for (var j = 0; j < src.size(); j++) {
             padded.add(src[j]);
         }
-        for (var k = 0; k < 5; k++) {
+        for (var k = 0; k < 2; k++) {
             padded.add(["", ""] as Array);
         }
         mLines = padded;
@@ -43,9 +43,8 @@ class HelpView extends WatchUi.View {
     function maxVisible(dc as Graphics.Dc) as Number {
         var h        = dc.getHeight();
         var titleH   = Graphics.getFontHeight(Graphics.FONT_TINY);
-        var hintH    = Graphics.getFontHeight(Graphics.FONT_XTINY);
         var rowH     = Graphics.getFontHeight(Graphics.FONT_XTINY) + 2;
-        var avail    = h - titleH - hintH - 16;
+        var avail    = h - titleH - 16;
         var n        = avail / rowH;
         if (n < 1) { n = 1; }
         return n;
@@ -102,7 +101,7 @@ class HelpView extends WatchUi.View {
 
         // Заголовок
         dc.setColor(Graphics.COLOR_YELLOW, Graphics.COLOR_TRANSPARENT);
-        dc.drawText(w / 2, 6, Graphics.FONT_TINY, mTitle,
+        dc.drawText(w / 2, 16, Graphics.FONT_TINY, mTitle,
                     Graphics.TEXT_JUSTIFY_CENTER);
 
         var titleH = Graphics.getFontHeight(Graphics.FONT_TINY);
@@ -164,12 +163,6 @@ class HelpView extends WatchUi.View {
                         Graphics.TEXT_JUSTIFY_CENTER);
         }
 
-        // Подсказка
-        var rus  = HelpContent.isRus();
-        var hint = rus ? "^v скролл  <- выход" : "^v scroll  <- exit";
-        dc.setColor(Graphics.COLOR_DK_GRAY, Graphics.COLOR_TRANSPARENT);
-        dc.drawText(w / 2, h - 18, Graphics.FONT_XTINY, hint,
-                    Graphics.TEXT_JUSTIFY_CENTER);
     }
 }
 

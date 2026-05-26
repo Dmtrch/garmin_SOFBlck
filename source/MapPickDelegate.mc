@@ -101,6 +101,11 @@ class MapPickDelegate extends WatchUi.BehaviorDelegate {
     }
 
     function onMenu() as Boolean {
+        pushHelp(:mapPick);
+        return true;
+    }
+
+    function onSelectHold() as Boolean {
         mView.cycleMode();
         WatchUi.requestUpdate();
         return true;
@@ -115,9 +120,8 @@ class MapPickDelegate extends WatchUi.BehaviorDelegate {
             WatchUi.pushView(new _NavMsgView(msg), new _NavMsgDelegate(), WatchUi.SLIDE_UP);
             return;
         }
-        // pop ×2: MapPick + WaypointMenu → открыть редактор имени → выход вернёт в NavMenu
-        WatchUi.popView(WatchUi.SLIDE_RIGHT);
-        WatchUi.popView(WatchUi.SLIDE_RIGHT);
+        WatchUi.popView(WatchUi.SLIDE_RIGHT);  // MapPick
+        WatchUi.popView(WatchUi.SLIDE_RIGHT);  // WaypointMenu
         pushNameEdit(newIdx);
     }
 }

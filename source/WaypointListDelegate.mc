@@ -113,6 +113,7 @@ class WaypointListView extends WatchUi.View {
         // Distance from current GPS position
         var posInfo  = Position.getInfo();
         var hasPos   = (posInfo != null && posInfo.position != null &&
+                        posInfo.accuracy != null &&
                         posInfo.accuracy >= Position.QUALITY_POOR);
         var curCoords = hasPos
             ? (posInfo.position as Position.Location).toDegrees()

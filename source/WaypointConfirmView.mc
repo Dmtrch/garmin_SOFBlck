@@ -33,7 +33,7 @@ class WaypointConfirmView extends WatchUi.View {
         var curLon   = 0.0d;
         var hasFix   = false;
         var curLabel = "";
-        if (posInfo.position == null) {
+        if (posInfo == null || posInfo.position == null) {
             curLabel = "GPS: --";
         } else {
             var coords = (posInfo.position as Position.Location).toDegrees();

@@ -9,23 +9,48 @@ function pushWaypointEdit() as Void {
     WatchUi.pushView(view, new WaypointEditDelegate(view), WatchUi.SLIDE_LEFT);
 }
 
-// Fields 0..14 (15 шт.), редактируется каждая цифра отдельно:
-//   0       — latSign  (N/S toggle)
-//   1..2    — latDeg цифры [10s, 1s]
-//   3..6    — latFrac цифры [1000s, 100s, 10s, 1s]
-//   7       — lonSign  (E/W toggle)
-//   8..10   — lonDeg цифры [100s, 10s, 1s]
-//   11..14  — lonFrac цифры [1000s, 100s, 10s, 1s]
-class WaypointEditView extends WatchUi.View {
-    static const FIELD_MAX as Number = 14;
+// === Режим DD.DDDD (field 0..14) ===
+//   0       — latSign
+//   1..2    — latDeg  (2 цифры, 0..90)
+//   3..6    — latFrac (4 цифры, 0..9999)
+//   7       — lonSign
+//   8..10   — lonDeg  (3 цифры, 0..180)
+//   11..14  — lonFrac (4 цифры, 0..9999)
+//
+// === Режим DD°MM'SS.s (field 0..16) ===
+//   0       — latSign
+//   1..2    — latDeg    (2 цифры, 0..90)
+//   3..4    — latMin    (2 цифры, 0..59)
+//   5..6    — latSec    (2 цифры, 0..59)
+//   7       — latSecFrac(1 цифра, 0..9)
+//   8       — lonSign
+//   9..11   — lonDeg    (3 цифры, 0..180)
+//   12..13  — lonMin    (2 цифры, 0..59)
+//   14..15  — lonSec    (2 цифры, 0..59)
+//   16      — lonSecFrac(1 цифра, 0..9)
 
+class WaypointEditView extends WatchUi.View {
+    static const FIELD_MAX_DD  as Number = 14;
+    static const FIELD_MAX_DMS as Number = 16;
+
+    var modeDMS as Boolean = false;
+
+    // DD.DDDD
     var field   as Number = 0;
     var latSign as Number = 1;   // +1 = N, -1 = S
     var latDeg  as Number = 0;   // 0..90
-    var latFrac as Number = 0;   // 0..9999 → .0000..9999
+    var latFrac as Number = 0;   // 0..9999
     var lonSign as Number = 1;   // +1 = E, -1 = W
     var lonDeg  as Number = 0;   // 0..180
     var lonFrac as Number = 0;
+
+    // DD°MM'SS.s
+    var latMin     as Number = 0;  // 0..59
+    var latSec     as Number = 0;  // 0..59
+    var latSecFrac as Number = 0;  // 0..9
+    var lonMin     as Number = 0;
+    var lonSec     as Number = 0;
+    var lonSecFrac as Number = 0;
 
     private var mScale as Float = 1.0f;
 
@@ -41,6 +66,58 @@ class WaypointEditView extends WatchUi.View {
         return (v.toFloat() * mScale + 0.5f).toNumber();
     }
 
+    // Переключение формата с конвертацией текущих значений
+    function toggleMode() as Void {
+        if (!modeDMS) {
+            // DD.DDDD → DD°MM'SS.s
+            var f = latFrac.toDouble() / 10000.0d;
+            var mTotal = f * 60.0d;
+            latMin = mTotal.toNumber();
+            var sTotal = (mTotal - latMin.toDouble()) * 60.0d;
+            latSec = sTotal.toNumber();
+            latSecFrac = ((sTotal - latSec.toDouble()) * 10.0d + 0.5d).toNumber();
+            _normalizeDMS(latMin, latSec, latSecFrac, :lat);
+
+            f = lonFrac.toDouble() / 10000.0d;
+            mTotal = f * 60.0d;
+            lonMin = mTotal.toNumber();
+            sTotal = (mTotal - lonMin.toDouble()) * 60.0d;
+            lonSec = sTotal.toNumber();
+            lonSecFrac = ((sTotal - lonSec.toDouble()) * 10.0d + 0.5d).toNumber();
+            _normalizeDMS(lonMin, lonSec, lonSecFrac, :lon);
+
+            modeDMS = true;
+        } else {
+            // DD°MM'SS.s → DD.DDDD
+            var decLat = latMin.toDouble() / 60.0d +
+                         (latSec.toDouble() + latSecFrac.toDouble() / 10.0d) / 3600.0d;
+            latFrac = (decLat * 10000.0d + 0.5d).toNumber();
+            if (latFrac > 9999) { latFrac = 9999; }
+
+            var decLon = lonMin.toDouble() / 60.0d +
+                         (lonSec.toDouble() + lonSecFrac.toDouble() / 10.0d) / 3600.0d;
+            lonFrac = (decLon * 10000.0d + 0.5d).toNumber();
+            if (lonFrac > 9999) { lonFrac = 9999; }
+
+            modeDMS = false;
+        }
+        field = 0;
+        WatchUi.requestUpdate();
+    }
+
+    // Нормализует переполнение: secFrac≥10 → sec++, sec≥60 → min++
+    private function _normalizeDMS(mn as Number, sc as Number, sf as Number,
+                                    which as Symbol) as Void {
+        if (sf >= 10) { sf = sf - 10; sc++; }
+        if (sc >= 60) { sc = 59; sf = 9; }
+        if (mn >= 60) { mn = 59; }
+        if (which == :lat) {
+            latMin = mn; latSec = sc; latSecFrac = sf;
+        } else {
+            lonMin = mn; lonSec = sc; lonSecFrac = sf;
+        }
+    }
+
     function onUpdate(dc as Graphics.Dc) as Void {
         var w   = dc.getWidth();
         var h   = dc.getHeight();
@@ -54,7 +131,7 @@ class WaypointEditView extends WatchUi.View {
         // GPS-фикс справочно
         var posInfo = Position.getInfo();
         var gpsStr  = "";
-        if (posInfo.position == null) {
+        if (posInfo == null || posInfo.position == null) {
             gpsStr = "GPS: --";
         } else {
             var coords = (posInfo.position as Position.Location).toDegrees();
@@ -75,29 +152,45 @@ class WaypointEditView extends WatchUi.View {
             rus ? "Широта" : "Latitude",
             Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
 
-        // Lat row: signField=0, degDigits 2 (start=1), fracDigits 4 (start=3)
-        _drawRow(dc, cx, cy - s(18), latSign, latDeg, latFrac, 90,
-                 ["N", "S"] as Array<String>, 0, 1, 2, 3, 4);
+        if (!modeDMS) {
+            _drawRow(dc, cx, cy - s(18), latSign, latDeg, latFrac, 90,
+                     ["N", "S"] as Array<String>, 0, 1, 2, 3, 4);
 
-        dc.setColor(Graphics.COLOR_LT_GRAY, Graphics.COLOR_TRANSPARENT);
-        dc.drawText(cx, cy + s(22), Graphics.FONT_XTINY,
-            rus ? "Долгота" : "Longitude",
+            dc.setColor(Graphics.COLOR_LT_GRAY, Graphics.COLOR_TRANSPARENT);
+            dc.drawText(cx, cy + s(22), Graphics.FONT_XTINY,
+                rus ? "Долгота" : "Longitude",
+                Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
+
+            _drawRow(dc, cx, cy + s(42), lonSign, lonDeg, lonFrac, 180,
+                     ["E", "W"] as Array<String>, 7, 8, 3, 11, 4);
+        } else {
+            _drawRowDMS(dc, cx, cy - s(18), latSign, latDeg, latMin, latSec, latSecFrac,
+                        ["N", "S"] as Array<String>, 0, 1, 3, 5, 7);
+
+            dc.setColor(Graphics.COLOR_LT_GRAY, Graphics.COLOR_TRANSPARENT);
+            dc.drawText(cx, cy + s(22), Graphics.FONT_XTINY,
+                rus ? "Долгота" : "Longitude",
+                Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
+
+            _drawRowDMS(dc, cx, cy + s(42), lonSign, lonDeg, lonMin, lonSec, lonSecFrac,
+                        ["E", "W"] as Array<String>, 8, 9, 12, 14, 16);
+        }
+
+        // Метка формата — на 10 пикселей ниже строки долготы
+        dc.setColor(Graphics.COLOR_DK_GRAY, Graphics.COLOR_TRANSPARENT);
+        dc.drawText(cx, cy + s(42) + 30, Graphics.FONT_XTINY,
+            modeDMS ? "DD°MM'SS.s\"" : "DD.DDDD°",
             Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
 
-        // Lon row: signField=7, degDigits 3 (start=8), fracDigits 4 (start=11)
-        _drawRow(dc, cx, cy + s(42), lonSign, lonDeg, lonFrac, 180,
-                 ["E", "W"] as Array<String>, 7, 8, 3, 11, 4);
-
         // Стрелка под активной строкой
-        var arrowY = (field < 7) ? cy : cy + s(60);
+        var latFieldMax = modeDMS ? 7 : 6;
+        var arrowY = (field <= latFieldMax) ? cy : cy + s(60);
         dc.setColor(Graphics.COLOR_YELLOW, Graphics.COLOR_TRANSPARENT);
         dc.drawText(cx, arrowY, Graphics.FONT_XTINY, "^",
             Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
     }
 
-    // signField — field-индекс знака;
-    // degStartField, degDigits — стартовый field-индекс и кол-во цифр градусов;
-    // fracStartField, fracDigits — аналогично для дробной части.
+    // DD.DDDD строка
     private function _drawRow(dc as Graphics.Dc, cx as Number, rowY as Number,
                                signVal as Number, deg as Number, frac as Number,
                                maxDeg as Number, posLabels as Array<String>,
@@ -110,35 +203,108 @@ class WaypointEditView extends WatchUi.View {
         var degStr  = deg.format(degFmt);
         var fracStr = frac.format("%04d");
 
-        // Считаем общую ширину для центрирования
         var wSign = dc.getTextWidthInPixels(signStr + " ", font);
         var wDeg  = dc.getTextWidthInPixels(degStr, font);
         var wDot  = dc.getTextWidthInPixels(".", font);
         var wFrac = dc.getTextWidthInPixels(fracStr, font);
         var xPos  = cx - (wSign + wDeg + wDot + wFrac) / 2;
 
-        // Знак (целиком, одно поле)
         dc.setColor((field == signField) ? Graphics.COLOR_YELLOW : Graphics.COLOR_WHITE,
                     Graphics.COLOR_TRANSPARENT);
         dc.drawText(xPos, rowY, font, signStr + " ",
                     Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
         xPos += wSign;
 
-        // Градусы — по одной цифре, каждая своим цветом
         xPos = _drawDigits(dc, xPos, rowY, font, degStr, degStartField);
 
-        // Точка
         dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
         dc.drawText(xPos, rowY, font, ".",
                     Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
         xPos += wDot;
 
-        // Дробная часть — по одной цифре
         _drawDigits(dc, xPos, rowY, font, fracStr, fracStartField);
     }
 
-    // Рисует строку цифр по одной, активную (field == startField + i) — жёлтым.
-    // Возвращает новую X-координату после строки.
+    // DD°MM'SS.s" N строка (знак справа)
+    // signFld — field знака; degFld, minFld, secFld, sfFld — стартовые field цифр
+    private function _drawRowDMS(dc as Graphics.Dc, cx as Number, rowY as Number,
+                                  signVal as Number, deg as Number,
+                                  mn as Number, sc as Number, sf as Number,
+                                  posLabels as Array<String>,
+                                  signFld as Number, degFld as Number,
+                                  minFld as Number, secFld as Number,
+                                  sfFld as Number) as Void {
+        var font    = Graphics.FONT_SMALL;
+        var signStr = (signVal > 0) ? posLabels[0] : posLabels[1];
+        var degDigits = (signFld == 8) ? 3 : 2;  // lon → 3 цифры
+        var degFmt  = (degDigits == 3) ? "%03d" : "%02d";
+        var degStr  = deg.format(degFmt);
+        var minStr  = mn.format("%02d");
+        var secStr  = sc.format("%02d");
+        var sfStr   = sf.format("%1d");
+
+        var sep1 = "°";
+        var sep2 = "'";
+        var sep3 = ".";
+        var sep4 = "\"";
+
+        var wSign = dc.getTextWidthInPixels(" " + signStr, font);
+        var wDeg  = dc.getTextWidthInPixels(degStr, font);
+        var wS1   = dc.getTextWidthInPixels(sep1, font);
+        var wMin  = dc.getTextWidthInPixels(minStr, font);
+        var wS2   = dc.getTextWidthInPixels(sep2, font);
+        var wSec  = dc.getTextWidthInPixels(secStr, font);
+        var wS3   = dc.getTextWidthInPixels(sep3, font);
+        var wSf   = dc.getTextWidthInPixels(sfStr, font);
+        var wS4   = dc.getTextWidthInPixels(sep4, font);
+
+        // Формат: DD°MM'SS.s" N
+        var total = wDeg + wS1 + wMin + wS2 + wSec + wS3 + wSf + wS4 + wSign;
+        var xPos  = cx - total / 2;
+
+        // Градусы
+        xPos = _drawDigits(dc, xPos, rowY, font, degStr, degFld);
+
+        // °
+        dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
+        dc.drawText(xPos, rowY, font, sep1,
+                    Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
+        xPos += wS1;
+
+        // Минуты
+        xPos = _drawDigits(dc, xPos, rowY, font, minStr, minFld);
+
+        // '
+        dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
+        dc.drawText(xPos, rowY, font, sep2,
+                    Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
+        xPos += wS2;
+
+        // Секунды
+        xPos = _drawDigits(dc, xPos, rowY, font, secStr, secFld);
+
+        // .
+        dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
+        dc.drawText(xPos, rowY, font, sep3,
+                    Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
+        xPos += wS3;
+
+        // Десятые секунды
+        xPos = _drawDigits(dc, xPos, rowY, font, sfStr, sfFld);
+
+        // "
+        dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
+        dc.drawText(xPos, rowY, font, sep4,
+                    Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
+        xPos += wS4;
+
+        // Знак справа
+        dc.setColor((field == signFld) ? Graphics.COLOR_YELLOW : Graphics.COLOR_WHITE,
+                    Graphics.COLOR_TRANSPARENT);
+        dc.drawText(xPos, rowY, font, " " + signStr,
+                    Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
+    }
+
     private function _drawDigits(dc as Graphics.Dc, x as Number, y as Number,
                                   font as Graphics.FontType, str as String,
                                   startField as Number) as Number {
@@ -157,26 +323,58 @@ class WaypointEditView extends WatchUi.View {
 }
 
 class WaypointEditDelegate extends NoTouchDelegate {
-    private var mView as WaypointEditView;
+    private var mView       as WaypointEditView;
+    private var mDownCount  as Number = 0;
+    private var mLastDownMs as Number = 0;
+
+    // Симулятор держит DOWN → повторные onNextPage() каждые ~200ms.
+    // После 4 подряд в течение 250ms (≈750ms удержание) → переключить формат.
+    private static const HOLD_INTERVAL as Number = 250;
+    private static const HOLD_COUNT    as Number = 4;
 
     function initialize(view as WaypointEditView) {
         NoTouchDelegate.initialize();
         mView = view;
     }
 
-    function onPreviousPage() as Boolean {  // UP → +1
+    function onPreviousPage() as Boolean {
+        mDownCount  = 0;
+        mLastDownMs = 0;
         _adjust(1);
         return true;
     }
 
-    function onNextPage() as Boolean {  // DOWN → -1
-        _adjust(-1);
+    function onNextPage() as Boolean {
+        var now = System.getTimer();
+        if (now - mLastDownMs < HOLD_INTERVAL) {
+            mDownCount++;
+            if (mDownCount >= HOLD_COUNT) {
+                mDownCount  = 0;
+                mLastDownMs = 0;
+                mView.toggleMode();
+                return true;
+            }
+        } else {
+            mDownCount = 0;
+            _adjust(-1);
+        }
+        mLastDownMs = now;
+        return true;
+    }
+
+    // Реальное устройство: длинное нажатие DOWN
+    function onNextPageHold() as Boolean {
+        mDownCount  = 0;
+        mLastDownMs = 0;
+        mView.toggleMode();
         return true;
     }
 
     function onSelect() as Boolean {
+        var maxField = mView.modeDMS ? WaypointEditView.FIELD_MAX_DMS
+                                     : WaypointEditView.FIELD_MAX_DD;
         mView.field++;
-        if (mView.field > WaypointEditView.FIELD_MAX) {
+        if (mView.field > maxField) {
             _save();
         } else {
             WatchUi.requestUpdate();
@@ -185,7 +383,12 @@ class WaypointEditDelegate extends NoTouchDelegate {
     }
 
     function onBack() as Boolean {
-        WatchUi.popView(WatchUi.SLIDE_DOWN);
+        if (mView.field > 0) {
+            mView.field--;
+            WatchUi.requestUpdate();
+        } else {
+            WatchUi.popView(WatchUi.SLIDE_DOWN);
+        }
         return true;
     }
 
@@ -197,29 +400,60 @@ class WaypointEditDelegate extends NoTouchDelegate {
     private function _adjust(delta as Number) as Void {
         var v = mView;
         var f = v.field;
-        if (f == 0) { v.latSign = -v.latSign; }
-        else if (f >= 1 && f <= 2) {
-            // latDeg, цифра pos = f-1 (всего 2)
-            v.latDeg = _adjustDigit(v.latDeg, f - 1, 2, delta, 90);
-        }
-        else if (f >= 3 && f <= 6) {
-            // latFrac, цифра pos = f-3 (всего 4)
-            v.latFrac = _adjustDigit(v.latFrac, f - 3, 4, delta, 9999);
-        }
-        else if (f == 7) { v.lonSign = -v.lonSign; }
-        else if (f >= 8 && f <= 10) {
-            // lonDeg, цифра pos = f-8 (всего 3)
-            v.lonDeg = _adjustDigit(v.lonDeg, f - 8, 3, delta, 180);
-        }
-        else if (f >= 11 && f <= 14) {
-            // lonFrac, цифра pos = f-11 (всего 4)
-            v.lonFrac = _adjustDigit(v.lonFrac, f - 11, 4, delta, 9999);
+        if (!v.modeDMS) {
+            _adjustDD(v, f, delta);
+        } else {
+            _adjustDMS(v, f, delta);
         }
         WatchUi.requestUpdate();
     }
 
-    // Меняет в value цифру в позиции pos (0 — самая левая) на delta,
-    // циклически 0..9. После замены клэмпит результат в [0, max].
+    private function _adjustDD(v as WaypointEditView, f as Number, delta as Number) as Void {
+        if (f == 0) { v.latSign = -v.latSign; }
+        else if (f >= 1 && f <= 2) {
+            v.latDeg = _adjustDigit(v.latDeg, f - 1, 2, delta, 90);
+        }
+        else if (f >= 3 && f <= 6) {
+            v.latFrac = _adjustDigit(v.latFrac, f - 3, 4, delta, 9999);
+        }
+        else if (f == 7) { v.lonSign = -v.lonSign; }
+        else if (f >= 8 && f <= 10) {
+            v.lonDeg = _adjustDigit(v.lonDeg, f - 8, 3, delta, 180);
+        }
+        else if (f >= 11 && f <= 14) {
+            v.lonFrac = _adjustDigit(v.lonFrac, f - 11, 4, delta, 9999);
+        }
+    }
+
+    private function _adjustDMS(v as WaypointEditView, f as Number, delta as Number) as Void {
+        if (f == 0) { v.latSign = -v.latSign; }
+        else if (f >= 1 && f <= 2) {
+            v.latDeg = _adjustDigit(v.latDeg, f - 1, 2, delta, 90);
+        }
+        else if (f >= 3 && f <= 4) {
+            v.latMin = _adjustDigit(v.latMin, f - 3, 2, delta, 59);
+        }
+        else if (f >= 5 && f <= 6) {
+            v.latSec = _adjustDigit(v.latSec, f - 5, 2, delta, 59);
+        }
+        else if (f == 7) {
+            v.latSecFrac = _adjustDigit(v.latSecFrac, 0, 1, delta, 9);
+        }
+        else if (f == 8) { v.lonSign = -v.lonSign; }
+        else if (f >= 9 && f <= 11) {
+            v.lonDeg = _adjustDigit(v.lonDeg, f - 9, 3, delta, 180);
+        }
+        else if (f >= 12 && f <= 13) {
+            v.lonMin = _adjustDigit(v.lonMin, f - 12, 2, delta, 59);
+        }
+        else if (f >= 14 && f <= 15) {
+            v.lonSec = _adjustDigit(v.lonSec, f - 14, 2, delta, 59);
+        }
+        else if (f == 16) {
+            v.lonSecFrac = _adjustDigit(v.lonSecFrac, 0, 1, delta, 9);
+        }
+    }
+
     private function _adjustDigit(value as Number, pos as Number, totalLen as Number,
                                    delta as Number, max as Number) as Number {
         var power = 1;
@@ -235,9 +469,16 @@ class WaypointEditDelegate extends NoTouchDelegate {
 
     private function _save() as Void {
         var v   = mView;
-        var lat = v.latSign.toDouble() * (v.latDeg.toDouble() + v.latFrac.toDouble() / 10000.0d);
-        var lon = v.lonSign.toDouble() * (v.lonDeg.toDouble() + v.lonFrac.toDouble() / 10000.0d);
-        // Переходим к экрану подтверждения вместо немедленного сохранения
+        var lat = v.modeDMS
+            ? v.latSign.toDouble() * (v.latDeg.toDouble()
+                  + v.latMin.toDouble() / 60.0d
+                  + (v.latSec.toDouble() + v.latSecFrac.toDouble() / 10.0d) / 3600.0d)
+            : v.latSign.toDouble() * (v.latDeg.toDouble() + v.latFrac.toDouble() / 10000.0d);
+        var lon = v.modeDMS
+            ? v.lonSign.toDouble() * (v.lonDeg.toDouble()
+                  + v.lonMin.toDouble() / 60.0d
+                  + (v.lonSec.toDouble() + v.lonSecFrac.toDouble() / 10.0d) / 3600.0d)
+            : v.lonSign.toDouble() * (v.lonDeg.toDouble() + v.lonFrac.toDouble() / 10000.0d);
         var confirmView = new WaypointConfirmView(lat, lon);
         WatchUi.pushView(confirmView, new WaypointConfirmDelegate(confirmView), WatchUi.SLIDE_LEFT);
     }

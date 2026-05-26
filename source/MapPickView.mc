@@ -94,13 +94,9 @@ class MapPickView extends WatchUi.MapView {
     }
 
     function onShow() as Void {
-        var app = Application.getApp() as TactixApp;
-        app.requestGpsForWaypoint();
     }
 
     function onHide() as Void {
-        var app = Application.getApp() as TactixApp;
-        app.releaseGpsForWaypoint();
     }
 
     function onUpdate(dc as Graphics.Dc) as Void {

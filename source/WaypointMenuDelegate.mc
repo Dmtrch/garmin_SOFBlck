@@ -26,8 +26,6 @@ function pushWaypointMenu() as Void {
 class WaypointMenuDelegate extends WatchUi.Menu2InputDelegate {
     function initialize() {
         Menu2InputDelegate.initialize();
-        var app = Application.getApp() as TactixApp;
-        app.requestGpsForWaypoint();
     }
 
     function onSelect(item as WatchUi.MenuItem) as Void {
@@ -36,7 +34,9 @@ class WaypointMenuDelegate extends WatchUi.Menu2InputDelegate {
 
         if (id == :current) {
             var posInfo = Position.getInfo();
-            if (posInfo.position == null || posInfo.accuracy < Position.QUALITY_POOR) {
+            if (posInfo == null || posInfo.position == null
+                || posInfo.accuracy == null
+                || posInfo.accuracy < Position.QUALITY_POOR) {
                 var msg = rus ? "Нет фикса GPS" : "No GPS fix";
                 WatchUi.pushView(new _NavMsgView(msg), new _NavMsgDelegate(), WatchUi.SLIDE_UP);
                 return;
@@ -48,7 +48,6 @@ class WaypointMenuDelegate extends WatchUi.Menu2InputDelegate {
                 WatchUi.pushView(new _NavMsgView(msg), new _NavMsgDelegate(), WatchUi.SLIDE_UP);
                 return;
             }
-            // pop WaypointMenu → открыть редактор имени (выход из него вернёт в NavMenu)
             WatchUi.popView(WatchUi.SLIDE_RIGHT);
             pushNameEdit(newIdx);
             return;
@@ -61,7 +60,9 @@ class WaypointMenuDelegate extends WatchUi.Menu2InputDelegate {
 
         if (id == :map) {
             var posInfo = Position.getInfo();
-            if (posInfo.position == null || posInfo.accuracy < Position.QUALITY_POOR) {
+            if (posInfo == null || posInfo.position == null
+                || posInfo.accuracy == null
+                || posInfo.accuracy < Position.QUALITY_POOR) {
                 var msg = rus ? "Нет фикса GPS" : "No GPS fix";
                 WatchUi.pushView(new _NavMsgView(msg), new _NavMsgDelegate(), WatchUi.SLIDE_UP);
                 return;
@@ -86,8 +87,6 @@ class WaypointMenuDelegate extends WatchUi.Menu2InputDelegate {
     }
 
     function onBack() as Void {
-        var app = Application.getApp() as TactixApp;
-        app.releaseGpsForWaypoint();
         WatchUi.popView(WatchUi.SLIDE_RIGHT);
     }
 

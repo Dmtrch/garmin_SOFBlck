@@ -26,6 +26,7 @@ class HelpContent {
         if (screenId == :waypointName)   { return _waypointName(rus); }
         if (screenId == :waypointManage)  { return _waypointManage(rus); }
         if (screenId == :waypointConfirm) { return _waypointConfirm(rus); }
+        if (screenId == :mapPick)          { return _mapPick(rus); }
         return _unknown(rus);
     }
 
@@ -88,6 +89,7 @@ class HelpContent {
             :lines => [
                 [rus ? "ВВЕРХ x2"   : "UP x2",     rus ? "будильники"           : "alarms list"],
                 [rus ? "ВНИЗ x2"    : "DOWN x2",   rus ? "таймер"               : "timer"],
+                [rus ? "ПУСК"       : "START",     rus ? "GPS вкл/выкл"         : "GPS on/off"],
                 [rus ? "ПУСК x2"    : "START x2",  rus ? "секундомер"           : "stopwatch list"],
                 [rus ? "НАЗАД"      : "BACK",      rus ? "эко-экран (сенсоры паузой)" : "eco screen (sensors paused)"],
                 [rus ? "НАЗАД x2"   : "BACK x2",   rus ? "меню навигации"       : "navigation menu"],
@@ -187,11 +189,10 @@ class HelpContent {
         return {
             :title => rus ? "Список меток" : "Waypoint list",
             :lines => [
-                [rus ? "ВВЕРХ/ВНИЗ"  : "UP/DOWN",  rus ? "прокрутка"                       : "scroll"],
-                [rus ? "ПУСК"         : "START",    rus ? "выбрать / удалить"               : "toggle / delete"],
-                [rus ? "ПУСК долго"   : "START hold",rus ? "пуск пеленга (выбранные)"               : "start bearing (selected)"],
-                [rus ? "НАЗАД"        : "BACK",     rus ? "выход"                                   : "exit"],
-                [rus ? "ВВЕРХ долго"  : "UP hold",  rus ? "эта справка"                     : "this help"]
+                [rus ? "ВВЕРХ/ВНИЗ"  : "UP/DOWN",  rus ? "прокрутка"                              : "scroll"],
+                [rus ? "ПУСК"         : "START",    rus ? "выбрать (пеленг) / удалить"             : "toggle (bearing) / delete"],
+                [rus ? "НАЗАД"        : "BACK",     rus ? "пуск пеленга по выбранным / выход"      : "start bearing on selected / exit"],
+                [rus ? "ВВЕРХ долго"  : "UP hold",  rus ? "эта справка"                            : "this help"]
             ] as Array
         } as Dictionary;
     }
@@ -200,11 +201,12 @@ class HelpContent {
         return {
             :title => rus ? "Ввод координат" : "Coord entry",
             :lines => [
-                [rus ? "ВВЕРХ"       : "UP",     rus ? "+1 цифра (0-9 цикл)" : "+1 digit (0-9 cycle)"],
-                [rus ? "ВНИЗ"        : "DOWN",   rus ? "-1 цифра (0-9 цикл)" : "-1 digit (0-9 cycle)"],
-                [rus ? "ПУСК"        : "START",  rus ? "след. цифра / подтв." : "next digit / confirm"],
-                [rus ? "НАЗАД"       : "BACK",   rus ? "пред. цифра / выход" : "prev digit / exit"],
-                [rus ? "ВВЕРХ долго" : "UP hold",rus ? "эта справка"         : "this help"]
+                [rus ? "ВВЕРХ"        : "UP",         rus ? "+1 цифра (0-9 цикл)"       : "+1 digit (0-9 cycle)"],
+                [rus ? "ВНИЗ"         : "DOWN",        rus ? "-1 цифра (0-9 цикл)"       : "-1 digit (0-9 cycle)"],
+                [rus ? "ПУСК"         : "START",      rus ? "след. цифра / подтв."              : "next digit / confirm"],
+                [rus ? "НАЗАД"        : "BACK",       rus ? "пред. цифра / выход"               : "prev digit / exit"],
+                [rus ? "ВНИЗ долго"   : "DOWN hold",  rus ? "сменить формат DD°MM'SS.s/DD.DDDD" : "toggle DD°MM'SS.s/DD.DDDD"],
+                [rus ? "ВВЕРХ долго"  : "UP hold",    rus ? "эта справка"                       : "this help"]
             ] as Array
         } as Dictionary;
     }
@@ -216,6 +218,20 @@ class HelpContent {
                 [rus ? "ПУСК"        : "START",   rus ? "ввести имя и сохранить" : "name and save"],
                 [rus ? "НАЗАД"       : "BACK",    rus ? "вернуться к редактору"  : "back to editor"],
                 [rus ? "ВВЕРХ долго" : "UP hold", rus ? "эта справка"            : "this help"]
+            ] as Array
+        } as Dictionary;
+    }
+
+    private static function _mapPick(rus as Boolean) as Dictionary {
+        return {
+            :title => rus ? "Выбор на карте" : "Map pick",
+            :lines => [
+                [rus ? "Перетаскивание" : "Drag",       rus ? "перемещение карты"         : "pan map"],
+                [rus ? "ВВЕРХ / ВНИЗ"  : "UP / DOWN",   rus ? "шаг по оси / изм. зум"     : "step on axis / change zoom"],
+                [rus ? "ПУСК"          : "START",       rus ? "сохранить метку"            : "save waypoint"],
+                [rus ? "ПУСК долго"    : "START hold",  rus ? "смена режима: шир/долг/зум" : "cycle mode: lat/lon/zoom"],
+                [rus ? "ВВЕРХ долго"   : "UP hold",     rus ? "эта справка"                : "this help"],
+                [rus ? "НАЗАД"         : "BACK",        rus ? "выход"                      : "exit"]
             ] as Array
         } as Dictionary;
     }

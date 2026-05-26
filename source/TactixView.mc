@@ -78,6 +78,13 @@ class TactixView extends WatchUi.View {
         drawCenterStopwatch(dc, cx, cy);
         drawCompass(dc, cx, cy);
         drawBearing(dc, cx, cy);
+
+        var app = Application.getApp() as TactixApp;
+        if (app.gpsActive) {
+            dc.setColor(Graphics.COLOR_GREEN, Graphics.COLOR_TRANSPARENT);
+            dc.drawText(cx, cy, Graphics.FONT_XTINY, "GPS",
+                        Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
+        }
     }
 
     private function drawCenterStopwatch(dc as Dc, cx as Number, cy as Number) as Void {
@@ -123,6 +130,16 @@ class TactixView extends WatchUi.View {
         }
 
         if (!app.compassActive || app.compassHeading == null) { return; }
+
+        // Защита от "залипшего" магнитометра: если новых callback'ов не было
+        // дольше 3 секунд (нормальная частота 1 Гц по enableSensorEvents),
+        // heading считается устаревшим — стрелки не рисуем, показываем индикатор ожидания.
+        if (System.getTimer() - app.compassHeadingMs > 3000) {
+            dc.setColor(Graphics.COLOR_YELLOW, Graphics.COLOR_TRANSPARENT);
+            dc.drawText(cx, cy - s(70), Graphics.FONT_XTINY, "MAG...",
+                        Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
+            return;
+        }
 
         var heading = app.compassHeading as Float;
         var northAngle = -heading;
@@ -177,11 +194,16 @@ class TactixView extends WatchUi.View {
             return;
         }
 
-        // Магнитометр включается автоматически при startBearing(), поэтому
-        // heading доступен независимо от состояния отображения компаса.
-        var headingOffset = (app.compassHeading != null)
-            ? (app.compassHeading as Float)
-            : 0.0f;
+        // Без свежего heading стрелки указывали бы географический пеленг,
+        // игнорируя ориентацию часов — пользователь получил бы ложное направление.
+        if (app.compassHeading == null || System.getTimer() - app.compassHeadingMs > 3000) {
+            dc.setColor(Graphics.COLOR_YELLOW, Graphics.COLOR_TRANSPARENT);
+            dc.drawText(cx, cy - s(85), Graphics.FONT_XTINY, "MAG...",
+                        Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
+            return;
+        }
+
+        var headingOffset = app.compassHeading as Float;
 
         var rTip  = s(125).toFloat();
         var len   = s(20).toFloat();

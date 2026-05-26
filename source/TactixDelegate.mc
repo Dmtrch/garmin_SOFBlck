@@ -13,6 +13,7 @@ class TactixDelegate extends NoTouchDelegate {
     private var mLastDownMs   as Number       = 0;
     private var mLastStartMs  as Number       = 0;
     private var mBackTimer    as Timer.Timer? = null;
+    private var mStartTimer   as Timer.Timer? = null;
 
     function initialize() {
         NoTouchDelegate.initialize();
@@ -75,12 +76,30 @@ class TactixDelegate extends NoTouchDelegate {
         var now = System.getTimer();
         if (now - mLastStartMs <= DOUBLE_PRESS_MS) {
             mLastStartMs = 0;
+            _cancelStartTimer();
             WatchUi.pushView(new StopwatchListView(), new StopwatchListDelegate(),
                              WatchUi.SLIDE_LEFT);
         } else {
             mLastStartMs = now;
+            _cancelStartTimer();
+            mStartTimer = new Timer.Timer();
+            mStartTimer.start(method(:onSingleStart), DOUBLE_PRESS_MS + 50, false);
         }
         return true;
+    }
+
+    function onSingleStart() as Void {
+        mStartTimer  = null;
+        mLastStartMs = 0;
+        (Application.getApp() as TactixApp).toggleGps();
+        WatchUi.requestUpdate();
+    }
+
+    private function _cancelStartTimer() as Void {
+        if (mStartTimer != null) {
+            mStartTimer.stop();
+            mStartTimer = null;
+        }
     }
 
     function onMenu() as Boolean {
