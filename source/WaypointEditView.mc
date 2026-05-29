@@ -2,6 +2,7 @@ import Toybox.Graphics;
 import Toybox.Lang;
 import Toybox.Position;
 import Toybox.System;
+import Toybox.Timer;
 import Toybox.WatchUi;
 
 function pushWaypointEdit() as Void {
@@ -9,29 +10,29 @@ function pushWaypointEdit() as Void {
     WatchUi.pushView(view, new WaypointEditDelegate(view), WatchUi.SLIDE_LEFT);
 }
 
-// === Режим DD.DDDD (field 0..14) ===
+// === Режим DD.DDDDD (field 0..16) ===
 //   0       — latSign
 //   1..2    — latDeg  (2 цифры, 0..90)
-//   3..6    — latFrac (4 цифры, 0..9999)
-//   7       — lonSign
-//   8..10   — lonDeg  (3 цифры, 0..180)
-//   11..14  — lonFrac (4 цифры, 0..9999)
+//   3..7    — latFrac (5 цифр, 0..99999)
+//   8       — lonSign
+//   9..11   — lonDeg  (3 цифры, 0..180)
+//   12..16  — lonFrac (5 цифр, 0..99999)
 //
-// === Режим DD°MM'SS.s (field 0..16) ===
+// === Режим DD°MM'SS.ss (field 0..18) ===
 //   0       — latSign
 //   1..2    — latDeg    (2 цифры, 0..90)
 //   3..4    — latMin    (2 цифры, 0..59)
 //   5..6    — latSec    (2 цифры, 0..59)
-//   7       — latSecFrac(1 цифра, 0..9)
-//   8       — lonSign
-//   9..11   — lonDeg    (3 цифры, 0..180)
-//   12..13  — lonMin    (2 цифры, 0..59)
-//   14..15  — lonSec    (2 цифры, 0..59)
-//   16      — lonSecFrac(1 цифра, 0..9)
+//   7..8    — latSecFrac(2 цифры, 0..99)
+//   9       — lonSign
+//   10..12  — lonDeg    (3 цифры, 0..180)
+//   13..14  — lonMin    (2 цифры, 0..59)
+//   15..16  — lonSec    (2 цифры, 0..59)
+//   17..18  — lonSecFrac(2 цифры, 0..99)
 
 class WaypointEditView extends WatchUi.View {
-    static const FIELD_MAX_DD  as Number = 14;
-    static const FIELD_MAX_DMS as Number = 16;
+    static const FIELD_MAX_DD  as Number = 16;
+    static const FIELD_MAX_DMS as Number = 18;
 
     var modeDMS as Boolean = false;
 
@@ -39,7 +40,7 @@ class WaypointEditView extends WatchUi.View {
     var field   as Number = 0;
     var latSign as Number = 1;   // +1 = N, -1 = S
     var latDeg  as Number = 0;   // 0..90
-    var latFrac as Number = 0;   // 0..9999
+    var latFrac as Number = 0;   // 0..99999
     var lonSign as Number = 1;   // +1 = E, -1 = W
     var lonDeg  as Number = 0;   // 0..180
     var lonFrac as Number = 0;
@@ -47,10 +48,10 @@ class WaypointEditView extends WatchUi.View {
     // DD°MM'SS.s
     var latMin     as Number = 0;  // 0..59
     var latSec     as Number = 0;  // 0..59
-    var latSecFrac as Number = 0;  // 0..9
+    var latSecFrac as Number = 0;  // 0..99
     var lonMin     as Number = 0;
     var lonSec     as Number = 0;
-    var lonSecFrac as Number = 0;
+    var lonSecFrac as Number = 0; // 0..99
 
     private var mScale as Float = 1.0f;
 
@@ -70,34 +71,34 @@ class WaypointEditView extends WatchUi.View {
     function toggleMode() as Void {
         if (!modeDMS) {
             // DD.DDDD → DD°MM'SS.s
-            var f = latFrac.toDouble() / 10000.0d;
+            var f = latFrac.toDouble() / 100000.0d;
             var mTotal = f * 60.0d;
             latMin = mTotal.toNumber();
             var sTotal = (mTotal - latMin.toDouble()) * 60.0d;
             latSec = sTotal.toNumber();
-            latSecFrac = ((sTotal - latSec.toDouble()) * 10.0d + 0.5d).toNumber();
+            latSecFrac = ((sTotal - latSec.toDouble()) * 100.0d + 0.5d).toNumber();
             _normalizeDMS(latMin, latSec, latSecFrac, :lat);
 
-            f = lonFrac.toDouble() / 10000.0d;
+            f = lonFrac.toDouble() / 100000.0d;
             mTotal = f * 60.0d;
             lonMin = mTotal.toNumber();
             sTotal = (mTotal - lonMin.toDouble()) * 60.0d;
             lonSec = sTotal.toNumber();
-            lonSecFrac = ((sTotal - lonSec.toDouble()) * 10.0d + 0.5d).toNumber();
+            lonSecFrac = ((sTotal - lonSec.toDouble()) * 100.0d + 0.5d).toNumber();
             _normalizeDMS(lonMin, lonSec, lonSecFrac, :lon);
 
             modeDMS = true;
         } else {
             // DD°MM'SS.s → DD.DDDD
             var decLat = latMin.toDouble() / 60.0d +
-                         (latSec.toDouble() + latSecFrac.toDouble() / 10.0d) / 3600.0d;
-            latFrac = (decLat * 10000.0d + 0.5d).toNumber();
-            if (latFrac > 9999) { latFrac = 9999; }
+                         (latSec.toDouble() + latSecFrac.toDouble() / 100.0d) / 3600.0d;
+            latFrac = (decLat * 100000.0d + 0.5d).toNumber();
+            if (latFrac > 99999) { latFrac = 99999; }
 
             var decLon = lonMin.toDouble() / 60.0d +
-                         (lonSec.toDouble() + lonSecFrac.toDouble() / 10.0d) / 3600.0d;
-            lonFrac = (decLon * 10000.0d + 0.5d).toNumber();
-            if (lonFrac > 9999) { lonFrac = 9999; }
+                         (lonSec.toDouble() + lonSecFrac.toDouble() / 100.0d) / 3600.0d;
+            lonFrac = (decLon * 100000.0d + 0.5d).toNumber();
+            if (lonFrac > 99999) { lonFrac = 99999; }
 
             modeDMS = false;
         }
@@ -108,7 +109,7 @@ class WaypointEditView extends WatchUi.View {
     // Нормализует переполнение: secFrac≥10 → sec++, sec≥60 → min++
     private function _normalizeDMS(mn as Number, sc as Number, sf as Number,
                                     which as Symbol) as Void {
-        if (sf >= 10) { sf = sf - 10; sc++; }
+        if (sf >= 100) { sf = sf - 100; sc++; }
         if (sc >= 60) { sc = 59; sf = 9; }
         if (mn >= 60) { mn = 59; }
         if (which == :lat) {
@@ -135,8 +136,8 @@ class WaypointEditView extends WatchUi.View {
             gpsStr = "GPS: --";
         } else {
             var coords = (posInfo.position as Position.Location).toDegrees();
-            gpsStr = "GPS: " + (coords[0] as Double).format("%.4f") + "  " +
-                     (coords[1] as Double).format("%.4f");
+            gpsStr = "GPS: " + (coords[0] as Double).format("%.5f") + "  " +
+                     (coords[1] as Double).format("%.5f");
         }
         dc.setColor(Graphics.COLOR_LT_GRAY, Graphics.COLOR_TRANSPARENT);
         dc.drawText(cx, cy - s(80), Graphics.FONT_XTINY, gpsStr,
@@ -154,7 +155,7 @@ class WaypointEditView extends WatchUi.View {
 
         if (!modeDMS) {
             _drawRow(dc, cx, cy - s(18), latSign, latDeg, latFrac, 90,
-                     ["N", "S"] as Array<String>, 0, 1, 2, 3, 4);
+                     ["N", "S"] as Array<String>, 0, 1, 2, 3, 5);
 
             dc.setColor(Graphics.COLOR_LT_GRAY, Graphics.COLOR_TRANSPARENT);
             dc.drawText(cx, cy + s(22), Graphics.FONT_XTINY,
@@ -162,7 +163,7 @@ class WaypointEditView extends WatchUi.View {
                 Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
 
             _drawRow(dc, cx, cy + s(42), lonSign, lonDeg, lonFrac, 180,
-                     ["E", "W"] as Array<String>, 7, 8, 3, 11, 4);
+                     ["E", "W"] as Array<String>, 8, 9, 3, 12, 5);
         } else {
             _drawRowDMS(dc, cx, cy - s(18), latSign, latDeg, latMin, latSec, latSecFrac,
                         ["N", "S"] as Array<String>, 0, 1, 3, 5, 7);
@@ -173,17 +174,17 @@ class WaypointEditView extends WatchUi.View {
                 Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
 
             _drawRowDMS(dc, cx, cy + s(42), lonSign, lonDeg, lonMin, lonSec, lonSecFrac,
-                        ["E", "W"] as Array<String>, 8, 9, 12, 14, 16);
+                        ["E", "W"] as Array<String>, 9, 10, 13, 15, 17);
         }
 
         // Метка формата — на 10 пикселей ниже строки долготы
         dc.setColor(Graphics.COLOR_DK_GRAY, Graphics.COLOR_TRANSPARENT);
         dc.drawText(cx, cy + s(42) + 30, Graphics.FONT_XTINY,
-            modeDMS ? "DD°MM'SS.s\"" : "DD.DDDD°",
+            modeDMS ? "DD°MM'SS.ss\"" : "DD.DDDDD°",
             Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
 
         // Стрелка под активной строкой
-        var latFieldMax = modeDMS ? 7 : 6;
+        var latFieldMax = modeDMS ? 8 : 7;
         var arrowY = (field <= latFieldMax) ? cy : cy + s(60);
         dc.setColor(Graphics.COLOR_YELLOW, Graphics.COLOR_TRANSPARENT);
         dc.drawText(cx, arrowY, Graphics.FONT_XTINY, "^",
@@ -201,7 +202,7 @@ class WaypointEditView extends WatchUi.View {
         var signStr = (signVal > 0) ? posLabels[0] : posLabels[1];
         var degFmt  = (degDigits == 3) ? "%03d" : "%02d";
         var degStr  = deg.format(degFmt);
-        var fracStr = frac.format("%04d");
+        var fracStr = frac.format("%05d");
 
         var wSign = dc.getTextWidthInPixels(signStr + " ", font);
         var wDeg  = dc.getTextWidthInPixels(degStr, font);
@@ -236,12 +237,12 @@ class WaypointEditView extends WatchUi.View {
                                   sfFld as Number) as Void {
         var font    = Graphics.FONT_SMALL;
         var signStr = (signVal > 0) ? posLabels[0] : posLabels[1];
-        var degDigits = (signFld == 8) ? 3 : 2;  // lon → 3 цифры
+        var degDigits = (signFld == 9) ? 3 : 2;  // lon → 3 цифры
         var degFmt  = (degDigits == 3) ? "%03d" : "%02d";
         var degStr  = deg.format(degFmt);
         var minStr  = mn.format("%02d");
         var secStr  = sc.format("%02d");
-        var sfStr   = sf.format("%1d");
+        var sfStr   = sf.format("%02d");
 
         var sep1 = "°";
         var sep2 = "'";
@@ -323,14 +324,9 @@ class WaypointEditView extends WatchUi.View {
 }
 
 class WaypointEditDelegate extends NoTouchDelegate {
-    private var mView       as WaypointEditView;
-    private var mDownCount  as Number = 0;
-    private var mLastDownMs as Number = 0;
-
-    // Симулятор держит DOWN → повторные onNextPage() каждые ~200ms.
-    // После 4 подряд в течение 250ms (≈750ms удержание) → переключить формат.
-    private static const HOLD_INTERVAL as Number = 250;
-    private static const HOLD_COUNT    as Number = 4;
+    private var mView        as WaypointEditView;
+    private var mLastNextMs  as Number       = 0;
+    private var mNextTimer   as Timer.Timer? = null;
 
     function initialize(view as WaypointEditView) {
         NoTouchDelegate.initialize();
@@ -338,36 +334,30 @@ class WaypointEditDelegate extends NoTouchDelegate {
     }
 
     function onPreviousPage() as Boolean {
-        mDownCount  = 0;
-        mLastDownMs = 0;
         _adjust(1);
         return true;
     }
 
     function onNextPage() as Boolean {
         var now = System.getTimer();
-        if (now - mLastDownMs < HOLD_INTERVAL) {
-            mDownCount++;
-            if (mDownCount >= HOLD_COUNT) {
-                mDownCount  = 0;
-                mLastDownMs = 0;
-                mView.toggleMode();
-                return true;
-            }
+        if (mLastNextMs > 0 && now - mLastNextMs < 400) {
+            // двойное нажатие — переключить формат
+            if (mNextTimer != null) { mNextTimer.stop(); mNextTimer = null; }
+            mLastNextMs = 0;
+            mView.toggleMode();
         } else {
-            mDownCount = 0;
-            _adjust(-1);
+            // первое нажатие — ждём второго
+            mLastNextMs = now;
+            mNextTimer = new Timer.Timer();
+            mNextTimer.start(method(:_onNextSingle), 400, false);
         }
-        mLastDownMs = now;
         return true;
     }
 
-    // Реальное устройство: длинное нажатие DOWN
-    function onNextPageHold() as Boolean {
-        mDownCount  = 0;
-        mLastDownMs = 0;
-        mView.toggleMode();
-        return true;
+    function _onNextSingle() as Void {
+        mNextTimer  = null;
+        mLastNextMs = 0;
+        _adjust(-1);
     }
 
     function onSelect() as Boolean {
@@ -413,15 +403,15 @@ class WaypointEditDelegate extends NoTouchDelegate {
         else if (f >= 1 && f <= 2) {
             v.latDeg = _adjustDigit(v.latDeg, f - 1, 2, delta, 90);
         }
-        else if (f >= 3 && f <= 6) {
-            v.latFrac = _adjustDigit(v.latFrac, f - 3, 4, delta, 9999);
+        else if (f >= 3 && f <= 7) {
+            v.latFrac = _adjustDigit(v.latFrac, f - 3, 5, delta, 99999);
         }
-        else if (f == 7) { v.lonSign = -v.lonSign; }
-        else if (f >= 8 && f <= 10) {
-            v.lonDeg = _adjustDigit(v.lonDeg, f - 8, 3, delta, 180);
+        else if (f == 8) { v.lonSign = -v.lonSign; }
+        else if (f >= 9 && f <= 11) {
+            v.lonDeg = _adjustDigit(v.lonDeg, f - 9, 3, delta, 180);
         }
-        else if (f >= 11 && f <= 14) {
-            v.lonFrac = _adjustDigit(v.lonFrac, f - 11, 4, delta, 9999);
+        else if (f >= 12 && f <= 16) {
+            v.lonFrac = _adjustDigit(v.lonFrac, f - 12, 5, delta, 99999);
         }
     }
 
@@ -436,21 +426,21 @@ class WaypointEditDelegate extends NoTouchDelegate {
         else if (f >= 5 && f <= 6) {
             v.latSec = _adjustDigit(v.latSec, f - 5, 2, delta, 59);
         }
-        else if (f == 7) {
-            v.latSecFrac = _adjustDigit(v.latSecFrac, 0, 1, delta, 9);
+        else if (f >= 7 && f <= 8) {
+            v.latSecFrac = _adjustDigit(v.latSecFrac, f - 7, 2, delta, 99);
         }
-        else if (f == 8) { v.lonSign = -v.lonSign; }
-        else if (f >= 9 && f <= 11) {
-            v.lonDeg = _adjustDigit(v.lonDeg, f - 9, 3, delta, 180);
+        else if (f == 9) { v.lonSign = -v.lonSign; }
+        else if (f >= 10 && f <= 12) {
+            v.lonDeg = _adjustDigit(v.lonDeg, f - 10, 3, delta, 180);
         }
-        else if (f >= 12 && f <= 13) {
-            v.lonMin = _adjustDigit(v.lonMin, f - 12, 2, delta, 59);
+        else if (f >= 13 && f <= 14) {
+            v.lonMin = _adjustDigit(v.lonMin, f - 13, 2, delta, 59);
         }
-        else if (f >= 14 && f <= 15) {
-            v.lonSec = _adjustDigit(v.lonSec, f - 14, 2, delta, 59);
+        else if (f >= 15 && f <= 16) {
+            v.lonSec = _adjustDigit(v.lonSec, f - 15, 2, delta, 59);
         }
-        else if (f == 16) {
-            v.lonSecFrac = _adjustDigit(v.lonSecFrac, 0, 1, delta, 9);
+        else if (f >= 17 && f <= 18) {
+            v.lonSecFrac = _adjustDigit(v.lonSecFrac, f - 17, 2, delta, 99);
         }
     }
 
@@ -472,13 +462,13 @@ class WaypointEditDelegate extends NoTouchDelegate {
         var lat = v.modeDMS
             ? v.latSign.toDouble() * (v.latDeg.toDouble()
                   + v.latMin.toDouble() / 60.0d
-                  + (v.latSec.toDouble() + v.latSecFrac.toDouble() / 10.0d) / 3600.0d)
-            : v.latSign.toDouble() * (v.latDeg.toDouble() + v.latFrac.toDouble() / 10000.0d);
+                  + (v.latSec.toDouble() + v.latSecFrac.toDouble() / 100.0d) / 3600.0d)
+            : v.latSign.toDouble() * (v.latDeg.toDouble() + v.latFrac.toDouble() / 100000.0d);
         var lon = v.modeDMS
             ? v.lonSign.toDouble() * (v.lonDeg.toDouble()
                   + v.lonMin.toDouble() / 60.0d
-                  + (v.lonSec.toDouble() + v.lonSecFrac.toDouble() / 10.0d) / 3600.0d)
-            : v.lonSign.toDouble() * (v.lonDeg.toDouble() + v.lonFrac.toDouble() / 10000.0d);
+                  + (v.lonSec.toDouble() + v.lonSecFrac.toDouble() / 100.0d) / 3600.0d)
+            : v.lonSign.toDouble() * (v.lonDeg.toDouble() + v.lonFrac.toDouble() / 100000.0d);
         var confirmView = new WaypointConfirmView(lat, lon);
         WatchUi.pushView(confirmView, new WaypointConfirmDelegate(confirmView), WatchUi.SLIDE_LEFT);
     }

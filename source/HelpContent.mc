@@ -206,7 +206,7 @@ class HelpContent {
                 [rus ? "ВНИЗ"         : "DOWN",        rus ? "-1 цифра (0-9 цикл)"       : "-1 digit (0-9 cycle)"],
                 [rus ? "ПУСК"         : "START",      rus ? "след. цифра / подтв."              : "next digit / confirm"],
                 [rus ? "НАЗАД"        : "BACK",       rus ? "пред. цифра / выход"               : "prev digit / exit"],
-                [rus ? "ВНИЗ долго"   : "DOWN hold",  rus ? "сменить формат DD°MM'SS.s/DD.DDDD" : "toggle DD°MM'SS.s/DD.DDDD"],
+                [rus ? "ВНИЗ дважды"  : "DOWN ×2",    rus ? "сменить формат DD°MM'SS.ss/DD.DDDDD" : "toggle DD°MM'SS.ss/DD.DDDDD"],
                 [rus ? "ВВЕРХ долго"  : "UP hold",    rus ? "эта справка"                       : "this help"]
             ] as Array
         } as Dictionary;
