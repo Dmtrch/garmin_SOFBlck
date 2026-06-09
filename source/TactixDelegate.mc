@@ -14,6 +14,8 @@ class TactixDelegate extends NoTouchDelegate {
     private var mLastStartMs  as Number       = 0;
     private var mBackTimer    as Timer.Timer? = null;
     private var mStartTimer   as Timer.Timer? = null;
+    private var mUpTimer      as Timer.Timer? = null;
+    private var mDownTimer    as Timer.Timer? = null;
 
     function initialize() {
         NoTouchDelegate.initialize();
@@ -23,12 +25,29 @@ class TactixDelegate extends NoTouchDelegate {
         var now = System.getTimer();
         if (now - mLastUpMs <= DOUBLE_PRESS_MS) {
             mLastUpMs = 0;
+            _cancelUpTimer();
             var lv = new AlarmListView();
             WatchUi.pushView(lv, new AlarmListDelegate(lv), WatchUi.SLIDE_UP);
         } else {
             mLastUpMs = now;
+            _cancelUpTimer();
+            mUpTimer = new Timer.Timer();
+            mUpTimer.start(method(:onSingleUp), DOUBLE_PRESS_MS + 50, false);
         }
         return true;
+    }
+
+    function onSingleUp() as Void {
+        mUpTimer  = null;
+        mLastUpMs = 0;
+        (Application.getApp() as TactixApp).accentPrev();
+    }
+
+    private function _cancelUpTimer() as Void {
+        if (mUpTimer != null) {
+            mUpTimer.stop();
+            mUpTimer = null;
+        }
     }
 
     function onBack() as Boolean {
@@ -49,7 +68,13 @@ class TactixDelegate extends NoTouchDelegate {
     function onSingleBack() as Void {
         mBackTimer  = null;
         mLastBackMs = 0;
-        (Application.getApp() as TactixApp).suspendSensors();
+        var app = Application.getApp() as TactixApp;
+        // Режим акцента активен → одиночный BACK гасит акцент, не уходя на эко-экран.
+        if (app.accentIndex >= 0) {
+            app.accentOff();
+            return;
+        }
+        app.suspendSensors();
         WatchUi.popView(WatchUi.SLIDE_RIGHT);
     }
 
@@ -64,12 +89,29 @@ class TactixDelegate extends NoTouchDelegate {
         var now = System.getTimer();
         if (now - mLastDownMs <= DOUBLE_PRESS_MS) {
             mLastDownMs = 0;
+            _cancelDownTimer();
             var view = new TimerView();
             WatchUi.pushView(view, new TimerDelegate(view), WatchUi.SLIDE_LEFT);
         } else {
             mLastDownMs = now;
+            _cancelDownTimer();
+            mDownTimer = new Timer.Timer();
+            mDownTimer.start(method(:onSingleDown), DOUBLE_PRESS_MS + 50, false);
         }
         return true;
+    }
+
+    function onSingleDown() as Void {
+        mDownTimer  = null;
+        mLastDownMs = 0;
+        (Application.getApp() as TactixApp).accentNext();
+    }
+
+    private function _cancelDownTimer() as Void {
+        if (mDownTimer != null) {
+            mDownTimer.stop();
+            mDownTimer = null;
+        }
     }
 
     function onSelect() as Boolean {

@@ -30,6 +30,12 @@ class TactixView extends WatchUi.View {
     private var mSegSpc as Number = 4;  // inter-character spacing
     private var mSegCol as Number = 10; // colon/space advance
 
+    // --- Accent mode: отложенная отрисовка выбранного показателя (рисуется последним) ---
+    private var mAccentPending as Boolean        = false;
+    private var mAccentText    as String         = "";
+    private var mAccentAngle   as Number         = 0;
+    private var mAccentFont    as FontDefinition  = Graphics.FONT_XTINY;
+
     function initialize() {
         View.initialize();
     }
@@ -412,35 +418,59 @@ class TactixView extends WatchUi.View {
         var font = Graphics.FONT_XTINY;
         var R    = s(119);
 
+        var app = Application.getApp() as TactixApp;
+        mAccentPending = false; // сбрасываем перед сбором 12 меток
+
         var stats   = System.getSystemStats();
         var actInfo = ActivityMonitor.getInfo();
 
+        // idx 0 — остаток заряда, дней
         if (stats.batteryInDays != null) {
-            placeText(dc, cx, cy, R, 14, stats.batteryInDays.format("%d") + "d", font);
+            placeMetric(dc, cx, cy, R, 14, stats.batteryInDays.format("%d") + "d", font, 0, app);
         }
 
-        var hrHist = ActivityMonitor.getHeartRateHistory(1, true);
-        if (hrHist != null) {
-            var hrSample = hrHist.next();
-            if (hrSample != null && hrSample.heartRate != ActivityMonitor.INVALID_HR_SAMPLE) {
-                placeText(dc, cx, cy, R, 45, hrSample.heartRate.format("%d"), font);
+        // idx 1 — пульс: live из Sensor (когда выбран), иначе история
+        var hrText = null;
+        if (app.currentHr != null) {
+            hrText = app.currentHr.format("%d");
+        } else {
+            var hrHist = ActivityMonitor.getHeartRateHistory(1, true);
+            if (hrHist != null) {
+                var hrSample = hrHist.next();
+                if (hrSample != null && hrSample.heartRate != ActivityMonitor.INVALID_HR_SAMPLE) {
+                    hrText = hrSample.heartRate.format("%d");
+                }
             }
         }
-
-        var altIter = SensorHistory.getElevationHistory({:period => 1});
-        if (altIter != null) {
-            var s2 = altIter.next();
-            if (s2 != null && s2.data != null) {
-                placeText(dc, cx, cy, R, 78, s2.data.format("%d") + "m", font);
-            }
+        if (hrText != null) {
+            placeMetric(dc, cx, cy, R, 45, hrText, font, 1, app);
         }
 
-        placeText(dc, cx, cy, R, 108, getSunEventText(), font);
+        // idx 2 — высота: live из Sensor, fallback на историю
+        var altText = null;
+        if (app.currentAltitude != null) {
+            altText = app.currentAltitude.format("%d") + "m";
+        } else {
+            var altIter = SensorHistory.getElevationHistory({:period => 1});
+            if (altIter != null) {
+                var s2 = altIter.next();
+                if (s2 != null && s2.data != null) {
+                    altText = s2.data.format("%d") + "m";
+                }
+            }
+        }
+        if (altText != null) {
+            placeMetric(dc, cx, cy, R, 78, altText, font, 2, app);
+        }
 
+        // idx 3 — восход/закат
+        placeMetric(dc, cx, cy, R, 108, getSunEventText(), font, 3, app);
+
+        // idx 4 — температура
         if (Toybox has :Weather) {
             var cond = Toybox.Weather.getCurrentConditions();
             if (cond != null && cond.temperature != null) {
-                placeText(dc, cx, cy, R, 132, cond.temperature.format("%d") + "°", font);
+                placeMetric(dc, cx, cy, R, 132, cond.temperature.format("%d") + "°", font, 4, app);
             }
         }
 
@@ -454,32 +484,73 @@ class TactixView extends WatchUi.View {
             ? ["Янв","Фев","Мар","Апр","Май","Июн","Июл","Авг","Сен","Окт","Ноя","Дек"]
             : ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 
-        // Icon-ring labels above the date cells
+        // Icon-ring labels above the date cells (не показатели — без акцента)
         var Ri = s(98);
         placeText(dc, cx, cy, Ri - 3, 157, rus ? "Н" : "W", font);
         placeText(dc, cx, cy, Ri - 3, 180, rus ? "Д" : "D", font);
         placeText(dc, cx, cy, Ri - 3, 203, rus ? "М" : "M", font);
 
-        placeText(dc, cx, cy, R, 157, DOW[(info.day_of_week as Number) - 1], font);
-        placeText(dc, cx, cy, R, 180, (info.day as Number).format("%d"), font);
-        placeText(dc, cx, cy, R, 203, MON[(info.month as Number) - 1], font);
+        // idx 5/6/7 — день недели / число / месяц
+        placeMetric(dc, cx, cy, R, 157, DOW[(info.day_of_week as Number) - 1], font, 5, app);
+        placeMetric(dc, cx, cy, R, 180, (info.day as Number).format("%d"), font, 6, app);
+        placeMetric(dc, cx, cy, R, 203, MON[(info.month as Number) - 1], font, 7, app);
 
-        var pressIter = SensorHistory.getPressureHistory({:period => 1});
-        if (pressIter != null) {
-            var s2 = pressIter.next();
-            if (s2 != null && s2.data != null) {
-                placeText(dc, cx, cy, R, 234, (s2.data / 100.0).toNumber().format("%d"), font);
+        // idx 8 — давление: live из Sensor (sea-level, Па), fallback на историю (ambient)
+        var prsText = null;
+        if (app.currentPressure != null) {
+            prsText = (app.currentPressure / 100.0).toNumber().format("%d");
+        } else {
+            var pressIter = SensorHistory.getPressureHistory({:period => 1});
+            if (pressIter != null) {
+                var s2 = pressIter.next();
+                if (s2 != null && s2.data != null) {
+                    prsText = (s2.data / 100.0).toNumber().format("%d");
+                }
             }
         }
+        if (prsText != null) {
+            placeMetric(dc, cx, cy, R, 234, prsText, font, 8, app);
+        }
 
+        // idx 9/10 — калории / шаги
         if (actInfo != null && actInfo.calories != null) {
-            placeText(dc, cx, cy, R, 270, actInfo.calories.format("%d"), font);
+            placeMetric(dc, cx, cy, R, 270, actInfo.calories.format("%d"), font, 9, app);
         }
         if (actInfo != null && actInfo.steps != null) {
-            placeText(dc, cx, cy, R, 306, actInfo.steps.format("%d"), font);
+            placeMetric(dc, cx, cy, R, 306, actInfo.steps.format("%d"), font, 10, app);
         }
 
-        placeText(dc, cx, cy, R, 346, stats.battery.format("%d") + "%", font);
+        // idx 11 — заряд, %
+        placeMetric(dc, cx, cy, R, 346, stats.battery.format("%d") + "%", font, 11, app);
+
+        // Акцентированный показатель — рисуем ПОСЛЕДНИМ, чтобы чёрная подложка
+        // легла поверх соседних меток.
+        if (mAccentPending) {
+            drawAccentText(dc, cx, cy, mAccentAngle, mAccentText, mAccentFont);
+        }
+    }
+
+    // Размещает обычную метку, либо (если её idx совпал с accentIndex) откладывает
+    // её на отрисовку крупным шрифтом. Частотный кэш троттлит обновление крупного
+    // значения по периоду показателя (app.accentPeriods[idx]).
+    private function placeMetric(dc as Dc, cx as Number, cy as Number, r as Number,
+                                 angleDeg as Number, text as String,
+                                 font as FontDefinition, idx as Number,
+                                 app as TactixApp) as Void {
+        if (idx != app.accentIndex) {
+            placeText(dc, cx, cy, r, angleDeg, text, font);
+            return;
+        }
+        var now = System.getTimer();
+        if (app.accentValueStr == null
+            || now - app.accentValueTs >= app.accentPeriods[idx]) {
+            app.accentValueStr = text;
+            app.accentValueTs  = now;
+        }
+        mAccentText    = app.accentValueStr;
+        mAccentAngle   = angleDeg;
+        mAccentFont    = font;
+        mAccentPending = true;
     }
 
     private function placeText(dc as Dc, cx as Number, cy as Number, r as Number,
@@ -515,6 +586,53 @@ class TactixView extends WatchUi.View {
         var t = new Graphics.AffineTransform();
         t.translate(tx, ty);
         t.rotate(rotAngle);
+        t.translate(-cxB, -cyB);
+
+        dc.drawBitmap2(0, 0, bmp, {:transform => t});
+    }
+
+    // Акцентированный показатель: шрифт ×2 (через AffineTransform.scale),
+    // чёрная непрозрачная подложка по размеру текста (перекрывает соседей),
+    // сдвиг к центру на радиус R_accent, ориентация по кругу (как обычные метки).
+    private function drawAccentText(dc as Dc, cx as Number, cy as Number,
+                                    angleDeg as Number, text as String,
+                                    font as FontDefinition) as Void {
+        var scale    = 2.0f;
+        var rAccent  = s(90);
+        var angleRad = angleDeg.toFloat() * Math.PI.toFloat() / 180.0f;
+        var sinA = Math.sin(angleRad).toFloat();
+        var cosA = Math.cos(angleRad).toFloat();
+        var tx = cx.toFloat() + rAccent.toFloat() * sinA;
+        var ty = cy.toFloat() - rAccent.toFloat() * cosA;
+
+        var textW = dc.getTextWidthInPixels(text, font);
+        var textH = Graphics.getFontHeight(font);
+        var pad   = 3;
+        var bmpW  = textW + pad * 2;
+        var bmpH  = textH + pad * 2;
+
+        var bmpRef = Graphics.createBufferedBitmap({:width => bmpW, :height => bmpH});
+        if (bmpRef == null) { return; }
+        var bmp = bmpRef.get() as Graphics.BufferedBitmap;
+        if (bmp == null) { return; }
+
+        var bmpDc = bmp.getDc();
+        // Непрозрачная чёрная подложка по размеру значения.
+        bmpDc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_BLACK);
+        bmpDc.clear();
+        bmpDc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
+        bmpDc.drawText(pad, pad, font, text, Graphics.TEXT_JUSTIFY_LEFT);
+
+        var rotAngle = (angleDeg > 90 && angleDeg < 270)
+            ? angleRad + Math.PI.toFloat()
+            : angleRad;
+
+        var cxB = (bmpW / 2.0f).toFloat();
+        var cyB = (bmpH / 2.0f).toFloat();
+        var t = new Graphics.AffineTransform();
+        t.translate(tx, ty);
+        t.rotate(rotAngle);
+        t.scale(scale, scale);   // увеличение ×2 вокруг центра буфера
         t.translate(-cxB, -cyB);
 
         dc.drawBitmap2(0, 0, bmp, {:transform => t});

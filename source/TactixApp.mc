@@ -59,6 +59,18 @@ class TactixApp extends Application.AppBase {
     var gpsQuality             as Number         = Position.QUALITY_NOT_AVAILABLE;
     var hasPositionFix         as Boolean        = false;
 
+    // --- Accent mode state ---
+    var accentIndex   as Number  = -1;    // -1 = режим выключен, иначе 0..11
+    var accentValueStr as String? = null; // кэш отображаемого значения акцента
+    var accentValueTs  as Number  = 0;    // System.getTimer() последней фиксации
+    // Период перечитывания значения (мс) по индексу показателя (см. план)
+    var accentPeriods as Array<Number> =
+        [300000,1000,5000,300000,300000,300000,300000,300000,5000,30000,5000,300000] as Array<Number>;
+    // Live-значения датчиков (только пока выбран соответствующий idx)
+    var currentHr       as Number? = null;
+    var currentAltitude as Float?  = null;
+    var currentPressure as Float?  = null;
+
     function initialize() {
         AppBase.initialize();
     }
@@ -71,7 +83,9 @@ class TactixApp extends Application.AppBase {
     function onStop(state as Dictionary?) as Void {
         _saveStopwatch();
         _saveTimer();
+        _resetAccentState();
         Position.enableLocationEvents(Position.LOCATION_DISABLE, null);
+        Sensor.disableSensorType(Sensor.SENSOR_HEARTRATE);
         Sensor.enableSensorEvents(null);
     }
 
@@ -403,46 +417,89 @@ class TactixApp extends Application.AppBase {
         return getTimerRemainingMsAt(tmSelectedIdx);
     }
 
+    // ====== Accent mode ======
+
+    function accentNext() as Void {
+        accentIndex = (accentIndex < 0) ? 0 : (accentIndex + 1) % 12;
+        _clearAccentCache();
+        _syncSensors();
+        WatchUi.requestUpdate();
+    }
+
+    function accentPrev() as Void {
+        accentIndex = (accentIndex < 0) ? 11 : (accentIndex + 11) % 12;
+        _clearAccentCache();
+        _syncSensors();
+        WatchUi.requestUpdate();
+    }
+
+    function accentOff() as Void {
+        _resetAccentState();
+        _syncSensors();
+        WatchUi.requestUpdate();
+    }
+
+    // Сброс частотного кэша и live-значений при смене показателя.
+    private function _clearAccentCache() as Void {
+        accentValueStr  = null;
+        accentValueTs   = 0;
+        currentHr       = null;
+        currentAltitude = null;
+        currentPressure = null;
+    }
+
+    // Полный выход из режима акцента.
+    private function _resetAccentState() as Void {
+        accentIndex = -1;
+        _clearAccentCache();
+    }
+
     // ====== Compass ======
 
     function toggleCompass() as Void {
         if (compassActive || compassError) {
             compassActive = false;
             compassError  = false;
-            _releaseMagnetometer();
+            _syncSensors();
             return;
         }
         compassActive  = true;
         compassError   = false;
-        _ensureMagnetometer();
+        _syncSensors();
     }
 
-    function onCompassSensor(info as Sensor.Info) as Void {
-        if (!compassActive && !bearingActive) { return; }
-        if (info.heading != null) {
-            compassHeading   = info.heading;
-            compassHeadingMs = System.getTimer();
-            compassError     = false;
-        } else {
-            // Магнитометр прогревается ~2 секунды после включения —
-            // в это время null heading нормально, ошибку не показываем.
-            if (System.getTimer() - mSensorWarmupMs < 2000) {
-                WatchUi.requestUpdate();
-                return;
+    // Единый колбэк сенсоров (heading для компаса/пеленга + live HR/высота/давление
+    // для режима акцента). Один enableSensorEvents на приложение → один диспетчер.
+    function onSensor(info as Sensor.Info) as Void {
+        // --- Heading (компас / пеленг) ---
+        if (compassActive || bearingActive) {
+            if (info.heading != null) {
+                compassHeading   = info.heading;
+                compassHeadingMs = System.getTimer();
+                compassError     = false;
+            } else if (System.getTimer() - mSensorWarmupMs >= 2000) {
+                // Прогрев магнитометра ~2 с — до этого null heading нормально.
+                if (compassActive) {
+                    compassActive = false;
+                    compassError  = true;
+                    if (mCompassErrTimer == null) { mCompassErrTimer = new Timer.Timer(); }
+                    mCompassErrTimer.start(method(:onCompassErrorClear), 2000, false);
+                }
+                compassHeading = null;
+                // Подписка больше не нужна для heading — пересобираем набор
+                // (останется включённой, если её держит акцент-датчик).
+                _syncSensors();
             }
-            // heading недоступен — если показан компас, сообщаем пользователю.
-            if (compassActive) {
-                compassActive = false;
-                compassError  = true;
-                if (mCompassErrTimer == null) { mCompassErrTimer = new Timer.Timer(); }
-                mCompassErrTimer.start(method(:onCompassErrorClear), 2000, false);
-            }
-            compassHeading = null;
-            // Пока активен пеленг, сенсор оставляем включённым —
-            // ждём следующего вызова с валидным heading.
-            if (!bearingActive) {
-                Sensor.enableSensorEvents(null);
-            }
+        }
+        // --- Live-датчики режима акцента ---
+        if (accentIndex == 1 && info.heartRate != null) {
+            currentHr = info.heartRate;
+        }
+        if (accentIndex == 2 && info.altitude != null) {
+            currentAltitude = info.altitude;
+        }
+        if (accentIndex == 8 && info.pressure != null) {
+            currentPressure = info.pressure;
         }
         WatchUi.requestUpdate();
     }
@@ -474,7 +531,7 @@ class TactixApp extends Application.AppBase {
         _seedBearingFromCurrentFix();
         // Магнитометр должен работать всегда, когда активен пеленг —
         // без heading стрелка не вращается при повороте часов.
-        _ensureMagnetometer();
+        _syncSensors();
         WatchUi.requestUpdate();
     }
 
@@ -508,7 +565,7 @@ class TactixApp extends Application.AppBase {
         bearingDistancesM = [] as Array<Float>;
         bearingDirectionsRad = [] as Array<Float>;
         // Если компас не показан пользователем — магнитометр гасим.
-        _releaseMagnetometer();
+        _syncSensors();
         WatchUi.requestUpdate();
     }
 
@@ -548,8 +605,11 @@ class TactixApp extends Application.AppBase {
         WatchUi.requestUpdate();
     }
 
-    // Заглушить сенсоры при уходе на эко-экран (флаги сохраняются).
+    // Заглушить сенсоры при уходе на эко-экран (флаги компаса/пеленга сохраняются,
+    // режим акцента сбрасывается полностью).
     function suspendSensors() as Void {
+        _resetAccentState();
+        Sensor.disableSensorType(Sensor.SENSOR_HEARTRATE);
         if (compassActive || bearingActive) {
             Sensor.enableSensorEvents(null);
             compassHeading   = null;
@@ -559,26 +619,37 @@ class TactixApp extends Application.AppBase {
 
     // Восстановить сенсоры при возврате на главный экран.
     function resumeSensors() as Void {
-        _ensureMagnetometer();
+        _syncSensors();
     }
 
-    // Включить магнитометр, если нужен (показан компас или активен пеленг).
-    private function _ensureMagnetometer() as Void {
-        if (compassActive || bearingActive) {
-            mSensorWarmupMs = System.getTimer();
-            Sensor.enableSensorEvents(method(:onCompassSensor));
+    // Единый диспетчер подписки на сенсоры. Пересобирает набор по текущему
+    // состоянию (компас/пеленг + выбранный показатель акцента).
+    // heading/altitude/pressure — positional/onboard, приходят в Info без явного
+    // включения; heartRate включается точечно через enable/disableSensorType,
+    // чтобы не перезаписать набор и не сбить heading.
+    private function _syncSensors() as Void {
+        var needHeading = compassActive || bearingActive;
+        var needHr      = (accentIndex == 1);
+        var needAny     = needHeading || needHr
+                          || (accentIndex == 2) || (accentIndex == 8);
+
+        if (needHr) {
+            Sensor.enableSensorType(Sensor.SENSOR_HEARTRATE);
+        } else {
+            Sensor.disableSensorType(Sensor.SENSOR_HEARTRATE);
         }
-    }
 
-    // Выключить магнитометр, если он больше никому не нужен.
-    private function _releaseMagnetometer() as Void {
-        if (compassActive || bearingActive) { return; }
-        Sensor.enableSensorEvents(null);
-        compassHeading   = null;
-        compassHeadingMs = 0;
-        if (mCompassErrTimer != null) {
-            mCompassErrTimer.stop();
-            mCompassErrTimer = null;
+        if (needAny) {
+            mSensorWarmupMs = System.getTimer();
+            Sensor.enableSensorEvents(method(:onSensor));
+        } else {
+            Sensor.enableSensorEvents(null);
+            compassHeading   = null;
+            compassHeadingMs = 0;
+            if (mCompassErrTimer != null) {
+                mCompassErrTimer.stop();
+                mCompassErrTimer = null;
+            }
         }
     }
 
